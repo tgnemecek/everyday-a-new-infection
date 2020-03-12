@@ -106,10 +106,34 @@ class Enemy {
 class Projectile {
     constructor(originX, originY, enemy) {
         this.jquery = new $(`<div>P</div>`);
+        this.style = {
+            top: originY,
+            left: originX
+        }
+        this.enemy = enemy;
+        this.moveSpeed = 0.05;
         this.setup();
+    }
+    moveToTarget() {
+        let currX = convertFromPx(this.jquery.css('left'));
+        let currY = convertFromPx(this.jquery.css('top'));
+        let enX = convertFromPx($(this.enemy.jquery).css('left'));
+        let enY = convertFromPx($(this.enemy.jquery).css('top'));
+        let distance = distanceTo(currX, currY, enX, enY);
+        let duration = distance / this.moveSpeed;
+        this.jquery.animate({
+            left: enX,
+            top: enY
+        }, {
+            duration,
+            easing: "linear",
+            complete: () => console.log('done!')
+        })
     }
     setup() {
         this.jquery.addClass('projectile');
+        this.jquery.css(this.style);
+        this.moveToTarget();
     }
 }
 
@@ -117,28 +141,34 @@ class Tower {
     constructor() {
         this.jquery = new $(`<div>T</div>`);
         console.log(this.jquery);
-        this.attackSpeed = 0.2;
+        this.attackSpeed = 200;
         this.range = 100;
+        this.canAttack = true;
         this.setup();
     }
     setup() {
         this.jquery.addClass('tower');
     }
-    shoot() {
-
-    }
     update() {
-        gameState.enemies.forEach((enemy) => {
-            let enX = convertFromPx($(enemy.jquery).css('left'));
-            let enY = convertFromPx($(enemy.jquery).css('top'));
-            let x = convertFromPx(this.jquery.css('left'));
-            let y = convertFromPx(this.jquery.css('top'));
-            let distance = distanceTo(x, y, enX, enY);
-            if (distance < this.range) {
-                this.shoot()
-            }
-            
-        })
+        if (this.canAttack) {
+            gameState.enemies.forEach((enemy) => {
+                let enX = convertFromPx($(enemy.jquery).css('left'));
+                let enY = convertFromPx($(enemy.jquery).css('top'));
+                let x = convertFromPx(this.jquery.css('left'));
+                let y = convertFromPx(this.jquery.css('top'));
+                let distance = distanceTo(x, y, enX, enY);
+                if (distance < this.range) {
+                    let projectile = new Projectile(x, y, enemy);
+                    game.append(projectile.jquery);
+                    gameState.projectiles.push(projectile);
+                    this.canAttack = false;
+                    setTimeout(() => {
+                        this.canAttack = true;
+                    }, this.attackSpeed)
+                }
+
+            })
+        }
     }
 }
 
@@ -172,7 +202,7 @@ function start() {
     gameState.modifyHp(100);
     gameState.modifyMoney(300);
     setupNodes();
-    enemySpawner(10);
+    enemySpawner(1);
     update(60)
 }
 

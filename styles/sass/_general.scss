@@ -50,7 +50,7 @@
 .node {
     width: 50px;
     height: 50px;
-    background-color: grey;
+    border: 1px solid grey;
     position: absolute;
 }
 
@@ -59,6 +59,10 @@
     position: absolute;
     top: 0;
     left: 0;
+}
+
+.projectile {
+    z-index: 2;
 }
 
 .enemy {
