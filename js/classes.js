@@ -80,6 +80,12 @@ class TowerPicker {
         this.button = new $('<button>Base Tower</button>');
         this.chooseTower = chooseTower;
         this.parentPos = parentPos;
+        this.towers = [
+            {
+                name: "Base Tower",
+                cost: 100
+            }
+        ]
         this.setup();
     }
     update() {
@@ -90,7 +96,9 @@ class TowerPicker {
     setup() {
         this.jquery.addClass('tower-picker');
         this.jquery.css({...this.parentPos});
-        this.jquery.append(this.button);
+        this.towers.forEach((tower) => {
+            this.jquery.append(this.button);
+        })
         this.button.on('click', () => this.chooseTower())
     }
 }
