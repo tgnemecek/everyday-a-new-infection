@@ -61,6 +61,78 @@ class Enemy {
     }
 }
 
+class Overlay {
+    constructor(props) {
+        this.jquery = new $('<div></div>');
+        this.props = props;
+        this.setup();
+    }
+    setup() {
+        this.jquery.addClass('overlay');
+        this.jquery.on('click', () => this.props.closeOverlay());
+        this.jquery.append(this.props.children.jquery);
+    }
+}
+
+class TowerPicker {
+    constructor(chooseTower, parentPos) {
+        this.jquery = new $('<div><h2>Build a Tower</h2></div>');
+        this.button = new $('<button>Base Tower</button>');
+        this.chooseTower = chooseTower;
+        this.parentPos = parentPos;
+        this.setup();
+    }
+    update() {
+        setInterval(() => {
+
+        }, fps)
+    }
+    setup() {
+        this.jquery.addClass('tower-picker');
+        this.jquery.css({...this.parentPos});
+        this.jquery.append(this.button);
+        this.button.on('click', () => this.chooseTower())
+    }
+}
+
+
+class Node {
+    constructor(position) {
+        this.jquery = new $('<div><div>');
+        this.style = {...position};
+        this.hasTower = false;
+        this.overlay = undefined;
+        this.setup();
+    }
+    closeOverlay() {
+        this.overlay.jquery.remove();
+        this.overlay = undefined;
+    }
+    chooseTower() {
+        let tower = new Tower(this.jquery);
+        this.jquery.append(tower.jquery);
+        gameState.towers.push(tower);
+        this.hasTower = true;
+    }
+    setup() {
+        game.append(this.jquery);
+        this.jquery.addClass('node');
+        this.jquery.css(this.style);
+        this.jquery.on('click', () => {
+            if (!this.overlay && !this.hasTower) {
+                this.overlay = new Overlay({
+                    closeOverlay: this.closeOverlay.bind(this),
+                    children: new TowerPicker(
+                        this.chooseTower.bind(this),
+                        this.jquery.position()
+                    )
+                });
+                game.append(this.overlay.jquery)
+            }
+        })
+    }
+}
+
 class Projectile {
     constructor(initPosition, enemy) {
         this.id = new Date().getTime();
@@ -133,8 +205,10 @@ class Tower {
         this.setup();
     }
     setup() {
-        this.node.append(this.jquery);
         this.jquery.addClass('tower');
+        setInterval(() => {
+            this.update();
+        }, fps)
     }
     update() {
         if (this.canAttack) {

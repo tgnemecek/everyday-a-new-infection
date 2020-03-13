@@ -10,6 +10,36 @@
     /* overflow: hidden; */
 }
 
+.overlay {
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    background-color: rgba(38, 38, 38, 0.808);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2;
+}
+
+.tower-picker {
+    width: 200px;
+    height: 200px;
+    background-color: red;
+    border-radius: 50%;
+    position: absolute;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    button {
+        height: 50px;
+        margin: 5px;
+    }
+}
+
 .path {
     width: 25px;
     height: 25px;
