@@ -11,37 +11,31 @@
 }
 
 .path {
-    div {
-        width: 25px;
-        height: 25px;
-        background-color: green;
-        position: absolute;
-    }
-    div:nth-child(1) {
-        top: -10%;
+    width: 25px;
+    height: 25px;
+    background-color: green;
+    position: absolute;
+    &--a {
+        top: -15%;
         left: 80%;
     }
-    div:nth-child(2) {
+    &--b {
         top: 80%;
         left: 80%;
     }
-    div:nth-child(3) {
+    &--c {
         top: 80%;
         left: 60%;
     }
-    div:nth-child(4) {
+    &--d {
         top: 20%;
         left: 60%;
     }
-    div:nth-child(5) {
+    &--e {
         top: 20%;
         left: 10%;
     }
-    div:nth-child(6) {
-        top: 40%;
-        left: 10%;
-    }
-    div:last-child {
+    &--f {
         top: 100%;
         left: 0;
     }

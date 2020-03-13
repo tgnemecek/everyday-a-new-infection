@@ -232,44 +232,39 @@ textarea {
   /* overflow: hidden; */
 }
 
-.path div {
+.path {
   width: 25px;
   height: 25px;
   background-color: green;
   position: absolute;
 }
 
-.path div:nth-child(1) {
-  top: -10%;
+.path--a {
+  top: -15%;
   left: 80%;
 }
 
-.path div:nth-child(2) {
+.path--b {
   top: 80%;
   left: 80%;
 }
 
-.path div:nth-child(3) {
+.path--c {
   top: 80%;
   left: 60%;
 }
 
-.path div:nth-child(4) {
+.path--d {
   top: 20%;
   left: 60%;
 }
 
-.path div:nth-child(5) {
+.path--e {
   top: 20%;
   left: 10%;
 }
 
-.path div:nth-child(6) {
-  top: 40%;
-  left: 10%;
-}
-
-.path div:last-child {
+.path--f {
   top: 100%;
   left: 0;
 }
