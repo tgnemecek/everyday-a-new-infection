@@ -47,7 +47,7 @@ class Enemy {
     constructor(path) {
         this.id = new Date().getTime();
         this.jquery = new $(`<div id=${this.id}></div>`);
-        this.moveSpeed = 0.2;
+        this.moveSpeed = 0.05;
         this.path = path;
         this.style = {
             top: randomize(convertFromPx($(this.path[0]).css('top')), 30),
@@ -105,6 +105,7 @@ class Enemy {
 
 class Projectile {
     constructor(originX, originY, enemy) {
+        console.log(originX);
         this.jquery = new $(`<div>P</div>`);
         this.style = {
             top: originY,
@@ -140,8 +141,7 @@ class Projectile {
 class Tower {
     constructor() {
         this.jquery = new $(`<div>T</div>`);
-        console.log(this.jquery);
-        this.attackSpeed = 200;
+        this.attackSpeed = 1000;
         this.range = 100;
         this.canAttack = true;
         this.setup();
@@ -152,12 +152,14 @@ class Tower {
     update() {
         if (this.canAttack) {
             gameState.enemies.forEach((enemy) => {
-                let enX = convertFromPx($(enemy.jquery).css('left'));
-                let enY = convertFromPx($(enemy.jquery).css('top'));
-                let x = convertFromPx(this.jquery.css('left'));
-                let y = convertFromPx(this.jquery.css('top'));
+                let enX = enemy.jquery.offset().left;
+                let enY = enemy.jquery.offset().top;
+                let x = this.jquery.offset().left;
+                let y = this.jquery.offset().top;
+                
                 let distance = distanceTo(x, y, enX, enY);
                 if (distance < this.range) {
+                    console.log(x);
                     let projectile = new Projectile(x, y, enemy);
                     game.append(projectile.jquery);
                     gameState.projectiles.push(projectile);
@@ -202,7 +204,7 @@ function start() {
     gameState.modifyHp(100);
     gameState.modifyMoney(300);
     setupNodes();
-    enemySpawner(1);
+    enemySpawner(10);
     update(60)
 }
 

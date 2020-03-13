@@ -47,21 +47,14 @@
     }
 }
 
-.node {
-    width: 50px;
-    height: 50px;
-    border: 1px solid grey;
-    position: absolute;
-}
-
 .tower {
+    width: 100%;
+    height: 100%;
     background-color: red;
-    position: absolute;
-    top: 0;
-    left: 0;
 }
 
 .projectile {
+    position: absolute;
     z-index: 2;
 }
 

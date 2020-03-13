@@ -1,0 +1,30 @@
+.node {
+    width: 50px;
+    height: 50px;
+    border: 1px solid grey;
+    position: absolute;
+    &--a {
+        top: 50%;
+        left: 50%;
+    }
+    &--b {
+        top: 10%;
+        left: 20%;
+    }
+    &--c {
+        top: 50%;
+        left: 10%;
+    }
+    &--d {
+        top: 80%;
+        left: 10%;
+    }
+    &--e {
+        top: 60%;
+        left: 70%;
+    }
+    &--f {
+        top: 20%;
+        left: 30%;
+    }
+}
