@@ -46,9 +46,10 @@ function distanceTo(x1, y1, x2, y2) {
 class Enemy {
     constructor(path) {
         this.id = new Date().getTime();
-        this.jquery = new $(`<div id=${this.id}></div>`);
+        this.jquery = new $(`<div></div>`);
         this.moveSpeed = 0.05;
         this.path = path;
+        this.percentWalked = 0;
         this.style = {
             top: randomize(convertFromPx($(this.path[0]).css('top')), 30),
             left: randomize(convertFromPx($(this.path[0]).css('left')), 30),
@@ -61,7 +62,6 @@ class Enemy {
         x = randomize(x, 30);
         y = randomize(y, 30);
 
-
         let currX = convertFromPx(this.jquery.css('left'));
         let currY = convertFromPx(this.jquery.css('top'));
         let distance = distanceTo(x, y, currX, currY);
@@ -72,6 +72,7 @@ class Enemy {
         }, {
             duration,
             easing: "linear",
+            progress: (an, prog, remaining) => this.percentWalked = prog,
             complete: () => this.followPath(i+1)
         })
     }
@@ -93,7 +94,7 @@ class Enemy {
         })
         gameState.enemies.splice(i, 1);
         gameState.modifyHp(-10);
-        $(`#${this.id}`).remove();
+        this.jquery.remove();
     }
     
     setup() {
@@ -104,32 +105,59 @@ class Enemy {
 }
 
 class Projectile {
-    constructor(originX, originY, enemy) {
-        console.log(originX);
+    constructor(initPosition, enemy) {
+        this.id = new Date().getTime();
         this.jquery = new $(`<div>P</div>`);
         this.style = {
-            top: originY,
-            left: originX
+            top: initPosition.top,
+            left: initPosition.left
         }
         this.enemy = enemy;
-        this.moveSpeed = 0.05;
+        this.moveSpeed = 0.8;
+        this.animationEnded = false;
         this.setup();
     }
     moveToTarget() {
-        let currX = convertFromPx(this.jquery.css('left'));
-        let currY = convertFromPx(this.jquery.css('top'));
-        let enX = convertFromPx($(this.enemy.jquery).css('left'));
-        let enY = convertFromPx($(this.enemy.jquery).css('top'));
-        let distance = distanceTo(currX, currY, enX, enY);
+        let enPosition = this.enemy.jquery.position();
+        let enX = enPosition.left;
+        let enY = enPosition.top;
+
+        let curPosition = this.jquery.position();
+        let x = curPosition.left;
+        let y = curPosition.top;
+
+        let distance = distanceTo(x, y, enX, enY);
         let duration = distance / this.moveSpeed;
+        console.log('distance: ' + distance);
+        console.log('duration: ' + duration);
         this.jquery.animate({
             left: enX,
             top: enY
         }, {
             duration,
             easing: "linear",
-            complete: () => console.log('done!')
+            // step: (now, fx) => {
+            //     if (!this.animationEnded) {
+            //         let newEnCoord = this.enemy.jquery.position()[fx.prop];
+            //         fx.end = newEnCoord;
+            //     }
+            // },
+            // complete: () => this.hit()
         })
+    }
+    hit() {
+        this.animationEnded = true;
+        let projIndex = gameState.projectiles.findIndex((projectile) => {
+            return projectile.id === this.id;
+        })
+        gameState.projectiles.splice(projIndex, 1);
+        this.jquery.remove();
+
+        let enIndex = gameState.enemies.findIndex((enemy) => {
+            return enemy.id === this.enemy.id;
+        })
+        gameState.enemies.splice(enIndex, 1);
+        $(this.enemy.jquery).remove();
     }
     setup() {
         this.jquery.addClass('projectile');
@@ -139,9 +167,10 @@ class Projectile {
 }
 
 class Tower {
-    constructor() {
+    constructor(nodePosition) {
         this.jquery = new $(`<div>T</div>`);
-        this.attackSpeed = 1000;
+        this.nodePosition = nodePosition;
+        this.attackSpeed = 2000;
         this.range = 100;
         this.canAttack = true;
         this.setup();
@@ -151,25 +180,38 @@ class Tower {
     }
     update() {
         if (this.canAttack) {
+            let enemiesInRange = [];
             gameState.enemies.forEach((enemy) => {
-                let enX = enemy.jquery.offset().left;
-                let enY = enemy.jquery.offset().top;
-                let x = this.jquery.offset().left;
-                let y = this.jquery.offset().top;
-                
-                let distance = distanceTo(x, y, enX, enY);
-                if (distance < this.range) {
-                    console.log(x);
-                    let projectile = new Projectile(x, y, enemy);
-                    game.append(projectile.jquery);
-                    gameState.projectiles.push(projectile);
-                    this.canAttack = false;
-                    setTimeout(() => {
-                        this.canAttack = true;
-                    }, this.attackSpeed)
-                }
+                let enPosition = enemy.jquery.position();
+                let enX = enPosition.left;
+                let enY = enPosition.top;
 
+                let nodeX = this.nodePosition.left;
+                let nodeY = this.nodePosition.top;
+                
+                let distance = distanceTo(nodeX, nodeY, enX, enY);
+
+                if (distance < this.range) {
+                    enemiesInRange.push(enemy);
+                }
             })
+            if (enemiesInRange.length) {
+                let enemyCloserToEnd = { percentWalked: 0 };
+                enemiesInRange.forEach((enemy) => {
+                    if (enemyCloserToEnd.percentWalked < enemy.percentWalked) {
+                        enemyCloserToEnd = enemy;
+                    }
+                })
+                let projectile = new Projectile(
+                    this.nodePosition, enemyCloserToEnd
+                );
+                game.append(projectile.jquery);
+                gameState.projectiles.push(projectile);
+                this.canAttack = false;
+                setTimeout(() => {
+                    this.canAttack = true;
+                }, this.attackSpeed)
+            }
         }
     }
 }
@@ -186,7 +228,7 @@ function setupNodes() {
     let nodes = $('.node');
     nodes.on('click', function() {
         // Create Tower
-        let tower = new Tower();
+        let tower = new Tower($(this).position());
         $(this).append(tower.jquery);
         gameState.towers.push(tower);
     })
@@ -204,7 +246,7 @@ function start() {
     gameState.modifyHp(100);
     gameState.modifyMoney(300);
     setupNodes();
-    enemySpawner(10);
+    enemySpawner(1);
     update(60)
 }
 
