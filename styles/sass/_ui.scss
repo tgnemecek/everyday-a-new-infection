@@ -1,0 +1,10 @@
+.ui {
+    display: grid;
+    grid-template-columns: auto 1fr 100px;
+    align-content: flex-start;
+    gap: 25px;
+    margin: 10px;
+    .pause {
+        z-index: 3;
+    }
+}

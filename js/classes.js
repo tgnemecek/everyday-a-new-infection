@@ -5,6 +5,8 @@ class Enemy {
         this.moveSpeed = 0.05;
         this.path = path;
         this.percentWalked = 0;
+        this.nextPath = 1;
+        this.isAlive = true;
         this.style = {
             top: randomize($(this.path[0]).position().top, 30) + "px",
             left: randomize($(this.path[0]).position().left, 30) + "px",
@@ -13,7 +15,15 @@ class Enemy {
         this.setup();
     }
 
-    moveTo(x, y, i) {
+    pause() {
+        this.jquery.stop();
+    }
+
+    resume() {
+        this.followPath();
+    }
+
+    moveTo(x, y) {
         x = randomize(x, 30);
         y = randomize(y, 30);
 
@@ -29,19 +39,22 @@ class Enemy {
             duration,
             easing: "linear",
             progress: (an, prog, remaining) => this.percentWalked = prog,
-            complete: () => this.followPath(i + 1)
+            complete: () => {
+                this.nextPath++;
+                this.followPath(this.nextPath);
+            }
         })
     }
 
-    followPath(i) {
+    followPath() {
         let lastIndex = this.path.length - 1;
-        if (i > lastIndex) {
+        if (this.nextPath > lastIndex) {
             this.arrived();
             return;
         };
-        let x = $(this.path[i]).position().left;
-        let y = $(this.path[i]).position().top;
-        this.moveTo(x, y, i)
+        let x = $(this.path[this.nextPath]).position().left;
+        let y = $(this.path[this.nextPath]).position().top;
+        this.moveTo(x, y)
     }
 
     arrived() {
@@ -57,7 +70,19 @@ class Enemy {
         game.append(this.jquery);
         this.jquery.addClass('enemy');
         this.jquery.css(this.style);
-        this.followPath(1);
+        this.followPath();
+    }
+}
+
+class EnemySmall extends Enemy {
+    constructor(path) {
+        super(path);
+    }
+}
+
+class EnemyBig extends Enemy {
+    constructor(path) {
+        super(path);
     }
 }
 
@@ -70,36 +95,47 @@ class Overlay {
     setup() {
         this.jquery.addClass('overlay');
         this.jquery.on('click', () => this.props.closeOverlay());
-        this.jquery.append(this.props.children.jquery);
     }
 }
 
 class TowerPicker {
     constructor(chooseTower, parentPos) {
         this.jquery = new $('<div><h2>Build a Tower</h2></div>');
-        this.button = new $('<button>Base Tower</button>');
         this.chooseTower = chooseTower;
         this.parentPos = parentPos;
         this.towers = [
             {
                 name: "Base Tower",
-                cost: 100
+                cost: 100,
+                button: new $('<button></button>')
             }
         ]
         this.setup();
     }
+    checkIfDisabled(tower) {
+        if (gameState.money >= tower.cost) {
+            tower.button.prop("disabled", false);
+        } else tower.button.prop("disabled", true);
+    }
     update() {
         setInterval(() => {
-
+            this.towers.forEach((tower) => {
+                this.checkIfDisabled(tower);
+            })
         }, fps)
     }
     setup() {
         this.jquery.addClass('tower-picker');
         this.jquery.css({...this.parentPos});
         this.towers.forEach((tower) => {
-            this.jquery.append(this.button);
+            this.jquery.append(tower.button);
+            tower.button.on('click', () => this.chooseTower(tower));
+            let nameDiv = $(`<div>${tower.name}</div>`);
+            let costDiv = $(`<div>$${tower.cost}</div>`);
+            tower.button.append(nameDiv).append(costDiv);
+            this.checkIfDisabled(tower);
         })
-        this.button.on('click', () => this.chooseTower())
+        this.update();
     }
 }
 
@@ -110,24 +146,36 @@ class Node {
         this.style = {...position};
         this.hasTower = false;
         this.overlay = undefined;
+        this.towerPicker = undefined;
+        this.paused = false;
         this.setup();
+    }
+    pause() {
+        this.paused = true;
+    }
+    resume() {
+        this.paused = false;
     }
     closeOverlay() {
         this.overlay.jquery.remove();
+        this.towerPicker.jquery.remove();
         this.overlay = undefined;
+        this.towerPicker = undefined;
     }
-    chooseTower() {
+    chooseTower(chosenTower) {
+        gameState.modifyMoney(-chosenTower.cost);
         let tower = new Tower(this.jquery);
         this.jquery.append(tower.jquery);
         gameState.towers.push(tower);
         this.hasTower = true;
+        this.closeOverlay();
     }
     setup() {
         game.append(this.jquery);
         this.jquery.addClass('node');
         this.jquery.css(this.style);
         this.jquery.on('click', () => {
-            if (!this.overlay && !this.hasTower) {
+            if (!this.overlay && !this.hasTower && !this.paused) {
                 this.overlay = new Overlay({
                     closeOverlay: this.closeOverlay.bind(this),
                     children: new TowerPicker(
@@ -135,7 +183,12 @@ class Node {
                         this.jquery.position()
                     )
                 });
-                game.append(this.overlay.jquery)
+                game.append(this.overlay.jquery);
+                this.towerPicker = new TowerPicker(
+                    this.chooseTower.bind(this),
+                    this.jquery.position()
+                );
+                game.append(this.towerPicker.jquery);
             }
         })
     }
@@ -152,10 +205,23 @@ class Projectile {
         this.enemy = enemy;
         this.moveSpeed = 0.5;
         this.animationEnded = false;
+        this.destination = {};
         this.setup();
     }
+    pause() {
+        this.jquery.stop();
+    }
+    resume() {
+        this.moveToTarget();
+    }
     moveToTarget() {
-        let enPosition = this.enemy.jquery.position();
+        let enPosition;
+
+        if (!this.enemy.isAlive) {
+            // debugger;
+            enPosition = this.destination;
+        } else enPosition = this.enemy.jquery.position();
+
         let enX = enPosition.left;
         let enY = enPosition.top;
 
@@ -165,16 +231,21 @@ class Projectile {
 
         let distance = distanceTo(x, y, enX, enY);
         let duration = distance / this.moveSpeed;
-        this.jquery.animate({
+
+        this.destination = {
             left: enX,
             top: enY
-        }, {
+        }
+
+        this.jquery.animate(this.destination, {
             duration,
             easing: "linear",
             step: (now, fx) => {
-                if (!this.animationEnded) {
+                this.destination[fx.prop] = fx.end;
+                if (!this.animationEnded && this.enemy.isAlive) {
                     let newEnCoord = this.enemy.jquery.position()[fx.prop];
                     fx.end = newEnCoord;
+                    console.log(fx);
                 }
             },
             complete: () => this.hit()
@@ -187,12 +258,14 @@ class Projectile {
         })
         gameState.projectiles.splice(projIndex, 1);
         this.jquery.remove();
-
-        let enIndex = gameState.enemies.findIndex((enemy) => {
-            return enemy.id === this.enemy.id;
-        })
-        gameState.enemies.splice(enIndex, 1);
-        $(this.enemy.jquery).remove();
+        if (this.enemy.isAlive) {
+            let enIndex = gameState.enemies.findIndex((enemy) => {
+                return enemy.id === this.enemy.id;
+            })
+            gameState.enemies.splice(enIndex, 1);
+            $(this.enemy.jquery).remove();
+            this.enemy.isAlive = false;
+        }
     }
     setup() {
         game.append(this.jquery);
@@ -207,10 +280,18 @@ class Tower {
         this.jquery = new $(`<div>T</div>`);
         this.node = node;
         this.nodePosition = node.position();
-        this.attackSpeed = 2000;
+        this.attackSpeed = 1000;
         this.range = 100;
         this.canAttack = true;
+        this.paused = false;
         this.setup();
+    }
+    pause() {
+        this.paused = true;
+    }
+
+    resume() {
+        this.paused = false;
     }
     setup() {
         this.jquery.addClass('tower');
@@ -219,7 +300,7 @@ class Tower {
         }, fps)
     }
     update() {
-        if (this.canAttack) {
+        if (this.canAttack && !this.paused) {
             let enemiesInRange = [];
             gameState.enemies.forEach((enemy) => {
                 let enPosition = enemy.jquery.position();
@@ -249,7 +330,7 @@ class Tower {
                 this.canAttack = false;
                 setTimeout(() => {
                     this.canAttack = true;
-                }, this.attackSpeed)
+                }, 1/this.attackSpeed)
             }
         }
     }

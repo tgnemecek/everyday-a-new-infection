@@ -34,9 +34,13 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    z-index: 3;
     button {
         height: 50px;
         margin: 5px;
+        &:disabled {
+            background-color: grey;
+        }
     }
 }
 

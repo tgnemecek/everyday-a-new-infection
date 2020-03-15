@@ -221,6 +221,21 @@ textarea {
   overflow: hidden;
 }
 
+.ui {
+  display: -ms-grid;
+  display: grid;
+  -ms-grid-columns: auto 1fr 100px;
+      grid-template-columns: auto 1fr 100px;
+  -ms-flex-line-pack: start;
+      align-content: flex-start;
+  gap: 25px;
+  margin: 10px;
+}
+
+.ui .pause {
+  z-index: 3;
+}
+
 .game {
   position: relative;
   border: 5px solid black;
@@ -271,11 +286,16 @@ textarea {
   -webkit-box-align: center;
       -ms-flex-align: center;
           align-items: center;
+  z-index: 3;
 }
 
 .tower-picker button {
   height: 50px;
   margin: 5px;
+}
+
+.tower-picker button:disabled {
+  background-color: grey;
 }
 
 .path {
