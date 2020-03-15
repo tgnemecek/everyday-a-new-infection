@@ -12,6 +12,7 @@ const gameState = {
         if (gameState.hp <= 0) {
             gameState.hp = 0;
             gameState.pause();
+            game.append($('<div class="overlay"></div>'));
         }
         $('.hp').text("HP: " + gameState.hp);
     },
@@ -54,8 +55,8 @@ const gameState = {
     currentWave: 0,
     waves: [
         [
-            {type: EnemySmall, quantity: 3, waitTime: 5000},
-            {type: EnemySmall, quantity: 5, waitTime: 5000},
+            {type: EnemySmall, quantity: 10, waitTime: 5000},
+            {type: EnemySmall, quantity: 10, waitTime: 5000},
             {type: EnemyBig, quantity: 2, waitTime: 5000},
         ]
     ]
@@ -63,9 +64,10 @@ const gameState = {
 
 function setupNodes() {
     let nodePositions = [
-        { left: "10%", top: "10%"},
-        { left: "80%", top: "20%"},
-        { left: "50%", top: "50%"},
+        { left: "21%", top: "35%"},
+        { left: "45%", top: "35%"},
+        { left: "66%", top: "65%"},
+        { left: "18%", top: "85%"},
     ]
     nodePositions.forEach((position) => {
         let node = new Node(position);
@@ -73,6 +75,22 @@ function setupNodes() {
     })
 }
 
+function setupPath() {
+    let pathPositions = [
+        { left: "80%", top: "-15%"},
+        { left: "80%", top: "85%"},
+        { left: "60%", top: "85%"},
+        { left: "60%", top: "20%"},
+        { left: "12%", top: "20%"},
+        { left: "12%", top: "80%"},
+        { left: "0%", top: "100%"},
+    ]
+    pathPositions.forEach((pathPosition) => {
+        let path = new $(`<div class="path"></div>`);
+        game.append(path);
+        path.css(pathPosition);
+    })
+}
 
 function enemySpawner(Type, numberOfEnemies, waitTime) {
     return new Promise((resolve, reject) => {
@@ -132,6 +150,7 @@ function start() {
     setupPause();
 
     setupNodes();
+    setupPath();
     // update();
     // setInterval(() => {
     //     gameState.pause();

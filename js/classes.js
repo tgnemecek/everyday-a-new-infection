@@ -4,10 +4,13 @@ class Enemy {
         this.jquery = new $(`<div class="enemy"></div>`);
         this.sprite = new $(`<div class="sprite"></div>`);
         this.hpBar = new $(`<div class="hp-bar"><div></div><div></div></div>`);
+        
         this.width = 8;
         this.height = 8;
         this.moveSpeed = 0.05;
         this.maxHp = 50;
+        this.money = 10;
+        
         this.hp = this.maxHp;
         this.path = path;
         this.percentWalked = 0;
@@ -54,6 +57,7 @@ class Enemy {
             })
             gameState.enemies.splice(enIndex, 1);
             $(this.jquery).remove();
+            gameState.modifyMoney(this.money);
             this.isAlive = false;
         }
     }
@@ -168,7 +172,8 @@ class Node {
     chooseTower(ChosenTower) {
         gameState.modifyMoney(-ChosenTower.cost);
         let tower = new ChosenTower(this.jquery);
-        this.jquery.append(tower.jquery);
+        // this.jquery.append(tower.jquery);
+        this.jquery.css('border', 'none');
         gameState.towers.push(tower);
         this.hasTower = true;
         this.closeOverlay();
@@ -198,12 +203,13 @@ class Node {
 }
 
 class Projectile {
-    constructor(initPosition, enemy, damage, moveSpeed) {
+    constructor(initPosition, enemy, damage, moveSpeed, color) {
         this.id = new Date().getTime();
         this.jquery = new $(`<div class="projectile"></div>`);
         this.style = {
             top: initPosition.top,
-            left: initPosition.left
+            left: initPosition.left,
+            backgroundColor: getRandomizedColor(...color)
         }
         this.enemy = enemy;
         this.moveSpeed = moveSpeed;
@@ -321,14 +327,18 @@ class TowerPicker {
 
 class Tower {
     constructor(node) {
-        this.jquery = new $(`<div>T</div>`);
+        this.jquery = new $(`<div></div>`);
         this.node = node;
         this.nodePosition = node.position();
+        this.offset = {};
+        this.projectilePosition = {};
+        this.image = "";
 
         this.range = 100;
         this.attackSpeed = 2;
         this.projectileSpeed = 0.2;
         this.damage = 10;
+        this.projectileColor = [35, 196, 196];
 
         this.canAttack = true;
         this.paused = false;
@@ -343,6 +353,16 @@ class Tower {
     }
     setup() {
         this.jquery.addClass('tower');
+        this.jquery.css("background-image", `url(${this.image})`);
+        this.node.append(this.jquery);
+        this.offset = {
+            left: this.jquery.width()/2,
+            top: 5
+        }
+        this.projectilePosition = {
+            left: this.nodePosition.left + this.offset.left,
+            top: this.nodePosition.top + this.offset.top,
+        }
         setInterval(() => {
             this.update();
         }, fps)
@@ -365,17 +385,25 @@ class Tower {
                 }
             })
             if (enemiesInRange.length) {
-                let enemyCloserToEnd = { percentWalked: 0 };
+                let enemyCloserToEnd = {
+                    percentWalked: 0,
+                    nextPath: 0
+                };
                 enemiesInRange.forEach((enemy) => {
-                    if (enemyCloserToEnd.percentWalked < enemy.percentWalked) {
+                    if (enemyCloserToEnd.nextPath < enemy.nextPath) {
                         enemyCloserToEnd = enemy;
+                    } else if (enemyCloserToEnd.nextPath === enemy.nextPath) {
+                        if (enemyCloserToEnd.percentWalked < enemy.percentWalked) {
+                            enemyCloserToEnd = enemy;
+                        }
                     }
                 })
                 let projectile = new Projectile(
-                    this.nodePosition,
+                    this.projectilePosition,
                     enemyCloserToEnd,
                     this.damage,
-                    this.projectileSpeed
+                    this.projectileSpeed,
+                    this.projectileColor
                 );
                 gameState.projectiles.push(projectile);
                 this.canAttack = false;
@@ -390,6 +418,7 @@ class Tower {
 class TowerFast extends Tower {
     constructor(node) {
         super(node);
+        this.image = "fast-tower.png";
         this.setup();
     }
     static name = "Fast Tower";
@@ -401,6 +430,7 @@ class TowerFast extends Tower {
 class TowerSlow extends Tower {
     constructor(node) {
         super(node);
+        this.image = "slow-tower.png";
         this.range = 80;
         this.attackSpeed = 1;
         this.projectileSpeed = 0.1;

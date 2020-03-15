@@ -230,6 +230,7 @@ textarea {
       align-content: flex-start;
   gap: 25px;
   margin: 10px;
+  color: white;
 }
 
 .ui .pause {
@@ -245,6 +246,13 @@ textarea {
   width: 100vw;
   margin: auto;
   /* overflow: hidden; */
+}
+
+.game .background {
+  position: absolute;
+  z-index: -1;
+  width: 100%;
+  height: 100%;
 }
 
 .overlay {
@@ -301,44 +309,24 @@ textarea {
 .path {
   width: 25px;
   height: 25px;
-  background-color: green;
   position: absolute;
 }
 
-.path--a {
-  top: -15%;
-  left: 80%;
+.node {
+  width: 50px;
+  height: 50px;
+  border: 1px solid grey;
+  position: absolute;
+  border-radius: 50%;
 }
 
-.path--b {
-  top: 80%;
-  left: 80%;
-}
-
-.path--c {
-  top: 80%;
-  left: 60%;
-}
-
-.path--d {
-  top: 20%;
-  left: 60%;
-}
-
-.path--e {
-  top: 20%;
-  left: 10%;
-}
-
-.path--f {
-  top: 100%;
-  left: 0;
+.node:hover {
+  border: 1px solid yellow;
 }
 
 .tower {
   width: 100%;
   height: 100%;
-  background-color: red;
 }
 
 .projectile {
@@ -346,7 +334,6 @@ textarea {
   width: 4px;
   height: 4px;
   border-radius: 50%;
-  background-color: green;
   z-index: 2;
 }
 
@@ -377,41 +364,4 @@ textarea {
 .enemy .sprite {
   margin: auto;
   border-radius: 50%;
-}
-
-.node {
-  width: 50px;
-  height: 50px;
-  border: 1px solid grey;
-  position: absolute;
-}
-
-.node--a {
-  top: 50%;
-  left: 50%;
-}
-
-.node--b {
-  top: 10%;
-  left: 20%;
-}
-
-.node--c {
-  top: 50%;
-  left: 10%;
-}
-
-.node--d {
-  top: 80%;
-  left: 10%;
-}
-
-.node--e {
-  top: 60%;
-  left: 70%;
-}
-
-.node--f {
-  top: 20%;
-  left: 30%;
 }
