@@ -54,23 +54,17 @@ const gameState = {
     currentWave: 0,
     waves: [
         [
-            {type: EnemySmall, quantity: 10},
-            {type: EnemyBig, quantity: 10}
+            {type: EnemySmall, quantity: 3, waitTime: 5000},
+            {type: EnemySmall, quantity: 5, waitTime: 5000},
+            {type: EnemyBig, quantity: 2, waitTime: 5000},
         ]
     ]
-}
-
-function enemySpawner(Type, numberOfEnemies, path) {
-    for (let i = 0; i < numberOfEnemies; i++) {
-        let enemy = new Type(path);
-        gameState.enemies.push(enemy);
-    }
 }
 
 function setupNodes() {
     let nodePositions = [
         { left: "10%", top: "10%"},
-        { left: "80%", top: "10%"},
+        { left: "80%", top: "20%"},
         { left: "50%", top: "50%"},
     ]
     nodePositions.forEach((position) => {
@@ -79,24 +73,43 @@ function setupNodes() {
     })
 }
 
-function spawnWave() {
-    let i = gameState.currentWave;
-    gameState.waves[i].forEach((enemy) => {
-        enemySpawner(enemy.type, enemy.quantity);
+
+function enemySpawner(Type, numberOfEnemies, waitTime) {
+    return new Promise((resolve, reject) => {
+        const path = $('.path');
+        for (let i = 0; i < numberOfEnemies; i++) {
+            let enemy = new Type(path);
+            gameState.enemies.push(enemy);
+        }
+        setTimeout(() => {
+            resolve();
+        }, waitTime)
     })
 }
 
-function update() {
-    // setInterval(() => {
-    //     if (!gameState.enemies.length) {
-    //         spawnWave();
-    //         if (gameState.currentWave < gameState.waves.length) {
-    //             gameState.currentWave++;
-    //         }
-            
-    //     }
-    // }, fps);
+async function spawnWave() {
+    let currentWave = gameState.currentWave;
+    let enemies = [...gameState.waves[currentWave]];
+
+    for (let i = 0; i < enemies.length; i++) {
+        await enemySpawner(
+            enemies[i].type,
+            enemies[i].quantity,
+            enemies[i].waitTime
+        );
+    }
 }
+
+// function update() {
+//     setInterval(() => {
+//         if (!gameState.enemies.length) {
+//             // spawnWave();
+//             // if (gameState.currentWave < gameState.waves.length) {
+//             //     gameState.currentWave++;
+//             // }
+//         }
+//     }, fps);
+// }
 
 function setupPause() {
     let overlay = new Overlay();
@@ -114,22 +127,20 @@ function setupPause() {
 }
 
 function start() {
-    const path = $('.path');
-
     gameState.modifyHp(100);
     gameState.modifyMoney(300);
     setupPause();
 
     setupNodes();
-    update();
+    // update();
     // setInterval(() => {
     //     gameState.pause();
     // }, 2000);
     // setInterval(() => {
     //     gameState.resume();
     // }, 5000);
-    enemySpawner(Enemy, 100, path);
-    // spawnWaves();
+    // enemySpawner(Enemy, 1, path);
+    spawnWave()
 }
 
 start();

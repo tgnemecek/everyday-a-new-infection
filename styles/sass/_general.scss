@@ -83,14 +83,32 @@
 
 .projectile {
     position: absolute;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background-color: green;
     z-index: 2;
 }
 
 .enemy {
-    width: 8px;
-    height: 8px;
     z-index: 1;
     position: absolute;
-    left: 800px;
-    border-radius: 50%;
+    .hp-bar {
+        display: grid;
+        grid-template-columns: 100% 0;
+        width: 25px;
+        height: 2px;
+        margin-bottom: 5px;
+        z-index: 3;
+        div:first-child {
+            background-color: green;
+        }
+        div:last-child {
+            background-color: red;
+        }
+    }
+    .sprite {
+        margin: auto;
+        border-radius: 50%;
+    }
 }
