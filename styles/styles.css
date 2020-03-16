@@ -221,6 +221,10 @@ textarea {
   overflow: hidden;
 }
 
+button {
+  outline: none;
+}
+
 .ui {
   display: -ms-grid;
   display: grid;
@@ -274,36 +278,67 @@ textarea {
   z-index: 2;
 }
 
-.tower-picker {
+.tower-picker .box {
   width: 200px;
-  height: 200px;
   background-color: red;
-  border-radius: 50%;
+  border-radius: 10px;
   position: absolute;
   text-align: center;
+  z-index: 3;
+}
+
+.tower-picker h2 {
+  padding: 15px;
+}
+
+.tower-picker .container {
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
-  -webkit-box-orient: vertical;
-  -webkit-box-direction: normal;
-      -ms-flex-direction: column;
-          flex-direction: column;
-  -webkit-box-pack: center;
-      -ms-flex-pack: center;
-          justify-content: center;
-  -webkit-box-align: center;
-      -ms-flex-align: center;
-          align-items: center;
-  z-index: 3;
+  -webkit-box-pack: space-evenly;
+      -ms-flex-pack: space-evenly;
+          justify-content: space-evenly;
+  height: 100px;
 }
 
 .tower-picker button {
   height: 50px;
+  width: 50px;
   margin: 5px;
+  border-radius: 50%;
+  overflow: hidden;
+  display: block;
 }
 
 .tower-picker button:disabled {
   background-color: grey;
+}
+
+.tower-picker button img {
+  -o-object-fit: cover;
+     object-fit: cover;
+  width: 100%;
+}
+
+.tower-picker .selected {
+  border: 3px solid yellow;
+}
+
+.tower-picker .confirm {
+  position: absolute;
+  left: 85%;
+  top: 75%;
+}
+
+.tower-picker .description {
+  position: absolute;
+  color: white;
+  background-color: #8080803b;
+  width: 100%;
+  z-index: -1;
+  border-radius: 10px;
+  padding: 5px 15px;
+  text-align: left;
 }
 
 .path {

@@ -30,23 +30,54 @@
 }
 
 .tower-picker {
-    width: 200px;
-    height: 200px;
-    background-color: red;
-    border-radius: 50%;
-    position: absolute;
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    z-index: 3;
+    .box {
+        width: 200px;
+        background-color: red;
+        border-radius: 10px;
+        position: absolute;
+        text-align: center;
+        z-index: 3;
+    }
+    h2 {
+        padding: 15px;
+    }
+    .container {
+        display: flex;
+        justify-content: space-evenly;
+        height: 100px;
+    }
     button {
         height: 50px;
+        width: 50px;
         margin: 5px;
+        border-radius: 50%;
+        overflow: hidden;
+        display: block;
         &:disabled {
             background-color: grey;
         }
+        img {
+            object-fit: cover;
+            width: 100%;
+        }
+    }
+    .selected {
+        border: 3px solid yellow;
+    }
+    .confirm {
+        position: absolute;
+        left: 85%;
+        top: 75%;
+    }
+    .description {
+        position: absolute;
+        color: white;
+        background-color: #8080803b;
+        width: 100%;
+        z-index: -1;
+        border-radius: 10px;
+        padding: 5px 15px;
+        text-align: left;
     }
 }
 

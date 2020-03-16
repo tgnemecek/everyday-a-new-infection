@@ -136,7 +136,7 @@ class EnemyBig extends Enemy {
     }
 }
 
-class Overlay {
+class Overlay { // Don't need this. Follow TowerPicker usage. Use as a css class only.
     constructor(props) {
         this.jquery = new $('<div></div>');
         this.props = props;
@@ -153,7 +153,7 @@ class Node {
         this.jquery = new $('<div><div>');
         this.style = {...position};
         this.hasTower = false;
-        this.overlay = undefined;
+        // this.overlay = undefined;
         this.towerPicker = undefined;
         this.paused = false;
         this.setup();
@@ -164,10 +164,10 @@ class Node {
     resume() {
         this.paused = false;
     }
-    closeOverlay() {
-        this.overlay.jquery.remove();
+    closeTowerPicker() {
+        // this.overlay.jquery.remove();
         this.towerPicker.jquery.remove();
-        this.overlay = undefined;
+        // this.overlay = undefined;
         this.towerPicker = undefined;
     }
     chooseTower(ChosenTower) {
@@ -177,27 +177,29 @@ class Node {
         this.jquery.css('border', 'none');
         gameState.towers.push(tower);
         this.hasTower = true;
-        this.closeOverlay();
+        this.closeTowerPicker();
+        // this.closeOverlay();
     }
     setup() {
         game.append(this.jquery);
         this.jquery.addClass('node');
         this.jquery.css(this.style);
         this.jquery.on('click', () => {
-            if (!this.overlay && !this.hasTower && !this.paused) {
-                this.overlay = new Overlay({
-                    closeOverlay: this.closeOverlay.bind(this),
-                    children: new TowerPicker(
-                        this.chooseTower.bind(this),
-                        this.jquery.position()
-                    )
-                });
-                game.append(this.overlay.jquery);
+            if (!this.hasTower && !this.paused) {
+                // this.overlay = new Overlay({
+                //     closeOverlay: this.closeOverlay.bind(this),
+                //     children: new TowerPicker(
+                //         this.chooseTower.bind(this),
+                //         this.jquery.position()
+                //     )
+                // });
+                // game.append(this.overlay.jquery);
                 this.towerPicker = new TowerPicker(
                     this.chooseTower.bind(this),
-                    this.jquery.position()
+                    this.closeTowerPicker.bind(this)
+                    // this.jquery.position()
                 );
-                game.append(this.towerPicker.jquery);
+                // game.append(this.towerPicker.jquery);
             }
         })
     }
@@ -287,18 +289,35 @@ class Projectile {
 }
 
 class TowerPicker {
-    constructor(chooseTower, parentPos) {
-        this.jquery = new $('<div><h2>Build a Tower</h2></div>');
-        this.chooseTower = chooseTower;
-        this.parentPos = parentPos;
+    constructor(confirmTower, closeTowerPicker) {
+        this.jquery = new $(`<div class="tower-picker"></div>`);
+        this.box = new $('<div class="box"><h2>Build a Tower</h2></div>');
+        this.container = new $(`<div class="container"></div>`);
+        this.confirm = new $(`<button class="confirm">OK</button>`);
+        this.description = new $(`<div class="description"></div>`);
+        this.overlay = new $(`<div class="overlay"></div>`);
+        this.confirmTower = confirmTower;
+        this.closeTowerPicker = closeTowerPicker;
+        this.towerSelected = undefined;
         this.towers = [
             TowerFast,
             TowerSlow
         ]
         this.setup();
     }
+    selectTower(Tower) {
+        $('.tower-picker .container button').each((i, element) => {
+            $(element).removeClass('selected');
+        })
+        $(`.${Tower.id} button`).addClass('selected');
+        this.towerSelected = Tower;
+        this.confirm.prop('disabled', false);
+        this.box.append(this.description);
+        this.description.text(Tower.description);
+    }
     checkIfDisabled(Tower) {
-        let button = $(`.${Tower.id}`);
+        let button = $(`.tower-picker .${Tower.id} button`);
+        console.log(button);
         if (gameState.money >= Tower.cost) {
             button.prop("disabled", false);
         } else button.prop("disabled", true);
@@ -311,18 +330,29 @@ class TowerPicker {
         }, fps)
     }
     setup() {
-        this.jquery.addClass('tower-picker');
-        this.jquery.css({...this.parentPos});
+        game.append(this.jquery);
+        this.jquery.append(this.box);
+        this.overlay.on('click', () => this.closeTowerPicker())
+        this.box.append(this.container);
         this.towers.forEach((Tower) => {
-            let button = new $(`<button class=${Tower.id}></button>`);
-            this.jquery.append(button);
-            button.on('click', () => this.chooseTower(Tower));
-            let nameDiv = $(`<img src="${Tower.image}"/>`);
-            console.log(nameDiv);
-            // let nameDiv = $(`<div>${Tower.name}</div>`);
-            let costDiv = $(`<div>$${Tower.cost}</div>`);
-            button.append(nameDiv).append(costDiv);
+            let towerDiv = new $(`<div class=${Tower.id}></div>`);
+            let button = new $(`<button><img src="${Tower.image}"/></button>`);
+            let label = $(`<label>$${Tower.cost}</label>`);
+
+            towerDiv.append(button);
+            towerDiv.append(label);
+
+            this.container.append(towerDiv);
+            button.on('click', () => this.selectTower(Tower));
             this.checkIfDisabled(Tower);
+        })
+        this.confirm.prop('disabled', true);
+        this.box.append(this.confirm);
+        this.confirm.on('click', () => this.confirmTower(this.towerSelected));
+        this.jquery.append(this.overlay);
+        this.box.css({
+            top: 'calc(50% - ' + this.box.height()/2 + 'px)',
+            left: 'calc(50% - ' + this.box.width()/2 + 'px)',
         })
         this.update();
     }
