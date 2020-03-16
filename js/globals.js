@@ -1,7 +1,9 @@
 const game = $('.game');
 const fps = 60;
 
-const gameState = {
+let gameState = {
+    inGameTime: new Date().getTime(),
+    queuedActions: [],
     enemies: [],
     nodes: [],
     towers: [],
@@ -12,7 +14,7 @@ const gameState = {
         if (gameState.hp <= 0) {
             gameState.hp = 0;
             gameState.pause();
-            game.append($('<div class="overlay"></div>'));
+            let gameOver = new GameOver();
         }
         $('.hp').text("HP: " + gameState.hp);
     },
@@ -21,8 +23,11 @@ const gameState = {
         gameState.money += amount;
         $('.money').text("MONEY: " + gameState.money)
     },
+    lastPaused: undefined,
+    totalPaused: 0,
     isPaused: false,
     pause: function() {
+        gameState.lastPaused = new Date(),
         gameState.isPaused = true;
         gameState.enemies.forEach((enemy) => {
             enemy.pause();
@@ -61,6 +66,7 @@ const gameState = {
         ]
     ]
 }
+const initGameObjects = game.children().clone();
 
 function setupNodes() {
     let nodePositions = [
@@ -99,9 +105,11 @@ function enemySpawner(Type, numberOfEnemies, waitTime) {
             let enemy = new Type(path);
             gameState.enemies.push(enemy);
         }
-        setTimeout(() => {
-            resolve();
-        }, waitTime)
+        gameState.queuedActions.push({
+            queuedAt: gameState.inGameTime,
+            waitTime,
+            callback: () => resolve()
+        })
     })
 }
 
@@ -129,24 +137,65 @@ async function spawnWave() {
 //     }, fps);
 // }
 
+function startInGameTime() {
+    setInterval(() => {
+        let now = new Date().getTime();
+        if (!gameState.isPaused) {
+            if (gameState.lastPaused) {
+                gameState.totalPaused += now - gameState.lastPaused;
+                gameState.lastPaused = undefined;
+            }
+            gameState.inGameTime = now - gameState.totalPaused;
+            gameState.queuedActions = gameState.queuedActions
+            .filter((action) => {
+                if (action.queuedAt + action.waitTime <= gameState.inGameTime) {
+                    console.log(action.queuedAt, action.waitTime, gameState.inGameTime);
+                    action.callback();
+                    return false;
+                } else return true;
+            })
+        } else {
+            if (!gameState.lastPaused) gameState.lastPaused = new Date().getTime();
+        }
+    }, 1);
+}
+
 function setupPause() {
-    let overlay = new Overlay();
+    let overlay = new $(`<div class="overlay"></div>`);
     $('.pause').on('click', function() {
         if (!gameState.isPaused) {
             gameState.pause();
-            game.append(overlay.jquery);
+            game.append(overlay);
             $(this).text('RESUME');
         } else {
             gameState.resume();
-            overlay.jquery.remove();
+            overlay.remove();
             $(this).text('PAUSE');
         }
     });
 }
 
+function reset() {
+    gameState = {
+        ...gameState,
+        hp: 0,
+        money: 0,
+        enemies: [],
+        nodes: [],
+        towers: [],
+        projectiles: [],
+        isPaused: false,
+        currentWave: 0
+    }
+    game.children().remove();
+    game.append(initGameObjects);
+    start();
+}
+
 function start() {
     gameState.modifyHp(100);
     gameState.modifyMoney(300);
+    startInGameTime();
     setupPause();
 
     setupNodes();

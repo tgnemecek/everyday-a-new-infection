@@ -81,6 +81,17 @@
     }
 }
 
+.game-over {
+    .box {
+        width: 200px;
+        background-color: red;
+        border-radius: 10px;
+        position: absolute;
+        text-align: center;
+        z-index: 3;
+    }
+}
+
 .path {
     width: 25px;
     height: 25px;
@@ -96,6 +107,13 @@
     border-radius: 50%;
     &:hover {
         border: 1px solid yellow;
+    }
+    .radar {
+        background-color: rgba(0, 88, 29, 0.102);
+        border: 2px solid rgba(0, 189, 63, 0.397);
+        position: absolute;
+        z-index: -1;
+        border-radius: 50%;
     }
 }
 
