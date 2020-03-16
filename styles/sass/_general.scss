@@ -90,6 +90,7 @@
         width: 25px;
         height: 2px;
         margin-bottom: 5px;
+        visibility: hidden;
         z-index: 3;
         div:first-child {
             background-color: green;

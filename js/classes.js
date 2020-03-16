@@ -46,7 +46,8 @@ class Enemy {
         let percentLeft = (this.hp / this.maxHp) * 100;
         let percentLost = ((this.maxHp - this.hp) / this.maxHp) * 100;
         this.hpBar.css({
-            gridTemplateColumns: `${percentLeft}% ${percentLost}%`
+            gridTemplateColumns: `${percentLeft}% ${percentLost}%`,
+            visibility: "inherit"
         })
 
         if (this.hp <= 0) {
@@ -316,7 +317,9 @@ class TowerPicker {
             let button = new $(`<button class=${Tower.id}></button>`);
             this.jquery.append(button);
             button.on('click', () => this.chooseTower(Tower));
-            let nameDiv = $(`<div>${Tower.name}</div>`);
+            let nameDiv = $(`<img src="${Tower.image}"/>`);
+            console.log(nameDiv);
+            // let nameDiv = $(`<div>${Tower.name}</div>`);
             let costDiv = $(`<div>$${Tower.cost}</div>`);
             button.append(nameDiv).append(costDiv);
             this.checkIfDisabled(Tower);
@@ -332,7 +335,6 @@ class Tower {
         this.nodePosition = node.position();
         this.offset = {};
         this.projectilePosition = {};
-        this.image = "";
 
         this.range = 100;
         this.attackSpeed = 2;
@@ -344,6 +346,9 @@ class Tower {
         this.paused = false;
         // this.setup();
     }
+
+    static image = "";
+
     pause() {
         this.paused = true;
     }
@@ -353,7 +358,7 @@ class Tower {
     }
     setup() {
         this.jquery.addClass('tower');
-        this.jquery.css("background-image", `url(${this.image})`);
+        this.jquery.css("background-image", `url(${this.constructor.image})`);
         this.node.append(this.jquery);
         this.offset = {
             left: this.jquery.width()/2,
@@ -418,19 +423,18 @@ class Tower {
 class TowerFast extends Tower {
     constructor(node) {
         super(node);
-        this.image = "fast-tower.png";
         this.setup();
     }
     static name = "Fast Tower";
     static id = "fast-tower";
     static cost = 100;
     static description = "Fast tower with good range. Low damage.";
+    static image = "fast-tower.png";
 }
 
 class TowerSlow extends Tower {
     constructor(node) {
         super(node);
-        this.image = "slow-tower.png";
         this.range = 80;
         this.attackSpeed = 1;
         this.projectileSpeed = 0.1;
@@ -441,4 +445,5 @@ class TowerSlow extends Tower {
     static id = "slow-tower";
     static cost = 120;
     static description = "High damage but slow speed.";
+    static image = "slow-tower.png";
 }
