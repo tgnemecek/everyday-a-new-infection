@@ -1,5 +1,7 @@
+const mainMenu = $('.main-menu');
 const game = $('.game');
 const fps = 60;
+let windowSize = {};
 let gameState;
 
 class GameState {
@@ -41,11 +43,11 @@ class GameState {
                     { left: "0%", top: "100%"},
                 ],
                 waves: [
-                    // [
-                    //     {type: EnemySmall, quantity: 10, waitTime: 5000},
-                    //     {type: EnemySmall, quantity: 10, waitTime: 5000},
-                    //     {type: EnemyBig, quantity: 2, waitTime: 5000},
-                    // ],
+                    [
+                        {type: EnemySmall, quantity: 10, waitTime: 5000},
+                        {type: EnemySmall, quantity: 10, waitTime: 5000},
+                        {type: EnemyBig, quantity: 2, waitTime: 5000},
+                    ],
                     [
                         {type: EnemyBig, quantity: 1, waitTime: 5000},
                     ]
@@ -104,9 +106,7 @@ class GameState {
     modifyHp(amount) {
         this.hp += amount;
         if (this.hp <= 0) {
-            this.hp = 0;
-            this.pause();
-            let gameOver = new GameOver();
+            this.gameOver();
         }
         this.hud.jquery.children('.hp').text("HP: " + this.hp);
     }
@@ -153,6 +153,12 @@ class GameState {
             node.resume();
         })
     }
+    reset() {
+        startGame(this.levelIndex);
+    }
+    exit() {
+        startMainMenu();
+    }
     nextWave() {
         let totalWaves = this.waves.length;
         if (this.currentWave+1 === totalWaves) {
@@ -164,6 +170,21 @@ class GameState {
     }
     win() {
         alert('you win!');
+    }
+    gameOver() {
+        this.hp = 0;
+        this.pause();
+        let container = new $(`<div class="game-over"><h2>Game Over!</h2></div>`);
+        let buttons = new $(`<div class="buttons"></div>`);
+        let exit = new $(`<button>Exit</button>`);
+        let restart = new $(`<button>Restart</button>`);
+        container.append(buttons);
+        buttons.append(exit);
+        buttons.append(restart);
+        exit.on('click', () => this.exit());
+        restart.on('click', () => this.reset());
+        let gameOver = new ModalBox(container);
+        game.append(gameOver.jquery);
     }
     setup() {
         let levelData = this.getLevelData();
@@ -181,104 +202,88 @@ class GameState {
             path.css(pathPosition);
         })
         this.startInGameTime();
-        this.modifyHp(100);
+        this.modifyHp(1000);
         this.modifyMoney(300);
         this.spawnWave();
     }
 }
 
-
-
-// let gameState = {
-//     inGameTime: new Date().getTime(),
-//     queuedActions: [],
-//     enemies: [],
-//     nodes: [],
-//     towers: [],
-//     projectiles: [],
-//     hp: 0,
-//     modifyHp: function (amount) {
-//         gameState.hp += amount;
-//         if (gameState.hp <= 0) {
-//             gameState.hp = 0;
-//             gameState.pause();
-//             let gameOver = new GameOver();
-//         }
-//         $('.hud .hp').text("HP: " + gameState.hp);
-//     },
-//     money: 0,
-//     modifyMoney: function (amount) {
-//         gameState.money += amount;
-//         $('.hud .money').text("MONEY: " + gameState.money);
-//     },
-//     removeEnemy: function(id) {
-//         let enIndex = gameState.enemies
-//         .findIndex((enemy) => {
-//             return enemy.id === id;
-//         })
-//         gameState.enemies.splice(enIndex, 1);
-//         if (!gameState.enemies.length) gameState.nextWave();
-//     },
-//     lastPaused: undefined,
-//     totalPaused: 0,
-//     isPaused: false,
-//     pause: function() {
-//         gameState.lastPaused = new Date(),
-//         gameState.isPaused = true;
-//         gameState.enemies.forEach((enemy) => {
-//             enemy.pause();
-//         })
-//         gameState.towers.forEach((tower) => {
-//             tower.pause();
-//         })
-//         gameState.projectiles.forEach((projectile) => {
-//             projectile.pause();
-//         })
-//         gameState.nodes.forEach((node) => {
-//             node.pause();
-//         })
-//     },
-//     resume: function() {
-//         gameState.isPaused = false;
-//         gameState.enemies.forEach((enemy) => {
-//             enemy.resume();
-//         })
-//         gameState.towers.forEach((tower) => {
-//             tower.resume();
-//         })
-//         gameState.projectiles.forEach((projectile) => {
-//             projectile.resume();
-//         })
-//         gameState.nodes.forEach((node) => {
-//             node.resume();
-//         })
-//     },
-//     nextWave: function() {
-//         let totalWaves = gameState.waves.length;
-//         if (gameState.currentWave+1 === totalWaves) {
-//             gameState.win();
-//         } else {
-//             gameState.currentWave++;
-//             $('.hud .wave').text(`WAVE: ${gameState.currentWave+1}/${totalWaves}`);
-//         }
-//     },
-//     currentWave: -1,
-//     win: function() {
-//         alert('you win!');
-//     }
-// }
-
-
-function reset() {
-    let levelIndex = gameState.levelIndex;
+function startGame(levelIndex) {
     game.children().remove();
-    start(levelIndex);
-}
-
-function start(levelIndex) {
+    console.log(levelIndex);
     gameState = new GameState(levelIndex);
 }
+function startMainMenu() {
+    game.children().remove();
+    game.hide();
+    mainMenu.show();
 
-start(0);
+    let startGameButton = $(`.main-menu .start-game`);
+    startGameButton.on('click', () => {
+        mainMenu.hide();
+        game.show();
+        startGame(0);
+    })
+}
+function resizeGameArea() {
+    let wrapper = $('.wrapper');
+    let widthToHeight = 16 / 9;
+    let newWidth = window.innerWidth;
+    let newHeight = window.innerHeight;
+    let newWidthToHeight = newWidth / newHeight;
+    
+    if (newWidthToHeight > widthToHeight) {
+        newWidth = newHeight * widthToHeight;
+        wrapper.css({
+            width: newWidth + 'px',
+            height: newHeight + 'px'
+        })
+    } else {
+        newHeight = newWidth / widthToHeight;
+        wrapper.css({
+            width: newWidth + 'px',
+            height: newHeight + 'px'
+        })
+    }
 
+    wrapper.css({
+        marginTop: (-newHeight / 2) + 'px',
+        marginLeft: (-newWidth / 2) + 'px'
+    })
 
+    game.css({
+        width: newWidth,
+        height: newHeight
+    })
+    if (gameState) {
+        gameState.enemies.forEach((enemy) => {
+            enemy.onResize(newWidth, newHeight);
+        })
+        gameState.nodes.forEach((node) => {
+            node.onResize(newWidth);
+        })
+        gameState.towers.forEach((tower) => {
+            tower.onResize(newWidth);
+        })
+        gameState.projectiles.forEach((projectile) => {
+            projectile.onResize(newWidth, newHeight);
+        })
+    }
+    windowSize = {
+        width: newWidth,
+        height: newHeight,
+    }
+}
+
+function onPageLoad() {
+    $(window).resize(resizeGameArea);
+    $(window).on('resize', resizeGameArea);
+    windowSize = {
+        width: window.innerWidth,
+        height: window.innerHeight,
+    }
+    resizeGameArea();
+    startMainMenu();
+}
+
+onPageLoad();

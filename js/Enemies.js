@@ -6,9 +6,9 @@ class Enemy {
         this.hpBar = new $(`<div class="hp-bar"><div></div><div></div></div>`);
         this.beingSlowedDown = false;
         
-        this.width = 8;
-        this.height = 8;
-        this.moveSpeed = 0.05;
+        this.width = 0.008;
+        this.height = 0.008;
+        this.moveSpeed = 50;
         this.maxHp = 50;
         this.money = 10;
         
@@ -17,9 +17,11 @@ class Enemy {
         this.percentWalked = 0;
         this.nextPath = 1;
         this.isAlive = true;
+        this.animation = undefined;
+        this.random = randomize(1, 30);
         this.style = {
-            top: randomize($(this.path[0]).position().top, 30),
-            left: randomize($(this.path[0]).position().left, 30),
+            top: Number($(this.path[0]).css('top').replace("px", "")) + this.random,
+            left: Number($(this.path[0]).css('left').replace("px", "")) + this.random,
         }
         // this.setup();
     }
@@ -76,22 +78,41 @@ class Enemy {
         }
     }
 
+    onResize(newWidth, newHeight) {
+        let pos = this.jquery.position();
+        let xCurRatio = (pos.left / windowSize.width);
+        let xNewPos = newWidth * xCurRatio;
+        let yCurRatio = (pos.top / windowSize.height);
+        let yNewPos = newHeight * yCurRatio;
+
+        this.jquery.stop();
+        this.sprite.height(this.height * newWidth);
+        this.sprite.width(this.width * newWidth);
+        this.jquery.css({
+            left: xNewPos,
+            top: yNewPos
+        })
+        this.followPath();
+    }
+
     moveTo(x, y) {
-        x = randomize(x, 30);
-        y = randomize(y, 30);
+        x = x + this.random;
+        y = y + this.random;
 
         let currPos = this.jquery.position();
         let currX = currPos.left;
         let currY = currPos.top;
         let distance = distanceTo(x, y, currX, currY);
-        let duration = distance / this.moveSpeed;
+        let duration = (distance * 500000 / windowSize.width) / this.moveSpeed;
         if (this.beingSlowedDown) duration = duration * 2;
+        console.log(duration);
         this.jquery.animate({
             left: x,
             top: y
         }, {
             duration,
             easing: "linear",
+            start: (an) => this.animation = an,
             progress: (an, prog, remaining) => {
                 this.percentWalked = prog;
             },
@@ -108,8 +129,11 @@ class Enemy {
             this.arrived();
             return;
         };
-        let x = $(this.path[this.nextPath]).position().left;
-        let y = $(this.path[this.nextPath]).position().top;
+
+        let x = Number($(this.path[this.nextPath]).css('left').replace("px", ""));
+        let y = Number($(this.path[this.nextPath]).css('top').replace("px", ""));
+
+
         this.moveTo(x, y)
     }
 
@@ -130,8 +154,8 @@ class Enemy {
         this.sprite.css({
             backgroundColor: getRandomizedColor(217, 59, 59)
         });
-        this.sprite.height(this.height);
-        this.sprite.width(this.width);
+        this.sprite.height(this.height * windowSize.width);
+        this.sprite.width(this.width * windowSize.width);
         this.followPath();
     }
 }
@@ -146,8 +170,8 @@ class EnemySmall extends Enemy {
 class EnemyBig extends Enemy {
     constructor(path) {
         super(path);
-        this.height = 16;
-        this.width = 16;
+        this.height = 0.016;
+        this.width = 0.016;
         this.setup();
     }
 }

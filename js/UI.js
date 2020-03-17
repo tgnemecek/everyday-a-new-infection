@@ -8,7 +8,7 @@ class ModalBox {
         this.setup();
     }
     setup() {
-        this.jquery.append(this.box);
+        if (this.child) this.jquery.append(this.box);
         this.jquery.append(this.overlay);
         this.box.append(this.child);
         if (typeof this.overlayOnClick === 'function') {
@@ -58,7 +58,11 @@ class HUD {
         });
 
         this.restart.on('click', () => {
-            reset();
+            gameState.reset();
+        })
+
+        this.exit.on('click', () => {
+            gameState.exit();
         })
     }
 
@@ -66,11 +70,9 @@ class HUD {
 
 class GameOver {
     constructor() {
-        this.jquery = new $(`<div class="game-over"></div>`);
-        this.box = new $(`<div class="box"><h2>Game Over!</h2></div>`);
-        this.text = new $(`<p>Some text here...</p>`);
-        this.button = new $(`<button>Try Again</button>`);
-        this.overlay = new $(`<div class="overlay"></div>`);
+        this.jquery = new $(`<div></div>`);
+        this.restart = new $(`<button>Restart</button>`);
+        this.exit = new $(`<button>Exit</button>`);
         this.setup();
     }
     setup() {
@@ -89,15 +91,14 @@ class GameOver {
 
 class TowerPicker {
     constructor(confirmTower, closeTowerPicker) {
-        this.jquery = new $(`<div class="tower-picker"></div>`);
-        this.box = new $('<div class="box"><h2>Build a Tower</h2></div>');
+        this.jquery = new $('<div class="tower-picker"><h2>Build a Tower</h2></div>');
         this.container = new $(`<div class="container"></div>`);
         this.confirm = new $(`<button class="confirm">OK</button>`);
         this.description = new $(`<div class="description"></div>`);
-        this.overlay = new $(`<div class="overlay"></div>`);
         this.confirmTower = confirmTower;
         this.closeTowerPicker = closeTowerPicker;
         this.towerSelected = undefined;
+        this.modalBox = undefined;
         this.towers = [
             TowerFast,
             TowerSlow,
@@ -112,7 +113,7 @@ class TowerPicker {
         $(`.${Tower.id} button`).addClass('selected');
         this.towerSelected = Tower;
         this.confirm.prop('disabled', false);
-        this.box.append(this.description);
+        this.jquery.append(this.description);
         this.description.text(Tower.description);
     }
     checkIfDisabled(Tower) {
@@ -129,10 +130,12 @@ class TowerPicker {
         }, fps)
     }
     setup() {
-        game.append(this.jquery);
-        this.jquery.append(this.box);
-        this.overlay.on('click', () => this.closeTowerPicker())
-        this.box.append(this.container);
+        this.jquery.append(this.container);
+        this.modalBox = new ModalBox(this.jquery, () => {
+            this.modalBox.jquery.remove();
+            this.closeTowerPicker();
+        });
+        game.append(this.modalBox.jquery);
         this.towers.forEach((Tower) => {
             let towerDiv = new $(`<div class=${Tower.id}></div>`);
             let button = new $(`<button><img src="${Tower.image}"/></button>`);
@@ -146,13 +149,11 @@ class TowerPicker {
             this.checkIfDisabled(Tower);
         })
         this.confirm.prop('disabled', true);
-        this.box.append(this.confirm);
-        this.confirm.on('click', () => this.confirmTower(this.towerSelected));
-        this.jquery.append(this.overlay);
-        this.box.css({
-            top: 'calc(50% - ' + this.box.height()/2 + 'px)',
-            left: 'calc(50% - ' + this.box.width()/2 + 'px)',
-        })
+        this.jquery.append(this.confirm);
+        this.confirm.on('click', () => {
+            this.modalBox.jquery.remove();
+            this.confirmTower(this.towerSelected);
+        });
         this.update();
     }
 }

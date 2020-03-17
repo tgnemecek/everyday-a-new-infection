@@ -1,11 +1,21 @@
 class Node {
     constructor(position) {
         this.jquery = new $('<div><div>');
-        this.style = {...position};
+        this.style = {
+            ...position,
+            width: windowSize.width / 10,
+            height: windowSize.width / 10
+        };
         this.hasTower = false;
         this.towerPicker = undefined;
         this.paused = false;
         this.setup();
+    }
+    onResize(newWidth) {
+        this.jquery.css({
+            width: newWidth / 10,
+            height: newWidth / 10
+        })
     }
     pause() {
         this.paused = true;
@@ -41,12 +51,13 @@ class Node {
 }
 
 class Radar {
-    constructor(node, tower, range) {
+    constructor(node, tower, getActualRange) {
         this.node = node;
         this.tower = tower;
-        this.range = range + 10;
+        this.getActualRange = getActualRange;
         this.jquery = new $(`<div class="radar"></div>`);
         this.animationDuration = 3000;
+        this.progress = 0;
         this.style = {
             width: 0,
             height: 0,
@@ -56,15 +67,20 @@ class Radar {
         }
         this.setup();
     }
+    onResize() {
+        this.jquery.stop();
+        this.animation();
+    }
     animation() {
         this.jquery.animate({
-            width: this.range*2,
-            height: this.range*2,
-            left: this.tower.width()/2 - this.range,
-            top: this.tower.height()/2 - this.range,
+            width: this.getActualRange()*2,
+            height: this.getActualRange()*2,
+            left: this.tower.width()/2 - this.getActualRange(),
+            top: this.tower.height()/2 - this.getActualRange(),
             opacity: 0
         }, {
             duration: this.animationDuration,
+            progress: (prog) => this.progress = prog,
             complete: () => {
                 this.jquery.css(this.style);
                 this.animation();
@@ -81,20 +97,38 @@ class Radar {
 }
 
 class Projectile {
-    constructor(initPosition, enemy, damage, moveSpeed, color) {
+    constructor(getInitPosition, enemy, damage, moveSpeed, color) {
         this.id = new Date().getTime();
         this.jquery = new $(`<div class="projectile"></div>`);
         this.style = {
-            top: initPosition.top,
-            left: initPosition.left,
+            ...getInitPosition(),
             backgroundColor: getRandomizedColor(...color)
         }
+        this.width = 0.006;
+        this.height = 0.006;
         this.enemy = enemy;
         this.moveSpeed = moveSpeed;
         this.damage = damage;
         this.animationEnded = false;
-        this.destination = {};
+        this.destination = this.enemy.spritePosition();
         this.setup();
+    }
+    onResize(newWidth, newHeight) {
+        let pos = this.jquery.position();
+        let xCurRatio = (pos.left / windowSize.width);
+        let xNewPos = newWidth * xCurRatio;
+        let yCurRatio = (pos.top / windowSize.height);
+        let yNewPos = newHeight * yCurRatio;
+
+        this.jquery.height(this.height * newWidth);
+        this.jquery.width(this.width * newWidth);
+
+        this.jquery.stop();
+        this.jquery.css({
+            left: xNewPos,
+            top: yNewPos
+        })
+        this.moveToTarget();
     }
     pause() {
         this.jquery.stop();
@@ -103,11 +137,7 @@ class Projectile {
         this.moveToTarget();
     }
     moveToTarget() {
-        let enPosition;
-
-        if (!this.enemy.isAlive) {
-            enPosition = this.destination;
-        } else enPosition = this.enemy.spritePosition();
+        let enPosition = this.enemy.spritePosition();;
 
         let enX = enPosition.left - this.jquery.width()/2;
         let enY = enPosition.top - this.jquery.height()/2;
@@ -152,6 +182,8 @@ class Projectile {
     }
     setup() {
         game.append(this.jquery);
+        this.jquery.height(this.height * windowSize.width);
+        this.jquery.width(this.width * windowSize.width);
         this.jquery.css(this.style);
         this.moveToTarget();
     }
@@ -161,11 +193,8 @@ class Tower {
     constructor(node) {
         this.jquery = new $(`<div class="tower"></div>`);
         this.node = node;
-        this.nodePosition = node.position();
-        this.offset = {};
-        this.projectilePosition = {};
 
-        this.range = 100;
+        this.range = 0.2; // Range to be adjusted
         this.attackSpeed = 2;
         this.projectileSpeed = 0.2;
         this.damage = 10;
@@ -178,6 +207,25 @@ class Tower {
 
     static image = "";
 
+    onResize(newWidth) {
+        this.radar.onResize(newWidth);
+    }
+
+    getActualRange() {
+        return this.range * windowSize.width;
+    }
+
+    getProjectilePosition() {
+        let offset = {
+            left: this.jquery.width()/2,
+            top: 5
+        }
+        return {
+            left: this.node.position().left + offset.left,
+            top: this.node.position().top + offset.top,
+        }
+    }
+
     pause() {
         this.paused = true;
     }
@@ -188,15 +236,7 @@ class Tower {
     setup() {
         this.jquery.css("background-image", `url(${this.constructor.image})`);
         this.node.append(this.jquery);
-        this.radar = new Radar(this.node, this.jquery, this.range);
-        this.offset = {
-            left: this.jquery.width()/2,
-            top: 5
-        }
-        this.projectilePosition = {
-            left: this.nodePosition.left + this.offset.left,
-            top: this.nodePosition.top + this.offset.top,
-        }
+        this.radar = new Radar(this.node, this.jquery, this.getActualRange.bind(this));
         setInterval(() => {
             this.update();
         }, fps)
@@ -209,12 +249,12 @@ class Tower {
                 let enX = enPosition.left;
                 let enY = enPosition.top;
 
-                let nodeX = this.projectilePosition.left;
-                let nodeY = this.projectilePosition.top;
+                let nodeX = this.getProjectilePosition().left;
+                let nodeY = this.getProjectilePosition().top;
 
                 let distance = distanceTo(nodeX, nodeY, enX, enY);
 
-                if (distance < this.range) {
+                if (distance < this.getActualRange()) {
                     enemiesInRange.push(enemy);
                 }
             })
@@ -233,7 +273,7 @@ class Tower {
                     }
                 })
                 let projectile = new Projectile(
-                    this.projectilePosition,
+                    this.getProjectilePosition.bind(this),
                     enemyCloserToEnd,
                     this.damage,
                     this.projectileSpeed,
@@ -264,7 +304,7 @@ class TowerFast extends Tower {
 class TowerSlow extends Tower {
     constructor(node) {
         super(node);
-        this.range = 80;
+        this.range = 0.15;
         this.attackSpeed = 1;
         this.projectileSpeed = 0.1;
         this.damage = 50;
@@ -280,7 +320,7 @@ class TowerSlow extends Tower {
 class TowerSticky extends Tower {
     constructor(node) {
         super(node);
-        this.range = 120;
+        this.range = 0.2;
         this.attackSpeed = 1;
         this.projectileSpeed = 0.1;
         this.damage = 5;
@@ -301,12 +341,12 @@ class TowerSticky extends Tower {
                 let enX = enPosition.left;
                 let enY = enPosition.top;
 
-                let nodeX = this.projectilePosition.left;
-                let nodeY = this.projectilePosition.top;
+                let nodeX = this.getProjectilePosition().left;
+                let nodeY = this.getProjectilePosition().top;
 
                 let distance = distanceTo(nodeX, nodeY, enX, enY);
 
-                if (distance < this.range) {
+                if (distance < this.getActualRange()) {
                     enemy.slowDown();
                 } else enemy.regularSpeed();
             })

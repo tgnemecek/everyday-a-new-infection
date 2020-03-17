@@ -1,4 +1,5 @@
 function randomize(input, range) {
+    input = Number(input);
     let random = Math.floor(Math.random() * range) - range / 2;
     return input + random;
 }
