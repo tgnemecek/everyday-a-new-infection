@@ -1,6 +1,6 @@
 class Node {
     constructor(position) {
-        this.jquery = new $('<div><div>');
+        this.jquery = new $('<button></button>');
         this.style = {
             ...position,
             width: windowSize.width / 10,

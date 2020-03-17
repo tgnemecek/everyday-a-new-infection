@@ -68,6 +68,40 @@ class HUD {
 
 }
 
+class Encyclopedia {
+    constructor(levelData) {
+        this.levelData = levelData;
+        this.jquery = new $(`<div class="encyclopedia"></div>`);
+        this.enemies = [];
+        this.setup();
+    }
+    setup() {
+        this.levelData.waves.forEach((wave) => {
+            wave.forEach((subWave) => {
+                let found = this.enemies.find((enemy) => {
+                    return enemy.type === subWave.type;
+                })
+                if (found) {
+                    found.quantity += subWave.quantity;
+                } else {
+                    this.enemies.push({
+                        type: subWave.type,
+                        quantity: subWave.quantity
+                    });
+                }
+            })
+        })
+        this.enemies.forEach((enemy) => {
+            let enJquery = new $(`<div></div>`);
+            let description = new $(`<div class="description"></div>`);
+            description.append(`<h2>${enemy.type.name}</h2><p>${enemy.type.description}</p>`);
+            enJquery.append(description);
+            enJquery.append(`<div class="quantity">${enemy.quantity}</div>`);
+            this.jquery.append(enJquery);
+        })
+    }
+}
+
 class GameOver {
     constructor() {
         this.jquery = new $(`<div></div>`);

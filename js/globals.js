@@ -9,6 +9,7 @@ class GameState {
         this.levelIndex = levelIndex
         this.inGameTime = new Date().getTime()
         this.hud = new HUD()
+        this.encyclopedia = undefined
         this.queuedActions = []
         this.enemies = []
         this.nodes = []
@@ -192,6 +193,8 @@ class GameState {
 
         game.append($(`<img src="${levelData.image}" class="background"></img>`));
         game.append(this.hud.jquery);
+        this.encyclopedia = new Encyclopedia(this.getLevelData());
+        game.append(this.encyclopedia.jquery);
         levelData.nodes.forEach((position) => {
             let node = new Node(position);
             this.nodes.push(node);

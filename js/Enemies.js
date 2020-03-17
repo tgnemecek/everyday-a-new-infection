@@ -165,6 +165,8 @@ class EnemySmall extends Enemy {
         super(path);
         this.setup();
     }
+    static name = "Small Enemy";
+    static description = "Fast but weak.";
 }
 
 class EnemyBig extends Enemy {
@@ -174,4 +176,6 @@ class EnemyBig extends Enemy {
         this.width = 0.016;
         this.setup();
     }
+    static name = "Big Enemy";
+    static description = "Hard to kill but slow.";
 }

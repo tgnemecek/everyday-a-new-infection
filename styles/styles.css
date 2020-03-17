@@ -221,8 +221,12 @@ textarea {
   overflow: hidden;
 }
 
-button {
+* {
   outline: none;
+  -webkit-user-select: none;
+     -moz-user-select: none;
+      -ms-user-select: none;
+          user-select: none;
 }
 
 .main-menu {
@@ -284,7 +288,7 @@ button {
   -ms-flex-line-pack: start;
       align-content: flex-start;
   gap: 25px;
-  margin: 10px;
+  padding: 2%;
   color: white;
 }
 
@@ -294,6 +298,56 @@ button {
   color: white;
   border: none;
   z-index: 2;
+  width: 50px;
+}
+
+.encyclopedia {
+  position: absolute;
+  right: 0;
+  display: -ms-grid;
+  display: grid;
+  -ms-grid-columns: 1fr;
+      grid-template-columns: 1fr;
+  grid-auto-rows: 50px;
+  gap: 10px;
+  padding: 2%;
+}
+
+.encyclopedia > div {
+  border: 1px solid red;
+  background-color: orange;
+  position: relative;
+  border-radius: 50%;
+  width: 50px;
+}
+
+.encyclopedia > div .quantity {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 20px;
+  height: 20px;
+  line-height: 21px;
+  font-size: 14px;
+  color: white;
+  text-align: center;
+  border-radius: 50%;
+  background-color: blue;
+}
+
+.encyclopedia > div:hover .description {
+  display: block;
+}
+
+.encyclopedia > div .description {
+  display: none;
+  position: absolute;
+  background-color: #8080803b;
+  right: 100%;
+  min-width: 120px;
+  color: white;
+  padding: 5px;
+  border-radius: 5px;
 }
 
 .modal {
@@ -448,6 +502,7 @@ button {
   border: 1px solid grey;
   position: absolute;
   border-radius: 50%;
+  background-color: transparent;
 }
 
 .node:hover {
