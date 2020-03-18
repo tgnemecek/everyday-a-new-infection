@@ -6,24 +6,30 @@ class Enemy {
         this.hpBar = new $(`<div class="hp-bar"><div></div><div></div></div>`);
         this.beingSlowedDown = false;
         
-        this.width = 0.008;
-        this.height = 0.008;
+        this.width = 0.03;
+        this.height = 0.03;
         this.moveSpeed = 50;
         this.maxHp = 50;
         this.money = 10;
-        
+
         this.hp = this.maxHp;
         this.path = path;
         this.percentWalked = 0;
         this.nextPath = 1;
         this.isAlive = true;
         this.animation = undefined;
-        this.random = randomize(1, 30);
+        this.spriteAnimation = undefined;
         this.style = {
-            top: Number($(this.path[0]).css('top').replace("px", "")) + this.random,
-            left: Number($(this.path[0]).css('left').replace("px", "")) + this.random,
+            top: this.randomizePosition($(this.path[0]).position().top, 100),
+            left: this.randomizePosition($(this.path[0]).position().left, 100),
+            filter: `brightness(${tools.randomize(1, 0.2)}) hue-rotate(${tools.randomize(1, 50)}deg)`,
         }
         // this.setup();
+    }
+
+    randomizePosition(value, range) {
+        let factor = windowSize.width / 1920;
+        return tools.randomize(value, range * factor);
     }
 
     spritePosition() {
@@ -66,6 +72,9 @@ class Enemy {
         if (!this.beingSlowedDown) {
             this.jquery.stop();
             this.beingSlowedDown = true;
+            this.sprite.css({
+                filter: `hue-rotate(90deg)`
+            })
             this.followPath();
         }
     }
@@ -74,6 +83,9 @@ class Enemy {
         if (this.beingSlowedDown) {
             this.jquery.stop();
             this.beingSlowedDown = false;
+            this.sprite.css({
+                filter: this.style.filter
+            })
             this.followPath();
         }
     }
@@ -96,16 +108,15 @@ class Enemy {
     }
 
     moveTo(x, y) {
-        x = x + this.random;
-        y = y + this.random;
+        x = this.randomizePosition(x, 100);
+        y = this.randomizePosition(y, 100);
 
         let currPos = this.jquery.position();
         let currX = currPos.left;
         let currY = currPos.top;
-        let distance = distanceTo(x, y, currX, currY);
+        let distance = tools.distanceTo(x, y, currX, currY);
         let duration = (distance * 500000 / windowSize.width) / this.moveSpeed;
         if (this.beingSlowedDown) duration = duration * 2;
-        console.log(duration);
         this.jquery.animate({
             left: x,
             top: y
@@ -138,11 +149,8 @@ class Enemy {
     }
 
     arrived() {
-        let i = gameState.enemies.findIndex((enemy) => {
-            return enemy.id === this.id;
-        })
-        gameState.enemies.splice(i, 1);
         gameState.modifyHp(-10);
+        gameState.removeEnemy(this.id);
         this.jquery.remove();
     }
 
@@ -151,11 +159,17 @@ class Enemy {
         this.jquery.append(this.hpBar);
         this.jquery.append(this.sprite);
         this.jquery.css(this.style);
-        this.sprite.css({
-            backgroundColor: getRandomizedColor(217, 59, 59)
-        });
+        // this.sprite.css({
+        //     backgroundColor: tools.getRandomizedColor(217, 59, 59)
+        // });
         this.sprite.height(this.height * windowSize.width);
         this.sprite.width(this.width * windowSize.width);
+        this.spriteAnimation = tools.addSpriteAnimation(
+            this.sprite,
+            this.constructor.image,
+            5,
+            0.4
+        )
         this.followPath();
     }
 }
@@ -165,8 +179,9 @@ class EnemySmall extends Enemy {
         super(path);
         this.setup();
     }
-    static name = "Small Enemy";
-    static description = "Fast but weak.";
+    static name = "Cold Virus";
+    static description = "Really common and fast, but easy to treat.";
+    static image = "images/cold-virus.png";
 }
 
 class EnemyBig extends Enemy {

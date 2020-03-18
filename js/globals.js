@@ -27,21 +27,26 @@ class GameState {
     getLevelData() {
         let levels = [
             {
-                image: "background.jpg",
+                image: "images/level1.jpg",
                 nodes: [
-                    { left: "21%", top: "35%"},
-                    { left: "45%", top: "35%"},
-                    { left: "66%", top: "65%"},
-                    { left: "18%", top: "85%"},
+                    { left: "70%", top: "5%"},
+                    { left: "25%", top: "40%"},
+                    { left: "0%", top: "10%"},
+                    { left: "5%", top: "80%"},
+                    { left: "90%", top: "50%"},
                 ],
                 path: [
-                    { left: "80%", top: "-15%"},
-                    { left: "80%", top: "85%"},
+                    { left: "90%", top: "-15%"},
+                    { left: "90%", top: "25%"},
+                    { left: "80%", top: "40%"},
+                    { left: "65%", top: "40%"},
+                    { left: "50%", top: "20%"},
+                    { left: "25%", top: "20%"},
+                    { left: "15%", top: "30%"},
+                    { left: "15%", top: "60%"},
+                    { left: "25%", top: "75%"},
                     { left: "60%", top: "85%"},
-                    { left: "60%", top: "20%"},
-                    { left: "12%", top: "20%"},
-                    { left: "12%", top: "80%"},
-                    { left: "0%", top: "100%"},
+                    { left: "100%", top: "80%"},
                 ],
                 waves: [
                     [
@@ -109,13 +114,14 @@ class GameState {
         if (this.hp <= 0) {
             this.gameOver();
         }
-        this.hud.jquery.children('.hp').text("HP: " + this.hp);
+        this.hud.jquery.children('.hp').text("HEALTH: " + this.hp);
     }
     modifyMoney(amount) {
         this.money += amount;
-        this.hud.jquery.children('.money').text("MONEY: " + this.money);
+        this.hud.jquery.children('.money').text("ENERGY: " + this.money);
     }
     removeEnemy(id) {
+        console.log('a');
         let enIndex = this.enemies
         .findIndex((enemy) => {
             return enemy.id === id;
@@ -161,6 +167,7 @@ class GameState {
         startMainMenu();
     }
     nextWave() {
+        console.log(this.enemies);
         let totalWaves = this.waves.length;
         if (this.currentWave+1 === totalWaves) {
             this.win();
@@ -170,7 +177,8 @@ class GameState {
         }
     }
     win() {
-        alert('you win!');
+        saveProgress(this.levelIndex+1);
+        console.log('you win!');
     }
     gameOver() {
         this.hp = 0;
@@ -211,6 +219,13 @@ class GameState {
     }
 }
 
+function getCookie(key) {
+    let value = "; " + document.cookie;
+    let parts = value.split("; " + key + "=");
+    if (parts.length === 2) {
+        return parts.pop().split(";").shift();
+    }
+}
 function startGame(levelIndex) {
     game.children().remove();
     console.log(levelIndex);
@@ -219,7 +234,18 @@ function startGame(levelIndex) {
 function startMainMenu() {
     game.children().remove();
     game.hide();
+
     mainMenu.show();
+    let loadLevelIndex = getCookie("loadLevelIndex");
+    if (loadLevelIndex !== undefined) {
+        $('.load-game')
+            .show()
+            .on('click', () => {
+                mainMenu.hide();
+                game.show();
+                startGame(loadLevelIndex);
+            })
+    }
 
     let startGameButton = $(`.main-menu .start-game`);
     startGameButton.on('click', () => {
@@ -227,6 +253,7 @@ function startMainMenu() {
         game.show();
         startGame(0);
     })
+
 }
 function resizeGameArea() {
     let wrapper = $('.wrapper');
@@ -254,9 +281,14 @@ function resizeGameArea() {
         marginLeft: (-newWidth / 2) + 'px'
     })
 
+    let minFontSize = 14;
+    let fontSize = newWidth / 100;
+    if (fontSize < minFontSize) fontSize = minFontSize;
+
     game.css({
         width: newWidth,
-        height: newHeight
+        height: newHeight,
+        fontSize: fontSize + "px"
     })
     if (gameState) {
         gameState.enemies.forEach((enemy) => {
@@ -277,7 +309,12 @@ function resizeGameArea() {
         height: newHeight,
     }
 }
-
+function saveProgress(nextLevel) {
+    let pair = "loadLevelIndex=" + nextLevel;
+    let expiry = "; expires=Thu, 1 Dec 2100 12:00:00 UTC";
+    let cookie = pair + expiry;
+    document.cookie = cookie;
+}
 function onPageLoad() {
     $(window).resize(resizeGameArea);
     $(window).on('resize', resizeGameArea);
@@ -288,5 +325,4 @@ function onPageLoad() {
     resizeGameArea();
     startMainMenu();
 }
-
 onPageLoad();

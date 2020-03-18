@@ -102,7 +102,7 @@ class Projectile {
         this.jquery = new $(`<div class="projectile"></div>`);
         this.style = {
             ...getInitPosition(),
-            backgroundColor: getRandomizedColor(...color)
+            backgroundColor: tools.getRandomizedColor(...color)
         }
         this.width = 0.006;
         this.height = 0.006;
@@ -146,7 +146,7 @@ class Projectile {
         let x = curPosition.left;
         let y = curPosition.top;
 
-        let distance = distanceTo(x, y, enX, enY);
+        let distance = tools.distanceTo(x, y, enX, enY);
         let duration = distance / this.moveSpeed;
 
         this.destination = {
@@ -193,6 +193,7 @@ class Tower {
     constructor(node) {
         this.jquery = new $(`<div class="tower"></div>`);
         this.node = node;
+        this.spriteAnimation = undefined;
 
         this.range = 0.2; // Range to be adjusted
         this.attackSpeed = 2;
@@ -218,7 +219,7 @@ class Tower {
     getProjectilePosition() {
         let offset = {
             left: this.jquery.width()/2,
-            top: 5
+            top: this.jquery.height() * 0.2
         }
         return {
             left: this.node.position().left + offset.left,
@@ -234,9 +235,12 @@ class Tower {
         this.paused = false;
     }
     setup() {
-        this.jquery.css("background-image", `url(${this.constructor.image})`);
         this.node.append(this.jquery);
-        this.radar = new Radar(this.node, this.jquery, this.getActualRange.bind(this));
+        this.radar = new Radar(
+            this.node,
+            this.jquery,
+            this.getActualRange.bind(this)
+        );
         setInterval(() => {
             this.update();
         }, fps)
@@ -252,7 +256,7 @@ class Tower {
                 let nodeX = this.getProjectilePosition().left;
                 let nodeY = this.getProjectilePosition().top;
 
-                let distance = distanceTo(nodeX, nodeY, enX, enY);
+                let distance = tools.distanceTo(nodeX, nodeY, enX, enY);
 
                 if (distance < this.getActualRange()) {
                     enemiesInRange.push(enemy);
@@ -293,12 +297,17 @@ class TowerFast extends Tower {
     constructor(node) {
         super(node);
         this.setup();
+        tools.addRotationLoop(
+            this.jquery,
+            this.constructor.image,
+            2
+        )
     }
-    static name = "Fast Tower";
+    static name = "White Blood: B Cell";
     static id = "fast-tower";
     static cost = 100;
-    static description = "Fast tower with good range. Low damage.";
-    static image = "fast-tower.png";
+    static description = "Shoots antibodies at a high speed and range, but causes low damage.";
+    static image = "images/b-cell.png";
 }
 
 class TowerSlow extends Tower {
@@ -310,11 +319,11 @@ class TowerSlow extends Tower {
         this.damage = 50;
         this.setup();
     }
-    static name = "Powerful Tower";
+    static name = "White Blood: T Cell";
     static id = "slow-tower";
     static cost = 120;
-    static description = "High damage but slow speed.";
-    static image = "slow-tower.png";
+    static description = "Shoots phagocytes that cause high damage but have slow speed.";
+    static image = "images/t-cell.png";
 }
 
 class TowerSticky extends Tower {
@@ -326,12 +335,18 @@ class TowerSticky extends Tower {
         this.damage = 5;
         this.enemiesChosen = [];
         this.setup();
+        this.spriteAnimation = tools.addSpriteAnimation(
+            this.jquery,
+            this.constructor.image,
+            5,
+            0.8
+        )
     }
     static name = "Sticky Tower";
     static id = "sticky-tower";
     static cost = 70;
     static description = "Slows down enemies in range.";
-    static image = "slow-tower.png";
+    static image = "images/mucosa.png";
 
     update() {
         if (!this.paused) {
@@ -344,7 +359,7 @@ class TowerSticky extends Tower {
                 let nodeX = this.getProjectilePosition().left;
                 let nodeY = this.getProjectilePosition().top;
 
-                let distance = distanceTo(nodeX, nodeY, enX, enY);
+                let distance = tools.distanceTo(nodeX, nodeY, enX, enY);
 
                 if (distance < this.getActualRange()) {
                     enemy.slowDown();

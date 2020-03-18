@@ -1,1 +1,9 @@
 $info-box-color: #8080803b;
+
+@keyframes sprite-animation {
+    100% { background-position: 100%; }
+ }
+
+ @keyframes rotation-animation {
+    100% { transform: rotate(360deg); }
+ }
