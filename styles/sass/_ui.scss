@@ -47,7 +47,7 @@
     gap: 25px;
     padding: 2%;
     color: white;
-    font-size: 1.2em;
+    font-size: 1em;
     button {
         background: none;
         font-size: 25px;
@@ -56,22 +56,47 @@
         z-index: 2;
         width: 50px;
     }
+    .fa-heart, .fa-atom {
+        margin-right: 5px;
+    }
 }
 
 .encyclopedia {
     position: absolute;
     right: 0;
-    display: grid;
-    grid-template-columns: 1fr;
-    grid-auto-rows: 50px;
-    gap: 10px;
-    padding: 2%;
-    > div {
-        border: 1px solid red;
-        background-color: orange;
+    height: 100%;
+    .content {
+        position: relative;
+        box-shadow: inset -195px 0px 51px -187px rgba(0,0,0,0.75);
+        height: 100%;
+        left: 100%;
+        display: grid;
+        grid-template-columns: 1fr;
+        grid-auto-rows: 50px;
+        gap: 10px;
+        padding: 2%;
+        z-index: 2;
+        transition: left 0.3s;
+    }
+    &:hover .content {
+        left: 0;
+    }
+    .fa-question-circle {
+        position: absolute;
+        left: 50%;
+        top: 40%;
+        color: white;
+        font-size: 1.5em;
+        transition: left 0.3s;
+    }
+    &:hover .fa-question-circle {
+        left: 100%;
+    }
+    .content > div {
         position: relative;
         border-radius: 50%;
-        width: 50px;
+        width: 4em;
+        padding: 5px;
         .quantity {
             position: absolute;
             right: 0;
@@ -85,12 +110,18 @@
             border-radius: 50%;
             background-color: blue;
         }
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
         &:hover .description {
             display: block;
         }
         .description {
             display: none;
             position: absolute;
+            top: 0;
             background-color: $info-box-color;
             right: 100%;
             min-width: 120px;
@@ -156,6 +187,7 @@
         border-radius: 50%;
         overflow: hidden;
         display: block;
+        background-color: transparent;
         &:disabled {
             background-color: grey;
         }

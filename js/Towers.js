@@ -97,15 +97,15 @@ class Radar {
 }
 
 class Projectile {
-    constructor(getInitPosition, enemy, damage, moveSpeed, color) {
+    constructor(getInitPosition, enemy, damage, moveSpeed, color, size) {
         this.id = new Date().getTime();
         this.jquery = new $(`<div class="projectile"></div>`);
         this.style = {
             ...getInitPosition(),
             backgroundColor: tools.getRandomizedColor(...color)
         }
-        this.width = 0.006;
-        this.height = 0.006;
+        this.width = size;
+        this.height = size;
         this.enemy = enemy;
         this.moveSpeed = moveSpeed;
         this.damage = damage;
@@ -137,6 +137,7 @@ class Projectile {
         this.moveToTarget();
     }
     moveToTarget() {
+        if (!this.enemy.isAlive) console.log('not alive');
         let enPosition = this.enemy.spritePosition();;
 
         let enX = enPosition.left - this.jquery.width()/2;
@@ -193,11 +194,12 @@ class Tower {
     constructor(node) {
         this.jquery = new $(`<div class="tower"></div>`);
         this.node = node;
-        this.spriteAnimation = undefined;
+        this.id = new Date().getTime();
 
         this.range = 0.2; // Range to be adjusted
         this.attackSpeed = 2;
-        this.projectileSpeed = 0.2;
+        this.projectileSpeed = 0.4;
+        this.projectileSize = 0.006;
         this.damage = 10;
         this.projectileColor = [35, 196, 196];
 
@@ -235,6 +237,12 @@ class Tower {
         this.paused = false;
     }
     setup() {
+        this.jquery.css({
+            backgroundSize: `100%`,
+            backgroundImage: `url(${this.constructor.image})`,
+            backgroundPosition: 0,
+            backgroundRepeat: "no-repeat",
+        })
         this.node.append(this.jquery);
         this.radar = new Radar(
             this.node,
@@ -281,7 +289,8 @@ class Tower {
                     enemyCloserToEnd,
                     this.damage,
                     this.projectileSpeed,
-                    this.projectileColor
+                    this.projectileColor,
+                    this.projectileSize
                 );
                 gameState.projectiles.push(projectile);
                 this.canAttack = false;
@@ -299,8 +308,7 @@ class TowerFast extends Tower {
         this.setup();
         tools.addRotationLoop(
             this.jquery,
-            this.constructor.image,
-            2
+            1
         )
     }
     static name = "White Blood: B Cell";
@@ -308,6 +316,7 @@ class TowerFast extends Tower {
     static cost = 100;
     static description = "Shoots antibodies at a high speed and range, but causes low damage.";
     static image = "images/b-cell.png";
+    static thumbnail = "images/b-cell.png";
 }
 
 class TowerSlow extends Tower {
@@ -316,14 +325,20 @@ class TowerSlow extends Tower {
         this.range = 0.15;
         this.attackSpeed = 1;
         this.projectileSpeed = 0.1;
+        this.projectileSize = 0.06;
         this.damage = 50;
         this.setup();
+        tools.addRotationLoop(
+            this.jquery,
+            1
+        )
     }
     static name = "White Blood: T Cell";
     static id = "slow-tower";
     static cost = 120;
     static description = "Shoots phagocytes that cause high damage but have slow speed.";
     static image = "images/t-cell.png";
+    static thumbnail = "images/t-cell.png";
 }
 
 class TowerSticky extends Tower {
@@ -337,7 +352,6 @@ class TowerSticky extends Tower {
         this.setup();
         this.spriteAnimation = tools.addSpriteAnimation(
             this.jquery,
-            this.constructor.image,
             5,
             0.8
         )
@@ -347,6 +361,7 @@ class TowerSticky extends Tower {
     static cost = 70;
     static description = "Slows down enemies in range.";
     static image = "images/mucosa.png";
+    static thumbnail = "images/mucosa-thumbnail.png";
 
     update() {
         if (!this.paused) {
@@ -362,8 +377,8 @@ class TowerSticky extends Tower {
                 let distance = tools.distanceTo(nodeX, nodeY, enX, enY);
 
                 if (distance < this.getActualRange()) {
-                    enemy.slowDown();
-                } else enemy.regularSpeed();
+                    enemy.slowDown(this.id);
+                } else enemy.regularSpeed(this.id);
             })
         }
     }

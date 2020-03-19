@@ -11,6 +11,7 @@ class Enemy {
         this.moveSpeed = 50;
         this.maxHp = 50;
         this.money = 10;
+        this.rotationSpeed = 1;
 
         this.hp = this.maxHp;
         this.path = path;
@@ -19,13 +20,11 @@ class Enemy {
         this.isAlive = true;
         this.animation = undefined;
         this.spriteAnimation = undefined;
-        this.style = {
-            top: this.randomizePosition($(this.path[0]).position().top, 100),
-            left: this.randomizePosition($(this.path[0]).position().left, 100),
-            filter: `brightness(${tools.randomize(1, 0.2)}) hue-rotate(${tools.randomize(1, 50)}deg)`,
-        }
+        this.regularSpeedFilter = undefined;
         // this.setup();
     }
+
+    static image = "";
 
     randomizePosition(value, range) {
         let factor = windowSize.width / 1920;
@@ -68,10 +67,11 @@ class Enemy {
         }
     }
 
-    slowDown() {
+    slowDown(towerId) {
         if (!this.beingSlowedDown) {
             this.jquery.stop();
-            this.beingSlowedDown = true;
+            this.beingSlowedDown = towerId;
+            this.regularSpeedFilter = this.sprite.css('filter');
             this.sprite.css({
                 filter: `hue-rotate(90deg)`
             })
@@ -79,12 +79,12 @@ class Enemy {
         }
     }
 
-    regularSpeed() {
-        if (this.beingSlowedDown) {
+    regularSpeed(towerId) {
+        if (this.beingSlowedDown === towerId) {
             this.jquery.stop();
             this.beingSlowedDown = false;
             this.sprite.css({
-                filter: this.style.filter
+                filter: this.regularSpeedFilter
             })
             this.followPath();
         }
@@ -104,7 +104,7 @@ class Enemy {
             left: xNewPos,
             top: yNewPos
         })
-        this.followPath();
+        if (!gameState.isPaused) this.followPath();
     }
 
     moveTo(x, y) {
@@ -158,18 +158,28 @@ class Enemy {
         game.append(this.jquery);
         this.jquery.append(this.hpBar);
         this.jquery.append(this.sprite);
-        this.jquery.css(this.style);
-        // this.sprite.css({
-        //     backgroundColor: tools.getRandomizedColor(217, 59, 59)
-        // });
+        this.jquery.css({
+            top: this.randomizePosition($(this.path[0]).position().top, 100),
+            left: this.randomizePosition($(this.path[0]).position().left, 100),
+        });
+        this.sprite.css({
+            backgroundSize: `100%`,
+            backgroundImage: `url(${this.constructor.image})`,
+            backgroundPosition: 0,
+            backgroundRepeat: "no-repeat",
+            filter: `brightness(${tools.randomize(1, 0.2)})
+                    hue-rotate(${tools.randomize(this.constructor.baseHue, 40)}deg)`,
+        });
+        let randDirection = Math.round(Math.random());
+        tools.addRotationLoop(
+            this.sprite,
+            1/this.rotationSpeed,
+            randDirection ? "normal" : "reverse"
+        );
+
         this.sprite.height(this.height * windowSize.width);
         this.sprite.width(this.width * windowSize.width);
-        this.spriteAnimation = tools.addSpriteAnimation(
-            this.sprite,
-            this.constructor.image,
-            5,
-            0.4
-        )
+        
         this.followPath();
     }
 }
@@ -181,16 +191,20 @@ class EnemySmall extends Enemy {
     }
     static name = "Cold Virus";
     static description = "Really common and fast, but easy to treat.";
-    static image = "images/cold-virus.png";
+    static image = "images/cold-influenza.png";
+    static baseHue = 0;
 }
 
 class EnemyBig extends Enemy {
     constructor(path) {
         super(path);
-        this.height = 0.016;
-        this.width = 0.016;
+        this.height = 0.06;
+        this.width = 0.06;
+        this.rotationSpeed = 0.4;
         this.setup();
     }
-    static name = "Big Enemy";
-    static description = "Hard to kill but slow.";
+    static name = "Influenza";
+    static description = "Harder to treat but slow.";
+    static image = "images/cold-influenza.png";
+    static baseHue = -150;
 }

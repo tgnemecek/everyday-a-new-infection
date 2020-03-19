@@ -22,8 +22,8 @@ class ModalBox {
 class HUD {
     constructor() {
         this.jquery = new $(`<div class="hud"></div>`);
-        this.hp = new $(`<div class="hp"></div>`);
-        this.money = new $(`<div class="money"></div>`);
+        this.hp = new $(`<div><i class="fas fa-heart"></i><span class="hp"></span></div>`);
+        this.money = new $(`<div><i class="fas fa-atom"></i><span class="money"></span></div>`);
         this.wave = new $(`<div class="wave"></div>`);
         this.button = new $(`<button><i class="fas fa-pause-circle"></i></button>`);
         this.restart = new $(`<button>Restart</button>`);
@@ -31,6 +31,11 @@ class HUD {
         this.modal = new $(`<div class="pause-menu"></div>`);
         this.modalBox = undefined;
         this.setup();
+    }
+    onResize() {
+        // let fontSize = Number(this.jquery.css('font-size').replace("px", ""));
+        // console.log(this.jquery.css('font-size'));
+        // tools.limitFontSize(this.jquery, 10, 20);
     }
     togglePause() {
         if (!gameState.isPaused) {
@@ -71,11 +76,13 @@ class HUD {
 class Encyclopedia {
     constructor(levelData) {
         this.levelData = levelData;
-        this.jquery = new $(`<div class="encyclopedia"></div>`);
+        this.jquery = new $(`<div class="encyclopedia"><i class="fas fa-question-circle"></i></div>`);
+        this.content = new $(`<div class="content"></div>`);
         this.enemies = [];
         this.setup();
     }
     setup() {
+        this.jquery.append(this.content);
         this.levelData.waves.forEach((wave) => {
             wave.forEach((subWave) => {
                 let found = this.enemies.find((enemy) => {
@@ -93,11 +100,14 @@ class Encyclopedia {
         })
         this.enemies.forEach((enemy) => {
             let enJquery = new $(`<div></div>`);
+            let img = new $(`<img src="${enemy.type.image}"/>`);
             let description = new $(`<div class="description"></div>`);
             description.append(`<h2>${enemy.type.name}</h2><p>${enemy.type.description}</p>`);
+            img.css({ filter: `hue-rotate(${enemy.type.baseHue}deg)` });
+            enJquery.append(img);
             enJquery.append(description);
             enJquery.append(`<div class="quantity">${enemy.quantity}</div>`);
-            this.jquery.append(enJquery);
+            this.content.append(enJquery);
         })
     }
 }
@@ -172,7 +182,7 @@ class TowerPicker {
         game.append(this.modalBox.jquery);
         this.towers.forEach((Tower) => {
             let towerDiv = new $(`<div class=${Tower.id}></div>`);
-            let button = new $(`<button><img src="${Tower.image}"/></button>`);
+            let button = new $(`<button><img src="${Tower.thumbnail}"/></button>`);
             let label = $(`<label>$${Tower.cost}</label>`);
 
             towerDiv.append(button);

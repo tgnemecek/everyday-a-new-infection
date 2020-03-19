@@ -15,11 +15,8 @@ let tools = {
         let disY = y1 - y2;
         return Math.sqrt(disX * disX + disY * disY);
     },
-    addSpriteAnimation: function (jquery, spriteSheet, numberOfSprites, speed) {
+    addSpriteAnimation: function (jquery, numberOfSprites, speed) {
         jquery.css({
-            backgroundImage: `url(${spriteSheet})`,
-            backgroundPosition: 0,
-            backgroundRepeat: "no-repeat",
             backgroundSize: `${numberOfSprites*100}% auto`,
             animation: `sprite-animation ${speed}s steps(${numberOfSprites-1}) infinite`
         })
@@ -31,13 +28,10 @@ let tools = {
             }
         };
     },
-    addRotationLoop: function (jquery, image, speed) {
+    addRotationLoop: function (jquery, speed, direction) {
         jquery.css({
-            backgroundImage: `url(${image})`,
-            backgroundPosition: 0,
-            backgroundRepeat: "no-repeat",
-            backgroundSize: `100%`,
-            animation: `rotation-animation ${speed}s linear infinite`
+            animation: `rotation-animation ${speed}s linear infinite`,
+            animationDirection: direction || "normal"
         })
         return {
             stop: function() {

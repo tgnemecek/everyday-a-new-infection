@@ -33,7 +33,7 @@ class GameState {
                     { left: "25%", top: "40%"},
                     { left: "0%", top: "10%"},
                     { left: "5%", top: "80%"},
-                    { left: "90%", top: "50%"},
+                    { left: "85%", top: "52%"},
                 ],
                 path: [
                     { left: "90%", top: "-15%"},
@@ -50,7 +50,7 @@ class GameState {
                 ],
                 waves: [
                     [
-                        {type: EnemySmall, quantity: 10, waitTime: 5000},
+                        {type: EnemySmall, quantity: 3, waitTime: 5000},
                         {type: EnemySmall, quantity: 10, waitTime: 5000},
                         {type: EnemyBig, quantity: 2, waitTime: 5000},
                     ],
@@ -114,17 +114,19 @@ class GameState {
         if (this.hp <= 0) {
             this.gameOver();
         }
-        this.hud.jquery.children('.hp').text("HEALTH: " + this.hp);
+        $('.hp').text(": " + this.hp);
     }
     modifyMoney(amount) {
         this.money += amount;
-        this.hud.jquery.children('.money').text("ENERGY: " + this.money);
+        $('.money').text(": " + this.money);
     }
     removeEnemy(id) {
-        console.log('a');
         let enIndex = this.enemies
         .findIndex((enemy) => {
-            return enemy.id === id;
+            if (enemy.id === id) {
+                enemy.isAlive = false;
+                return true;
+            }
         })
         this.enemies.splice(enIndex, 1);
         if (!this.enemies.length) this.nextWave();
@@ -213,7 +215,7 @@ class GameState {
             path.css(pathPosition);
         })
         this.startInGameTime();
-        this.modifyHp(1000);
+        this.modifyHp(100);
         this.modifyMoney(300);
         this.spawnWave();
     }
@@ -228,7 +230,6 @@ function getCookie(key) {
 }
 function startGame(levelIndex) {
     game.children().remove();
-    console.log(levelIndex);
     gameState = new GameState(levelIndex);
 }
 function startMainMenu() {
@@ -281,8 +282,8 @@ function resizeGameArea() {
         marginLeft: (-newWidth / 2) + 'px'
     })
 
-    let minFontSize = 14;
-    let fontSize = newWidth / 100;
+    let minFontSize = 10;
+    let fontSize = (newWidth / 100) * 1.5;
     if (fontSize < minFontSize) fontSize = minFontSize;
 
     game.css({
@@ -290,18 +291,19 @@ function resizeGameArea() {
         height: newHeight,
         fontSize: fontSize + "px"
     })
+
     if (gameState) {
-        gameState.enemies.forEach((enemy) => {
-            enemy.onResize(newWidth, newHeight);
-        })
-        gameState.nodes.forEach((node) => {
-            node.onResize(newWidth);
-        })
-        gameState.towers.forEach((tower) => {
-            tower.onResize(newWidth);
-        })
-        gameState.projectiles.forEach((projectile) => {
-            projectile.onResize(newWidth, newHeight);
+        [
+            ...gameState.enemies,
+            ...gameState.nodes,
+            ...gameState.towers,
+            ...gameState.projectiles,
+            gameState.hud
+
+        ].forEach((instance) => {
+            if (typeof instance.onResize === 'function') {
+                instance.onResize(newWidth, newHeight)
+            }
         })
     }
     windowSize = {
