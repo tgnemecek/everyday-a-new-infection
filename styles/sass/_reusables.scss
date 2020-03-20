@@ -1,0 +1,21 @@
+@use "sass:color";
+
+$primary-color: #9281bd;
+$primary-color-lighter: lighten($primary-color, 10%);
+$primary-color-darker: darken($primary-color, 10%);
+$info-box-color: #8080803b;
+
+@mixin modalButton() {
+   background-color: $primary-color-lighter;
+   border: none;
+   box-shadow: inset 0px 0px 3px 1px $primary-color-darker;
+   transition: background-color 0.2s;
+}
+
+@keyframes sprite-animation {
+    100% { background-position: 100%; }
+ }
+
+ @keyframes rotation-animation {
+    100% { transform: rotate(360deg); }
+ }

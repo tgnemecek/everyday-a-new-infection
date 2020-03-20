@@ -3,8 +3,8 @@ class Node {
         this.jquery = new $('<button></button>');
         this.style = {
             ...position,
-            width: windowSize.width / 10,
-            height: windowSize.width / 10
+            width: windowSize.width / 12,
+            height: windowSize.width / 12
         };
         this.hasTower = false;
         this.towerPicker = undefined;
@@ -13,8 +13,8 @@ class Node {
     }
     onResize(newWidth) {
         this.jquery.css({
-            width: newWidth / 10,
-            height: newWidth / 10
+            width: newWidth / 12,
+            height: newWidth / 12
         })
     }
     pause() {
@@ -356,16 +356,15 @@ class TowerSticky extends Tower {
             0.8
         )
     }
-    static name = "Sticky Tower";
+    static name = "Mucosa";
     static id = "sticky-tower";
     static cost = 70;
-    static description = "Slows down enemies in range.";
+    static description = "Generate mucus to slow down enemies in range.";
     static image = "images/mucosa.png";
     static thumbnail = "images/mucosa-thumbnail.png";
 
     update() {
         if (!this.paused) {
-            let enemiesInRange = [];
             gameState.enemies.forEach((enemy, i) => {
                 let enPosition = enemy.jquery.position();
                 let enX = enPosition.left;

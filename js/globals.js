@@ -29,11 +29,11 @@ class GameState {
             {
                 image: "images/level1.jpg",
                 nodes: [
-                    { left: "70%", top: "5%"},
-                    { left: "25%", top: "40%"},
-                    { left: "0%", top: "10%"},
-                    { left: "5%", top: "80%"},
-                    { left: "85%", top: "52%"},
+                    { left: "75%", top: "22%"},
+                    { left: "19%", top: "40%"},
+                    { left: "10%", top: "12%"},
+                    { left: "10%", top: "70%"},
+                    { left: "75%", top: "65%"},
                 ],
                 path: [
                     { left: "90%", top: "-15%"},
@@ -50,7 +50,7 @@ class GameState {
                 ],
                 waves: [
                     [
-                        {type: EnemySmall, quantity: 3, waitTime: 5000},
+                        {type: EnemySmall, quantity: 10, waitTime: 5000},
                         {type: EnemySmall, quantity: 10, waitTime: 5000},
                         {type: EnemyBig, quantity: 2, waitTime: 5000},
                     ],
@@ -67,26 +67,48 @@ class GameState {
         let enemies = [...this.waves[this.currentWave]];
     
         for (let i = 0; i < enemies.length; i++) {
-            await this.enemySpawner(
+            await this.spawnGroup(
                 enemies[i].type,
                 enemies[i].quantity,
                 enemies[i].waitTime
             );
         }
     }
-    enemySpawner(Type, numberOfEnemies, waitTime) {
+    spawnGroup(Type, numberOfEnemies, groupWaitTime) {
         return new Promise((resolve, reject) => {
-            const path = $('.path');
+            let subPromises = [];
+            let enemyWaitTime = 1000; // To separate enemies
+            let range = 300; // How much they are separated
+            
             for (let i = 0; i < numberOfEnemies; i++) {
-                let enemy = new Type(path);
-                this.enemies.push(enemy);
+                subPromises.push(new Promise((subResolve) => {
+                    let random = Math.random() * range;
+                    enemyWaitTime += random;
+                    this.queuedActions.push({
+                        queuedAt: this.inGameTime,
+                        waitTime: enemyWaitTime,
+                        callback: () => {
+                            this.spawnEnemy(Type);
+                            subResolve();
+                        }
+                    })
+                }))
             }
-            this.queuedActions.push({
-                queuedAt: this.inGameTime,
-                waitTime,
-                callback: () => resolve()
-            })
+            Promise.all(subPromises).then(() => {
+                this.queuedActions.push({
+                    queuedAt: this.inGameTime,
+                    waitTime: groupWaitTime,
+                    callback: () => {
+                        resolve();
+                    }
+                })
+            });
         })
+    }
+    spawnEnemy(Type) {
+        const path = $('.path');
+        let enemy = new Type(path);
+        this.enemies.push(enemy);
     }
     startInGameTime() {
         setInterval(() => {
@@ -186,9 +208,11 @@ class GameState {
         this.hp = 0;
         this.pause();
         let container = new $(`<div class="game-over"><h2>Game Over!</h2></div>`);
+        let text = new $(`<p>Your body was overtaken by the invaders...</p><p>Maybe wash your hands next time?</p>`)
         let buttons = new $(`<div class="buttons"></div>`);
         let exit = new $(`<button>Exit</button>`);
         let restart = new $(`<button>Restart</button>`);
+        container.append(text);
         container.append(buttons);
         buttons.append(exit);
         buttons.append(restart);
@@ -220,7 +244,6 @@ class GameState {
         this.spawnWave();
     }
 }
-
 function getCookie(key) {
     let value = "; " + document.cookie;
     let parts = value.split("; " + key + "=");
@@ -236,25 +259,7 @@ function startMainMenu() {
     game.children().remove();
     game.hide();
 
-    mainMenu.show();
-    let loadLevelIndex = getCookie("loadLevelIndex");
-    if (loadLevelIndex !== undefined) {
-        $('.load-game')
-            .show()
-            .on('click', () => {
-                mainMenu.hide();
-                game.show();
-                startGame(loadLevelIndex);
-            })
-    }
-
-    let startGameButton = $(`.main-menu .start-game`);
-    startGameButton.on('click', () => {
-        mainMenu.hide();
-        game.show();
-        startGame(0);
-    })
-
+    mainMenu.css({display: "flex"});
 }
 function resizeGameArea() {
     let wrapper = $('.wrapper');
@@ -286,7 +291,7 @@ function resizeGameArea() {
     let fontSize = (newWidth / 100) * 1.5;
     if (fontSize < minFontSize) fontSize = minFontSize;
 
-    game.css({
+    wrapper.css({
         width: newWidth,
         height: newHeight,
         fontSize: fontSize + "px"
@@ -323,6 +328,22 @@ function onPageLoad() {
     windowSize = {
         width: window.innerWidth,
         height: window.innerHeight,
+    }
+    let startGameButton = $(`.main-menu .start-game`);
+    startGameButton.on('click', () => {
+        mainMenu.hide();
+        game.show();
+        startGame(0);
+    })
+    let loadLevelIndex = getCookie("loadLevelIndex");
+    if (loadLevelIndex !== undefined) {
+        $('.load-game')
+            .show()
+            .on('click', () => {
+                mainMenu.hide();
+                game.show();
+                startGame(loadLevelIndex);
+            })
     }
     resizeGameArea();
     startMainMenu();

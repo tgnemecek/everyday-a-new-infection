@@ -1,9 +1,9 @@
+@use "sass:color";
 @-webkit-keyframes sprite-animation {
   100% {
     background-position: 100%;
   }
 }
-
 @keyframes sprite-animation {
   100% {
     background-position: 100%;
@@ -263,9 +263,7 @@ strong {
 .main-menu {
   width: 100%;
   height: 100%;
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
+  display: none;
   -webkit-box-orient: vertical;
   -webkit-box-direction: normal;
       -ms-flex-direction: column;
@@ -276,11 +274,12 @@ strong {
 }
 
 .main-menu main {
+  height: 50%;
   text-align: center;
 }
 
 .main-menu main h1 {
-  font-size: 60px;
+  font-size: 5em;
 }
 
 .main-menu .buttons {
@@ -320,6 +319,45 @@ strong {
 
 .main-menu aside i {
   font-size: 1.2em;
+}
+
+.main-menu .advisory {
+  position: absolute;
+  bottom: 0;
+  background-color: black;
+  color: white;
+  width: 100%;
+  padding: 5px;
+}
+
+.main-menu .advisory p {
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  position: relative;
+  left: 100%;
+  white-space: nowrap;
+  -webkit-animation-name: advisoryScroll;
+          animation-name: advisoryScroll;
+  -webkit-animation-duration: 20s;
+          animation-duration: 20s;
+  -webkit-animation-timing-function: linear;
+          animation-timing-function: linear;
+  -webkit-animation-iteration-count: infinite;
+          animation-iteration-count: infinite;
+  -webkit-animation-direction: normal;
+          animation-direction: normal;
+}
+
+@-webkit-keyframes advisoryScroll {
+  100% {
+    left: -280%;
+  }
+}
+
+@keyframes advisoryScroll {
+  100% {
+    left: -280%;
+  }
 }
 
 .hud {
@@ -454,7 +492,7 @@ strong {
 
 .modal .box {
   position: relative;
-  background-color: red;
+  background-color: #9281bd;
   padding: 10px;
   z-index: 3;
   border-radius: 10px;
@@ -543,6 +581,15 @@ strong {
   top: 100%;
 }
 
+.game-over {
+  text-align: center;
+}
+
+.game-over h2 {
+  font-size: 3em;
+  margin-bottom: 1%;
+}
+
 .game-over .buttons {
   display: -ms-grid;
   display: grid;
@@ -551,6 +598,20 @@ strong {
   width: 300px;
   height: 100px;
   gap: 15px;
+  margin-top: 5%;
+}
+
+.game-over .buttons button {
+  background-color: #afa2cf;
+  border: none;
+  -webkit-box-shadow: inset 0px 0px 3px 1px #7560ab;
+          box-shadow: inset 0px 0px 3px 1px #7560ab;
+  -webkit-transition: background-color 0.2s;
+  transition: background-color 0.2s;
+}
+
+.game-over .buttons button:hover {
+  background-color: #7560ab;
 }
 
 .wrapper {

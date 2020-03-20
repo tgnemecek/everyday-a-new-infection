@@ -32,11 +32,6 @@ class HUD {
         this.modalBox = undefined;
         this.setup();
     }
-    onResize() {
-        // let fontSize = Number(this.jquery.css('font-size').replace("px", ""));
-        // console.log(this.jquery.css('font-size'));
-        // tools.limitFontSize(this.jquery, 10, 20);
-    }
     togglePause() {
         if (!gameState.isPaused) {
             this.modalBox = new ModalBox(this.modal, this.togglePause.bind(this));
@@ -112,27 +107,6 @@ class Encyclopedia {
     }
 }
 
-class GameOver {
-    constructor() {
-        this.jquery = new $(`<div></div>`);
-        this.restart = new $(`<button>Restart</button>`);
-        this.exit = new $(`<button>Exit</button>`);
-        this.setup();
-    }
-    setup() {
-        game.append(this.jquery);
-        this.jquery.append(this.box);
-        this.box.append(this.text);
-        this.box.append(this.button);
-        this.jquery.append(this.overlay);
-        this.box.css({
-            top: 'calc(50% - ' + this.box.height()/2 + 'px)',
-            left: 'calc(50% - ' + this.box.width()/2 + 'px)',
-        })
-        this.button.on('click', () => reset());
-    }
-}
-
 class TowerPicker {
     constructor(confirmTower, closeTowerPicker) {
         this.jquery = new $('<div class="tower-picker"><h2>Build a Tower</h2></div>');
@@ -143,6 +117,7 @@ class TowerPicker {
         this.closeTowerPicker = closeTowerPicker;
         this.towerSelected = undefined;
         this.modalBox = undefined;
+        this.updateInterval = undefined;
         this.towers = [
             TowerFast,
             TowerSlow,
@@ -158,7 +133,8 @@ class TowerPicker {
         this.towerSelected = Tower;
         this.confirm.prop('disabled', false);
         this.jquery.append(this.description);
-        this.description.text(Tower.description);
+        this.description.children().remove();
+        this.description.append(`<h3>${Tower.name}</h3><p>${Tower.description}</p>`)
     }
     checkIfDisabled(Tower) {
         let button = $(`.tower-picker .${Tower.id} button`);
@@ -167,10 +143,14 @@ class TowerPicker {
         } else button.prop("disabled", true);
     }
     update() {
-        setInterval(() => {
+        this.updateInterval = setInterval(() => {
             this.towers.forEach((Tower) => {
                 this.checkIfDisabled(Tower);
             })
+            if (gameState.isPaused) {
+                this.closeTowerPicker();
+                clearInterval(this.updateInterval);
+            }
         }, fps)
     }
     setup() {
@@ -201,4 +181,3 @@ class TowerPicker {
         this.update();
     }
 }
-
