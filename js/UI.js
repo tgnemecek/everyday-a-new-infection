@@ -101,7 +101,7 @@ class Encyclopedia {
             img.css({ filter: `hue-rotate(${enemy.type.baseHue}deg)` });
             enJquery.append(img);
             enJquery.append(description);
-            enJquery.append(`<div class="quantity">${enemy.quantity}</div>`);
+            enJquery.append(`<div class="quantity"><p>${enemy.quantity}</p></div>`);
             this.content.append(enJquery);
         })
     }
@@ -143,15 +143,23 @@ class TowerPicker {
         } else button.prop("disabled", true);
     }
     update() {
-        this.updateInterval = setInterval(() => {
-            this.towers.forEach((Tower) => {
-                this.checkIfDisabled(Tower);
-            })
-            if (gameState.isPaused) {
-                this.closeTowerPicker();
-                clearInterval(this.updateInterval);
-            }
-        }, fps)
+        this.towers.forEach((Tower) => {
+            this.checkIfDisabled(Tower);
+        })
+        if (gameState.isPaused) {
+            this.closeTowerPicker();
+            clearInterval(this.updateInterval);
+        }
+
+        // this.updateInterval = setInterval(() => {
+        //     this.towers.forEach((Tower) => {
+        //         this.checkIfDisabled(Tower);
+        //     })
+        //     if (gameState.isPaused) {
+        //         this.closeTowerPicker();
+        //         clearInterval(this.updateInterval);
+        //     }
+        // }, fps)
     }
     setup() {
         this.jquery.append(this.container);
@@ -178,6 +186,12 @@ class TowerPicker {
             this.modalBox.jquery.remove();
             this.confirmTower(this.towerSelected);
         });
-        this.update();
+        gameState.queuedActions.push({
+            waitTime: 1,
+            loop: true,
+            callback: this.update.bind(this),
+            queuedAt: new Date().getTime()
+        })
+        // this.update();
     }
 }

@@ -307,7 +307,7 @@ class TowerFast extends Tower {
             1
         )
     }
-    static name = "White Blood: B Cell";
+    static name = "B Cell (White Blood)";
     static id = "fast-tower";
     static cost = 100;
     static description = "Shoots antibodies at a high speed and range, but causes low damage.";
@@ -321,15 +321,15 @@ class TowerSlow extends Tower {
         this.range = 0.15;
         this.attackSpeed = 1;
         this.projectileSpeed = 0.1;
-        this.projectileSize = 0.06;
+        this.projectileSize = 0.03;
         this.damage = 50;
         this.setup();
         tools.addRotationLoop(
             this.jquery,
-            1
+            3
         )
     }
-    static name = "White Blood: T Cell";
+    static name = "T Cell (White Blood)";
     static id = "slow-tower";
     static cost = 120;
     static description = "Shoots phagocytes that cause high damage but have slow speed.";

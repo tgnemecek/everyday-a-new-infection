@@ -1,15 +1,20 @@
 @use "sass:color";
 
-$primary-color: #9281bd;
+$primary-color: #9e8fc5;
 $primary-color-lighter: lighten($primary-color, 10%);
 $primary-color-darker: darken($primary-color, 10%);
 $info-box-color: #8080803b;
 
-@mixin modalButton() {
+@mixin primaryButton() {
    background-color: $primary-color-lighter;
    border: none;
    box-shadow: inset 0px 0px 3px 1px $primary-color-darker;
+   font-size: 2em;
+   padding: 10%;
    transition: background-color 0.2s;
+   &:hover {
+      background-color: $primary-color-darker;
+   }
 }
 
 @keyframes sprite-animation {

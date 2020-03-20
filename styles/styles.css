@@ -260,6 +260,33 @@ strong {
   font-weight: bold;
 }
 
+button {
+  font-family: 'Baloo 2', 'Helvetica', 'Arial', sans-serif;
+}
+
+.wrapper {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  overflow: hidden;
+  -webkit-box-shadow: 0px 0px 19px -2px rgba(0, 0, 0, 0.4);
+          box-shadow: 0px 0px 19px -2px rgba(0, 0, 0, 0.4);
+  font-family: 'Baloo 2', 'Helvetica', 'Arial', sans-serif;
+}
+
+.game {
+  display: none;
+  height: 100%;
+  width: 100%;
+}
+
+.game .background {
+  position: absolute;
+  z-index: -1;
+  width: 100%;
+  height: 100%;
+}
+
 .main-menu {
   width: 100%;
   height: 100%;
@@ -360,286 +387,6 @@ strong {
   }
 }
 
-.hud {
-  display: -ms-grid;
-  display: grid;
-  -ms-grid-columns: auto auto 1fr auto;
-      grid-template-columns: auto auto 1fr auto;
-  -ms-flex-line-pack: start;
-      align-content: flex-start;
-  gap: 25px;
-  padding: 2%;
-  color: white;
-  font-size: 1em;
-}
-
-.hud button {
-  background: none;
-  font-size: 25px;
-  color: white;
-  border: none;
-  z-index: 2;
-  width: 50px;
-}
-
-.hud .fa-heart, .hud .fa-atom {
-  margin-right: 5px;
-}
-
-.encyclopedia {
-  position: absolute;
-  right: 0;
-  height: 100%;
-}
-
-.encyclopedia .content {
-  position: relative;
-  -webkit-box-shadow: inset -195px 0px 51px -187px rgba(0, 0, 0, 0.75);
-          box-shadow: inset -195px 0px 51px -187px rgba(0, 0, 0, 0.75);
-  height: 100%;
-  left: 100%;
-  display: -ms-grid;
-  display: grid;
-  -ms-grid-columns: 1fr;
-      grid-template-columns: 1fr;
-  grid-auto-rows: 50px;
-  gap: 10px;
-  padding: 2%;
-  z-index: 2;
-  -webkit-transition: left 0.3s;
-  transition: left 0.3s;
-}
-
-.encyclopedia:hover .content {
-  left: 0;
-}
-
-.encyclopedia .fa-question-circle {
-  position: absolute;
-  left: 50%;
-  top: 40%;
-  color: white;
-  font-size: 1.5em;
-  -webkit-transition: left 0.3s;
-  transition: left 0.3s;
-}
-
-.encyclopedia:hover .fa-question-circle {
-  left: 100%;
-}
-
-.encyclopedia .content > div {
-  position: relative;
-  border-radius: 50%;
-  width: 4em;
-  padding: 5px;
-}
-
-.encyclopedia .content > div .quantity {
-  position: absolute;
-  right: 0;
-  bottom: 0;
-  width: 20px;
-  height: 20px;
-  line-height: 21px;
-  font-size: 14px;
-  color: white;
-  text-align: center;
-  border-radius: 50%;
-  background-color: blue;
-}
-
-.encyclopedia .content > div img {
-  width: 100%;
-  height: 100%;
-  -o-object-fit: contain;
-     object-fit: contain;
-}
-
-.encyclopedia .content > div:hover .description {
-  display: block;
-}
-
-.encyclopedia .content > div .description {
-  display: none;
-  position: absolute;
-  top: 0;
-  background-color: #8080803b;
-  right: 100%;
-  min-width: 120px;
-  color: white;
-  padding: 5px;
-  border-radius: 5px;
-}
-
-.modal {
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  position: absolute;
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-box-pack: center;
-      -ms-flex-pack: center;
-          justify-content: center;
-  -webkit-box-align: center;
-      -ms-flex-align: center;
-          align-items: center;
-  z-index: 2;
-}
-
-.modal .box {
-  position: relative;
-  background-color: #9281bd;
-  padding: 10px;
-  z-index: 3;
-  border-radius: 10px;
-}
-
-.modal .box h2 {
-  text-align: center;
-}
-
-.modal .overlay {
-  width: 100%;
-  height: 100%;
-  background-color: rgba(38, 38, 38, 0.808);
-  position: absolute;
-}
-
-.pause-menu {
-  display: -ms-grid;
-  display: grid;
-  -ms-grid-columns: 1fr 1fr;
-      grid-template-columns: 1fr 1fr;
-  width: 300px;
-  height: 100px;
-  gap: 15px;
-}
-
-.tower-picker {
-  width: 200px;
-  text-align: center;
-}
-
-.tower-picker h2 {
-  padding: 15px;
-}
-
-.tower-picker .container {
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-box-pack: space-evenly;
-      -ms-flex-pack: space-evenly;
-          justify-content: space-evenly;
-  height: 100px;
-}
-
-.tower-picker button {
-  height: 50px;
-  width: 50px;
-  margin: 5px;
-  border-radius: 50%;
-  overflow: hidden;
-  display: block;
-  background-color: transparent;
-}
-
-.tower-picker button:disabled {
-  background-color: grey;
-}
-
-.tower-picker button img {
-  -o-object-fit: cover;
-     object-fit: cover;
-  width: 100%;
-}
-
-.tower-picker .selected {
-  border: 3px solid yellow;
-}
-
-.tower-picker .confirm {
-  position: absolute;
-  left: 85%;
-  top: 75%;
-}
-
-.tower-picker .description {
-  position: absolute;
-  color: white;
-  background-color: #8080803b;
-  width: 100%;
-  z-index: -1;
-  border-radius: 10px;
-  padding: 5px 15px;
-  text-align: left;
-  left: 0;
-  top: 100%;
-}
-
-.game-over {
-  text-align: center;
-}
-
-.game-over h2 {
-  font-size: 3em;
-  margin-bottom: 1%;
-}
-
-.game-over .buttons {
-  display: -ms-grid;
-  display: grid;
-  -ms-grid-columns: 1fr 1fr;
-      grid-template-columns: 1fr 1fr;
-  width: 300px;
-  height: 100px;
-  gap: 15px;
-  margin-top: 5%;
-}
-
-.game-over .buttons button {
-  background-color: #afa2cf;
-  border: none;
-  -webkit-box-shadow: inset 0px 0px 3px 1px #7560ab;
-          box-shadow: inset 0px 0px 3px 1px #7560ab;
-  -webkit-transition: background-color 0.2s;
-  transition: background-color 0.2s;
-}
-
-.game-over .buttons button:hover {
-  background-color: #7560ab;
-}
-
-.wrapper {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  overflow: hidden;
-  -webkit-box-shadow: 0px 0px 19px -2px rgba(0, 0, 0, 0.4);
-          box-shadow: 0px 0px 19px -2px rgba(0, 0, 0, 0.4);
-}
-
-.game, .main-menu {
-  height: 100%;
-  width: 100%;
-  font-family: 'Baloo 2', 'Helvetica', 'Arial', sans-serif;
-}
-
-.game .background, .main-menu .background {
-  position: absolute;
-  z-index: -1;
-  width: 100%;
-  height: 100%;
-}
-
-.game {
-  display: none;
-}
-
 .path {
   width: 25px;
   height: 25px;
@@ -703,4 +450,275 @@ strong {
 
 .enemy .sprite {
   margin: auto;
+}
+
+.hud {
+  display: -ms-grid;
+  display: grid;
+  -ms-grid-columns: 12% 12% 1fr auto;
+      grid-template-columns: 12% 12% 1fr auto;
+  -ms-flex-line-pack: start;
+      align-content: flex-start;
+  gap: 0 25px;
+  padding: 2%;
+  color: white;
+  font-size: 1em;
+}
+
+.hud button {
+  background: none;
+  color: white;
+  border: none;
+  font-size: 1.5em;
+  z-index: 2;
+}
+
+.hud .fa-heart, .hud .fa-atom {
+  margin-right: 5px;
+}
+
+.encyclopedia {
+  position: relative;
+}
+
+.encyclopedia .fa-question-circle {
+  position: relative;
+  color: white;
+  margin-bottom: 1em;
+  cursor: pointer;
+  -webkit-transition: color 0.3s;
+  transition: color 0.3s;
+}
+
+.encyclopedia .content {
+  padding: 2%;
+  z-index: 2;
+  position: absolute;
+  left: -5em;
+  -webkit-transition: left 0.3s;
+  transition: left 0.3s;
+}
+
+.encyclopedia:hover .content {
+  left: 0;
+}
+
+.encyclopedia:hover .fa-question-circle {
+  color: #9e8fc5;
+}
+
+.encyclopedia .content > div {
+  position: relative;
+  border-radius: 50%;
+  width: 3em;
+  height: 3em;
+}
+
+.encyclopedia .content > div .quantity {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 1.1em;
+  height: 1.1em;
+  color: white;
+  text-align: center;
+  border-radius: 50%;
+  background-color: blue;
+}
+
+.encyclopedia .content > div .quantity p {
+  font-size: 0.8em;
+  line-height: 1.4em;
+}
+
+.encyclopedia .content > div img {
+  width: 100%;
+  height: 100%;
+  -o-object-fit: contain;
+     object-fit: contain;
+}
+
+.encyclopedia .content > div:hover .description {
+  display: block;
+}
+
+.encyclopedia .content > div .description {
+  display: none;
+  position: absolute;
+  top: 0;
+  background-color: #8080803b;
+  left: 100%;
+  min-width: 120px;
+  color: white;
+  padding: 5px;
+  border-radius: 5px;
+}
+
+.encyclopedia .content > div .description h2 {
+  font-weight: bold;
+}
+
+.modal {
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  z-index: 2;
+}
+
+.modal .box {
+  position: relative;
+  background-color: #9e8fc5;
+  padding: 10px;
+  z-index: 3;
+  border-radius: 10px;
+  width: 40%;
+  min-width: 200px;
+  max-width: 410px;
+}
+
+.modal .box h2 {
+  text-align: center;
+}
+
+.modal .overlay {
+  width: 100%;
+  height: 100%;
+  background-color: rgba(38, 38, 38, 0.808);
+  position: absolute;
+}
+
+.pause-menu {
+  display: -ms-grid;
+  display: grid;
+  -ms-grid-columns: 1fr 1fr;
+      grid-template-columns: 1fr 1fr;
+  gap: 15px;
+}
+
+.pause-menu button {
+  background-color: #bbb1d6;
+  border: none;
+  -webkit-box-shadow: inset 0px 0px 3px 1px #816db4;
+          box-shadow: inset 0px 0px 3px 1px #816db4;
+  font-size: 2em;
+  padding: 10%;
+  -webkit-transition: background-color 0.2s;
+  transition: background-color 0.2s;
+}
+
+.pause-menu button:hover {
+  background-color: #816db4;
+}
+
+.tower-picker {
+  text-align: center;
+  position: relative;
+}
+
+.tower-picker h2 {
+  padding: 15px;
+  font-size: 2em;
+}
+
+.tower-picker .container {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: space-evenly;
+      -ms-flex-pack: space-evenly;
+          justify-content: space-evenly;
+  height: 100px;
+}
+
+.tower-picker button {
+  height: 50px;
+  width: 50px;
+  margin: 5px;
+  border-radius: 50%;
+  overflow: hidden;
+  display: block;
+  background-color: #bbb1d6;
+}
+
+.tower-picker button:disabled {
+  background-color: grey;
+}
+
+.tower-picker button img {
+  -o-object-fit: cover;
+     object-fit: cover;
+  width: 100%;
+}
+
+.tower-picker .selected {
+  border: 3px solid yellow;
+}
+
+.tower-picker .confirm {
+  position: absolute;
+  left: 95%;
+  top: 85%;
+}
+
+.tower-picker .description {
+  position: absolute;
+  color: white;
+  background-color: #8080803b;
+  width: 100%;
+  z-index: -1;
+  border-radius: 10px;
+  padding: 5px 15px;
+  text-align: left;
+  left: 0;
+  top: calc(100% + 10px);
+}
+
+.tower-picker .description h3 {
+  font-weight: bold;
+}
+
+.game-over {
+  text-align: center;
+}
+
+.game-over h2 {
+  font-size: 3em;
+  margin-bottom: 1%;
+}
+
+.game-over .buttons {
+  width: 100%;
+  display: -ms-grid;
+  display: grid;
+  -ms-grid-columns: 1fr 1fr;
+      grid-template-columns: 1fr 1fr;
+  height: 100px;
+  gap: 15px;
+  margin-top: 5%;
+}
+
+.game-over .buttons button {
+  background-color: #bbb1d6;
+  border: none;
+  -webkit-box-shadow: inset 0px 0px 3px 1px #816db4;
+          box-shadow: inset 0px 0px 3px 1px #816db4;
+  font-size: 2em;
+  padding: 10%;
+  -webkit-transition: background-color 0.2s;
+  transition: background-color 0.2s;
+}
+
+.game-over .buttons button:hover {
+  background-color: #816db4;
 }

@@ -10,6 +10,7 @@ class GameState {
         this.inGameTime = new Date().getTime()
         this.inGameTimeId = undefined
         this.hud = new HUD()
+        this.towerPicker = undefined
         this.encyclopedia = undefined
         this.queuedActions = []
         this.enemies = []
@@ -127,7 +128,7 @@ class GameState {
                         action.callback();
                         if (action.loop) loops.push({
                             ...action,
-                            queuedAt: new Date().getTime()
+                            queuedAt: this.inGameTime
                         })
                         return false;
                     } else return true;
@@ -217,6 +218,7 @@ class GameState {
     gameOver() {
         this.hp = 0;
         this.pause();
+        $('.modal').remove();
         let container = new $(`<div class="game-over"><h2>Game Over!</h2></div>`);
         let text = new $(`<p>Your body was overtaken by the invaders...</p><p>Maybe wash your hands next time?</p>`)
         let buttons = new $(`<div class="buttons"></div>`);
@@ -238,7 +240,7 @@ class GameState {
         game.append($(`<img src="${levelData.image}" class="background"></img>`));
         game.append(this.hud.jquery);
         this.encyclopedia = new Encyclopedia(this.getLevelData());
-        game.append(this.encyclopedia.jquery);
+        this.hud.jquery.append(this.encyclopedia.jquery);
         levelData.nodes.forEach((position) => {
             let node = new Node(position);
             this.nodes.push(node);

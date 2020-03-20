@@ -1,85 +1,17 @@
-.main-menu {
-    width: 100%;
-    height: 100%;
-    display: none;
-    flex-direction: column;
-    justify-content: center;
-    main {
-        height: 50%;
-        h1 {
-            font-size: 5em;
-        }
-        text-align: center;
-    }
-    .buttons {
-        text-align: center;
-        font-size: 30px;
-        display: grid;
-        gap: 20px;
-        grid-template-columns: 180px 180px;
-        justify-content: center;
-        margin-top: 5%;
-        button {
-            border: none;
-            background: none;
-        }
-        .load-game {
-            display: none;
-            grid-column-end: span 2;
-        }
-    }
-    aside {
-        padding: 5%;
-        position: absolute;
-        bottom: 0;
-        li {
-            display: inline;
-        }
-        i {
-            font-size: 1.2em;
-        }
-    }
-    .advisory {
-        position: absolute;
-        bottom: 0;
-        background-color: black;
-        color: white;
-        width: 100%;
-        padding: 5px;
-        p {
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            position: relative;
-            left: 100%;
-            white-space: nowrap;
-            animation-name: advisoryScroll;
-            animation-duration: 20s;
-            animation-timing-function: linear;
-            animation-iteration-count: infinite;
-            animation-direction: normal;
-        }
-    }
-}
-
-@keyframes advisoryScroll {
-    100% {left: -280%}
-}
-
 .hud {
     display: grid;
-    grid-template-columns: auto auto 1fr auto;
+    grid-template-columns: 12% 12% 1fr auto;
     align-content: flex-start;
-    gap: 25px;
+    gap: 0 25px;
     padding: 2%;
     color: white;
     font-size: 1em;
     button {
         background: none;
-        font-size: 25px;
         color: white;
         border: none;
+        font-size: 1.5em;
         z-index: 2;
-        width: 50px;
     }
     .fa-heart, .fa-atom {
         margin-right: 5px;
@@ -87,53 +19,47 @@
 }
 
 .encyclopedia {
-    position: absolute;
-    right: 0;
-    height: 100%;
-    .content {
+    position: relative;
+    .fa-question-circle {
         position: relative;
-        box-shadow: inset -195px 0px 51px -187px rgba(0,0,0,0.75);
-        height: 100%;
-        left: 100%;
-        display: grid;
-        grid-template-columns: 1fr;
-        grid-auto-rows: 50px;
-        gap: 10px;
+        color: white;
+        margin-bottom: 1em;
+        cursor: pointer;
+        transition: color 0.3s;
+    }
+    .content {
         padding: 2%;
         z-index: 2;
+        position: absolute;
+        left: -5em;
         transition: left 0.3s;
     }
     &:hover .content {
         left: 0;
     }
-    .fa-question-circle {
-        position: absolute;
-        left: 50%;
-        top: 40%;
-        color: white;
-        font-size: 1.5em;
-        transition: left 0.3s;
-    }
     &:hover .fa-question-circle {
-        left: 100%;
+        color: $primary-color;
     }
     .content > div {
         position: relative;
         border-radius: 50%;
-        width: 4em;
-        padding: 5px;
+        
+        width: 3em;
+        height: 3em;
         .quantity {
             position: absolute;
             right: 0;
             bottom: 0;
-            width: 20px;
-            height: 20px;
-            line-height: 21px;
-            font-size: 14px;
+            width: 1.1em;
+            height: 1.1em;
             color: white;
             text-align: center;
             border-radius: 50%;
             background-color: blue;
+            p {
+                font-size: 0.8em;
+                line-height: 1.4em;
+            }
         }
         img {
             width: 100%;
@@ -144,11 +70,14 @@
             display: block;
         }
         .description {
+            h2 {
+                font-weight: bold;
+            }
             display: none;
             position: absolute;
             top: 0;
             background-color: $info-box-color;
-            right: 100%;
+            left: 100%;
             min-width: 120px;
             color: white;
             padding: 5px;
@@ -174,6 +103,9 @@
         padding: 10px;
         z-index: 3;
         border-radius: 10px;
+        width: 40%;
+        min-width: 200px;
+        max-width: 410px;
         h2 {
             text-align: center;
         }
@@ -189,16 +121,18 @@
 .pause-menu {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    width: 300px;
-    height: 100px;
     gap: 15px;
+    button {
+        @include primaryButton();
+    }
 }
 
 .tower-picker {
-    width: 200px;
     text-align: center;
+    position: relative;
     h2 {
         padding: 15px;
+        font-size: 2em;
     }
     .container {
         display: flex;
@@ -212,7 +146,7 @@
         border-radius: 50%;
         overflow: hidden;
         display: block;
-        background-color: transparent;
+        background-color: $primary-color-lighter;
         &:disabled {
             background-color: grey;
         }
@@ -226,10 +160,13 @@
     }
     .confirm {
         position: absolute;
-        left: 85%;
-        top: 75%;
+        left: 95%;
+        top: 85%;
     }
     .description {
+        h3 {
+            font-weight: bold;
+        }
         position: absolute;
         color: white;
         background-color: $info-box-color;
@@ -239,7 +176,7 @@
         padding: 5px 15px;
         text-align: left;
         left: 0;
-        top: 100%;
+        top: calc(100% + 10px);
     }
 }
 
@@ -250,17 +187,14 @@
         margin-bottom: 1%;
     }
     .buttons {
+        width: 100%;
         display: grid;
         grid-template-columns: 1fr 1fr;
-        width: 300px;
         height: 100px;
         gap: 15px;
         margin-top: 5%;
         button {
-            @include modalButton();
-        }
-        button:hover {
-            background-color: $primary-color-darker;
+            @include primaryButton();
         }
     }
 }
