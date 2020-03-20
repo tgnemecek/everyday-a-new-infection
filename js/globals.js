@@ -8,6 +8,7 @@ class GameState {
     constructor(levelIndex) {
         this.levelIndex = levelIndex
         this.inGameTime = new Date().getTime()
+        this.inGameTimeId = undefined
         this.hud = new HUD()
         this.encyclopedia = undefined
         this.queuedActions = []
@@ -111,7 +112,7 @@ class GameState {
         this.enemies.push(enemy);
     }
     startInGameTime() {
-        setInterval(() => {
+        this.inGameTimeId = setInterval(() => {
             let now = new Date().getTime();
             if (!this.isPaused) {
                 if (this.lastPaused) {
@@ -119,13 +120,19 @@ class GameState {
                     this.lastPaused = undefined;
                 }
                 this.inGameTime = now - this.totalPaused;
+                let loops = [];
                 this.queuedActions = this.queuedActions
                 .filter((action) => {
                     if (action.queuedAt + action.waitTime <= this.inGameTime) {
                         action.callback();
+                        if (action.loop) loops.push({
+                            ...action,
+                            queuedAt: new Date().getTime()
+                        })
                         return false;
                     } else return true;
                 })
+                this.queuedActions = this.queuedActions.concat(loops);
             } else {
                 if (!this.lastPaused) this.lastPaused = new Date().getTime();
             }
@@ -185,9 +192,11 @@ class GameState {
         })
     }
     reset() {
+        clearInterval(this.inGameTimeId);
         startGame(this.levelIndex);
     }
     exit() {
+        clearInterval(this.inGameTimeId);
         startMainMenu();
     }
     nextWave() {
@@ -201,6 +210,7 @@ class GameState {
         }
     }
     win() {
+        clearInterval(this.inGameTimeId);
         saveProgress(this.levelIndex+1);
         console.log('you win!');
     }

@@ -203,8 +203,7 @@ class Tower {
         this.damage = 10;
         this.projectileColor = [35, 196, 196];
 
-        this.canAttack = true;
-        this.paused = false;
+        // this.paused = false;
         // this.setup();
     }
 
@@ -230,11 +229,11 @@ class Tower {
     }
 
     pause() {
-        this.paused = true;
+        // this.paused = true;
     }
 
     resume() {
-        this.paused = false;
+        // this.paused = false;
     }
     setup() {
         this.jquery.css({
@@ -249,55 +248,52 @@ class Tower {
             this.jquery,
             this.getActualRange.bind(this)
         );
-        setInterval(() => {
-            this.update();
-        }, fps)
+        gameState.queuedActions.push({
+            waitTime: 1000/this.attackSpeed,
+            queuedAt: new Date().getTime(),
+            callback: this.update.bind(this),
+            loop: true
+        })
     }
     update() {
-        if (this.canAttack && !this.paused) {
-            let enemiesInRange = [];
-            gameState.enemies.forEach((enemy) => {
-                let enPosition = enemy.jquery.position();
-                let enX = enPosition.left;
-                let enY = enPosition.top;
+        let enemiesInRange = [];
+        gameState.enemies.forEach((enemy) => {
+            let enPosition = enemy.jquery.position();
+            let enX = enPosition.left;
+            let enY = enPosition.top;
 
-                let nodeX = this.getProjectilePosition().left;
-                let nodeY = this.getProjectilePosition().top;
+            let nodeX = this.getProjectilePosition().left;
+            let nodeY = this.getProjectilePosition().top;
 
-                let distance = tools.distanceTo(nodeX, nodeY, enX, enY);
+            let distance = tools.distanceTo(nodeX, nodeY, enX, enY);
 
-                if (distance < this.getActualRange()) {
-                    enemiesInRange.push(enemy);
+            if (distance < this.getActualRange()) {
+                enemiesInRange.push(enemy);
+            }
+        })
+        if (enemiesInRange.length) {
+            let enemyCloserToEnd = {
+                percentWalked: 0,
+                nextPath: 0
+            };
+            enemiesInRange.forEach((enemy) => {
+                if (enemyCloserToEnd.nextPath < enemy.nextPath) {
+                    enemyCloserToEnd = enemy;
+                } else if (enemyCloserToEnd.nextPath === enemy.nextPath) {
+                    if (enemyCloserToEnd.percentWalked < enemy.percentWalked) {
+                        enemyCloserToEnd = enemy;
+                    }
                 }
             })
-            if (enemiesInRange.length) {
-                let enemyCloserToEnd = {
-                    percentWalked: 0,
-                    nextPath: 0
-                };
-                enemiesInRange.forEach((enemy) => {
-                    if (enemyCloserToEnd.nextPath < enemy.nextPath) {
-                        enemyCloserToEnd = enemy;
-                    } else if (enemyCloserToEnd.nextPath === enemy.nextPath) {
-                        if (enemyCloserToEnd.percentWalked < enemy.percentWalked) {
-                            enemyCloserToEnd = enemy;
-                        }
-                    }
-                })
-                let projectile = new Projectile(
-                    this.getProjectilePosition.bind(this),
-                    enemyCloserToEnd,
-                    this.damage,
-                    this.projectileSpeed,
-                    this.projectileColor,
-                    this.projectileSize
-                );
-                gameState.projectiles.push(projectile);
-                this.canAttack = false;
-                setTimeout(() => {
-                    this.canAttack = true;
-                }, 1000/this.attackSpeed)
-            }
+            let projectile = new Projectile(
+                this.getProjectilePosition.bind(this),
+                enemyCloserToEnd,
+                this.damage,
+                this.projectileSpeed,
+                this.projectileColor,
+                this.projectileSize
+            );
+            gameState.projectiles.push(projectile);
         }
     }
 }
@@ -345,7 +341,7 @@ class TowerSticky extends Tower {
     constructor(node) {
         super(node);
         this.range = 0.2;
-        this.attackSpeed = 1;
+        this.attackSpeed = 1000;
         this.projectileSpeed = 0.1;
         this.damage = 5;
         this.enemiesChosen = [];
@@ -364,21 +360,19 @@ class TowerSticky extends Tower {
     static thumbnail = "images/mucosa-thumbnail.png";
 
     update() {
-        if (!this.paused) {
-            gameState.enemies.forEach((enemy, i) => {
-                let enPosition = enemy.jquery.position();
-                let enX = enPosition.left;
-                let enY = enPosition.top;
+        gameState.enemies.forEach((enemy, i) => {
+            let enPosition = enemy.jquery.position();
+            let enX = enPosition.left;
+            let enY = enPosition.top;
 
-                let nodeX = this.getProjectilePosition().left;
-                let nodeY = this.getProjectilePosition().top;
+            let nodeX = this.getProjectilePosition().left;
+            let nodeY = this.getProjectilePosition().top;
 
-                let distance = tools.distanceTo(nodeX, nodeY, enX, enY);
+            let distance = tools.distanceTo(nodeX, nodeY, enX, enY);
 
-                if (distance < this.getActualRange()) {
-                    enemy.slowDown(this.id);
-                } else enemy.regularSpeed(this.id);
-            })
-        }
+            if (distance < this.getActualRange()) {
+                enemy.slowDown(this.id);
+            } else enemy.regularSpeed(this.id);
+        })
     }
 }
