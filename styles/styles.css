@@ -274,6 +274,37 @@ button {
   font-family: 'Baloo 2', 'Helvetica', 'Arial', sans-serif;
 }
 
+.black-screen {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 5;
+  background-color: black;
+  pointer-events: none;
+  opacity: 0;
+  color: white;
+  text-align: center;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+}
+
+.black-screen .content {
+  opacity: 0;
+}
+
+.black-screen h2 {
+  font-size: 4em;
+}
+
 .game {
   display: none;
   height: 100%;
@@ -507,7 +538,7 @@ button {
 }
 
 .encyclopedia:hover .fa-question-circle {
-  color: #9e8fc5;
+  color: #fff3c4;
 }
 
 .encyclopedia .content > div {
@@ -581,10 +612,11 @@ button {
 
 .modal .box {
   position: relative;
-  background-color: #9e8fc5;
+  -webkit-box-shadow: 5px 5px 5px 0px rgba(0, 0, 0, 0.75);
+          box-shadow: 5px 5px 5px 0px rgba(0, 0, 0, 0.75);
+  background-color: #fff3c4;
   padding: 10px;
   z-index: 3;
-  border-radius: 10px;
   width: 40%;
   min-width: 200px;
   max-width: 410px;
@@ -610,10 +642,10 @@ button {
 }
 
 .pause-menu button {
-  background-color: #bbb1d6;
+  background-color: #fffdf7;
   border: none;
-  -webkit-box-shadow: inset 0px 0px 3px 1px #816db4;
-          box-shadow: inset 0px 0px 3px 1px #816db4;
+  -webkit-box-shadow: inset 0px 0px 3px 1px #ffe991;
+          box-shadow: inset 0px 0px 3px 1px #ffe991;
   font-size: 2em;
   padding: 10%;
   -webkit-transition: background-color 0.2s;
@@ -621,7 +653,7 @@ button {
 }
 
 .pause-menu button:hover {
-  background-color: #816db4;
+  background-color: #ffe991;
 }
 
 .tower-picker {
@@ -651,7 +683,7 @@ button {
   border-radius: 50%;
   overflow: hidden;
   display: block;
-  background-color: #bbb1d6;
+  background-color: #fffdf7;
 }
 
 .tower-picker button:disabled {
@@ -712,10 +744,10 @@ button {
 }
 
 .game-over .buttons button {
-  background-color: #bbb1d6;
+  background-color: #fffdf7;
   border: none;
-  -webkit-box-shadow: inset 0px 0px 3px 1px #816db4;
-          box-shadow: inset 0px 0px 3px 1px #816db4;
+  -webkit-box-shadow: inset 0px 0px 3px 1px #ffe991;
+          box-shadow: inset 0px 0px 3px 1px #ffe991;
   font-size: 2em;
   padding: 10%;
   -webkit-transition: background-color 0.2s;
@@ -723,5 +755,41 @@ button {
 }
 
 .game-over .buttons button:hover {
-  background-color: #816db4;
+  background-color: #ffe991;
+}
+
+.wave-cutscene {
+  text-align: center;
+}
+
+.wave-cutscene h2 {
+  font-size: 2em;
+}
+
+.wave-cutscene i {
+  margin: 0.5em;
+  font-size: 4em;
+}
+
+.wave-cutscene .box {
+  position: absolute;
+  bottom: 100%;
+}
+
+.win-cutscene {
+  text-align: center;
+}
+
+.win-cutscene h2 {
+  font-size: 2em;
+}
+
+.win-cutscene i {
+  margin: 0.5em;
+  font-size: 4em;
+}
+
+.win-cutscene .box {
+  position: absolute;
+  bottom: 100%;
 }

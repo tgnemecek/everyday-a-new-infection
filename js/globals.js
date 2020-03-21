@@ -24,9 +24,10 @@ class GameState {
         this.isPaused = false
         this.currentWave = -1
         this.waves = []
+        this.waveFullySpawned = false;
         this.setup()
     }
-    getLevelData() {
+    getLevelData(getLength) {
         let levels = [
             {
                 image: "images/level1.jpg",
@@ -53,8 +54,8 @@ class GameState {
                 waves: [
                     [
                         {type: EnemySmall, quantity: 10, waitTime: 5000},
-                        {type: EnemySmall, quantity: 10, waitTime: 5000},
-                        {type: EnemyBig, quantity: 2, waitTime: 5000},
+                        // {type: EnemySmall, quantity: 10, waitTime: 5000},
+                        // {type: EnemyBig, quantity: 2, waitTime: 5000},
                     ],
                     [
                         {type: EnemyBig, quantity: 1, waitTime: 5000},
@@ -62,10 +63,35 @@ class GameState {
                 ]
             }
         ]
+        if (getLength) return levels.length;
         return levels[this.levelIndex];
     }
+    loadLevelCutscene(callback) {
+        let levelCount = this.getLevelData(true);
+        $('.black-screen')
+            .css({opacity: 1, pointerEvents: "all"})
+        $('.black-screen .content')
+            .append(`<h2>Day ${this.levelIndex+1}</h2>`)
+            .append(`<p>Can you survive all ${levelCount} days of infections?</p>`)
+            .animate({opacity: 1}, 1000)
+            .animate({opacity: 1}, 2000) // Wait time
+            .animate({opacity: 0}, {
+                duration: 1000,
+                complete: () => {
+                    $('.black-screen .content').remove();
+                    $('.black-screen').animate({opacity: 0}, {
+                        duration: 2000,
+                        start: () => {
+                            $('.black-screen').css({pointerEvents: "none"});
+                            callback();
+                        }
+                    })
+                }
+            })
+    }
     async spawnWave() {
-        this.nextWave();
+        // this.nextWave();
+        this.waveFullySpawned = false;
         let enemies = [...this.waves[this.currentWave]];
     
         for (let i = 0; i < enemies.length; i++) {
@@ -75,6 +101,7 @@ class GameState {
                 enemies[i].waitTime
             );
         }
+        this.waveFullySpawned = true;
     }
     spawnGroup(Type, numberOfEnemies, groupWaitTime) {
         return new Promise((resolve, reject) => {
@@ -159,7 +186,9 @@ class GameState {
             }
         })
         this.enemies.splice(enIndex, 1);
-        if (!this.enemies.length) this.nextWave();
+        if (this.waveFullySpawned && !this.enemies.length) {
+            this.nextWave();
+        }
     }
     pause() {
         this.lastPaused = new Date(),
@@ -201,19 +230,93 @@ class GameState {
         startMainMenu();
     }
     nextWave() {
-        console.log(this.enemies);
+        console.log('next wave sent!');
         let totalWaves = this.waves.length;
         if (this.currentWave+1 === totalWaves) {
             this.win();
         } else {
             this.currentWave++;
-            $('.hud .wave').text(`WAVE: ${this.currentWave+1}/${totalWaves}`);
+            $('.hud .wave').text(`INFECTION: ${this.currentWave+1}/${totalWaves}`);
+            this.waveCustscene();
         }
     }
+    waveCustscene() {
+        const getContent = () => {
+            let waves = this.getLevelData().waves;
+            if (this.currentWave === 0) {
+                return "<h2>NEW INFECTION DETECTED!</h2><p>Stop invading microbes!</p>"
+            } else if (this.currentWave+1 === waves.length) {
+                return '<h2>JUST ONE MORE TO GO!</h2><p>You can do this!</p>'
+            } else {
+                let options = [
+                    "GOOD JOB! BUT IT'S NOT OVER YET!",
+                    "NICE! KEEP IT UP!",
+                    "WAY TO GO! BUT DON'T STOP NOW!"
+                ]
+                let random = Math.round(Math.random() * options.length);
+                return `<h2>${options[random]}</h2>`;
+            }
+        }
+        let content = new $(`<div class="content"><h2>${getContent()}</h2></div>`)
+            .append(`<i class="fas fa-exclamation-triangle"></i>`)
+        let cusceneModal = new ModalBox(content, '', "wave-cutscene");
+        let initRight;
+        game.append(cusceneModal.jquery);
+        $('.wave-cutscene .box')
+        .animate({
+            bottom: "35%"
+        }, {
+            duration: 1000,
+            easing: 'easeOutBounce'
+        })
+        .animate({bottom: "35%"}, 3000)
+        .animate({
+            right: "120%"
+        }, {
+            duration: 1000,
+            step: function(now, fx) {
+                if (!initRight) initRight = now;
+                let deg = ((now - initRight) / 120) * -30;
+                $(this).css({ transform: `rotateZ(${deg}deg)` })
+            },
+            complete: () => {
+                $('.wave-cutscene .overlay')
+                .animate({opacity: 0}, {
+                    duration: 3000,
+                    complete: () => {
+                        cusceneModal.jquery.remove();
+                        this.spawnWave();
+                    }
+                })
+            }
+        })
+    }
     win() {
+        console.log('win');
         clearInterval(this.inGameTimeId);
         saveProgress(this.levelIndex+1);
-        console.log('you win!');
+        let content = new $(`<div class="content"><h2>Victory!</h2></div>`)
+            .append(`<p>Your body has survived today's infection!</p>`)
+            .append(`<i class="far fa-heart"></i>`)
+        let cusceneModal = new ModalBox(content, '', "win-cutscene");
+        let initRight;
+        game.append(cusceneModal.jquery);
+        $('.win-cutscene .box')
+        .animate({
+            bottom: "35%"
+        }, {
+            duration: 1000,
+            easing: 'easeOutBounce'
+        })
+        .animate({bottom: "35%"}, {
+            duration: 5000,
+            complete: () => {
+                $('.black-screen').animate({opacity: 1}, {
+                    duration: 3000,
+                    complete: () => startGame(this.levelIndex+1)
+                })
+            }
+        })
     }
     gameOver() {
         this.hp = 0;
@@ -235,25 +338,26 @@ class GameState {
     }
     setup() {
         let levelData = this.getLevelData();
-        this.waves = levelData.waves;
-
-        game.append($(`<img src="${levelData.image}" class="background"></img>`));
-        game.append(this.hud.jquery);
-        this.encyclopedia = new Encyclopedia(this.getLevelData());
-        this.hud.jquery.append(this.encyclopedia.jquery);
-        levelData.nodes.forEach((position) => {
-            let node = new Node(position);
-            this.nodes.push(node);
-        })
-        levelData.path.forEach((pathPosition) => {
-            let path = new $(`<div class="path"></div>`);
-            game.append(path);
-            path.css(pathPosition);
-        })
-        this.startInGameTime();
-        this.modifyHp(100);
-        this.modifyMoney(300);
-        this.spawnWave();
+        this.loadLevelCutscene(() => {
+            this.waves = levelData.waves;
+            game.append($(`<img src="${levelData.image}" class="background"></img>`));
+            game.append(this.hud.jquery);
+            this.encyclopedia = new Encyclopedia(this.getLevelData());
+            this.hud.jquery.append(this.encyclopedia.jquery);
+            levelData.nodes.forEach((position) => {
+                let node = new Node(position);
+                this.nodes.push(node);
+            })
+            levelData.path.forEach((pathPosition) => {
+                let path = new $(`<div class="path"></div>`);
+                game.append(path);
+                path.css(pathPosition);
+            })
+            this.startInGameTime();
+            this.modifyHp(1000);
+            this.modifyMoney(300);
+            this.nextWave();
+        });
     }
 }
 function getCookie(key) {
@@ -299,9 +403,9 @@ function resizeGameArea() {
         marginLeft: (-newWidth / 2) + 'px'
     })
 
-    let minFontSize = 10;
+    // let minFontSize = 10;
     let fontSize = (newWidth / 100) * 1.5;
-    if (fontSize < minFontSize) fontSize = minFontSize;
+    // if (fontSize < minFontSize) fontSize = minFontSize;
 
     wrapper.css({
         width: newWidth,

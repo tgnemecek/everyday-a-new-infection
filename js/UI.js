@@ -1,6 +1,6 @@
 class ModalBox {
-    constructor(child, overlayOnClick) {
-        this.jquery = new $(`<div class="modal"></div>`);
+    constructor(child, overlayOnClick, extraClass) {
+        this.jquery = new $(`<div class="modal ${extraClass || ""}"></div>`);
         this.overlay = new $(`<div class="overlay"></div>`);
         this.box = new $(`<div class="box"></div>`);
         this.child = child;
