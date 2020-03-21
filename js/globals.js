@@ -348,15 +348,15 @@ function onPageLoad() {
         startGame(0);
     })
     let loadLevelIndex = getCookie("loadLevelIndex");
-    if (loadLevelIndex !== undefined) {
-        $('.load-game')
-            .show()
-            .on('click', () => {
-                mainMenu.hide();
-                game.show();
-                startGame(loadLevelIndex);
-            })
+    if (loadLevelIndex === undefined) {
+        $('.load-game').attr('disabled', true);
     }
+    $('.load-game').on('click', () => {
+        mainMenu.hide();
+        game.show();
+        startGame(loadLevelIndex);
+    })
+
     resizeGameArea();
     startMainMenu();
 }

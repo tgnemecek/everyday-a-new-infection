@@ -37,30 +37,49 @@ button {
     width: 100%;
     height: 100%;
     display: none;
-    flex-direction: column;
-    justify-content: center;
-    main {
-        height: 50%;
-        h1 {
-            font-size: 5em;
-        }
-        text-align: center;
+    background-image: url('../images/main-menu.jpg');
+    background-size: cover;
+    .about {
+        position: absolute;
+        top: 48%;
+        left: 37%;
+        width: 43%;
     }
     .buttons {
-        text-align: center;
-        font-size: 30px;
-        display: grid;
-        gap: 20px;
-        grid-template-columns: 180px 180px;
-        justify-content: center;
-        margin-top: 5%;
+        // position: absolute;
+        // top: 53%;
+        // left: 48%;
+        // text-align: center;
+        font-size: 2em;
+        // display: grid;
+        // gap: 20px;
+        // grid-template-columns: 180px 180px;
+        // justify-content: center;
+        // margin-top: 5%;
         button {
+            position: absolute;
             border: none;
             background: none;
+            background-size: 100% 100%;
+            &:hover {
+                background-image: url('../images/menu-button-selection.png');
+            }
+            &:disabled {
+                color: grey;
+                background-image: none;
+            }
+        }
+        .start-game {
+            top: 61%;
+            left: 46%;
         }
         .load-game {
-            display: none;
-            grid-column-end: span 2;
+            left: 69%;
+            top: 61%;
+        }
+        .about-button {
+            top: 71%;
+            left: 59%;
         }
     }
     aside {

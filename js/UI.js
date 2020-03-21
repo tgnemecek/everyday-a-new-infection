@@ -109,7 +109,7 @@ class Encyclopedia {
 
 class TowerPicker {
     constructor(confirmTower, closeTowerPicker) {
-        this.jquery = new $('<div class="tower-picker"><h2>Build a Tower</h2></div>');
+        this.jquery = new $('<div class="tower-picker"><h2>Build a Structure</h2></div>');
         this.container = new $(`<div class="container"></div>`);
         this.confirm = new $(`<button class="confirm">OK</button>`);
         this.description = new $(`<div class="description"></div>`);
