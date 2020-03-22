@@ -1,6 +1,6 @@
 .hud {
     display: grid;
-    grid-template-columns: 12% 12% 1fr auto;
+    grid-template-columns: 12% 12% 12% 1fr auto;
     align-content: flex-start;
     gap: 0 25px;
     padding: 2%;
@@ -103,9 +103,9 @@
         background-color: $primary-color;
         padding: 10px;
         z-index: 3;
-        width: 40%;
-        min-width: 200px;
-        max-width: 410px;
+        // width: 40%;
+        // min-width: 200px;
+        // max-width: 410px;
         h2 {
             text-align: center;
         }
@@ -180,8 +180,7 @@
     }
 }
 
-.game-over {
-    text-align: center;
+.game-over, .win-game {
     h2 {
         font-size: 3em;
         margin-bottom: 1%;
@@ -190,7 +189,6 @@
         width: 100%;
         display: grid;
         grid-template-columns: 1fr 1fr;
-        height: 100px;
         gap: 15px;
         margin-top: 5%;
         button {
@@ -199,25 +197,11 @@
     }
 }
 
-.wave-cutscene {
+.card {
     text-align: center;
     h2 {
         font-size: 2em;
-    }
-    i {
-        margin: 0.5em;
-        font-size: 4em;
-    }
-    .box {
-        position: absolute;
-        bottom: 100%;
-    }
-}
-
-.win-cutscene {
-    text-align: center;
-    h2 {
-        font-size: 2em;
+        white-space: nowrap;
     }
     i {
         margin: 0.5em;

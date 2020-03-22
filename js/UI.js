@@ -20,11 +20,12 @@ class ModalBox {
 }
 
 class HUD {
-    constructor() {
+    constructor(levelIndex) {
         this.jquery = new $(`<div class="hud"></div>`);
         this.hp = new $(`<div><i class="fas fa-heart"></i><span class="hp"></span></div>`);
         this.money = new $(`<div><i class="fas fa-atom"></i><span class="money"></span></div>`);
         this.wave = new $(`<div class="wave"></div>`);
+        this.level = new $(`<div class="level">Day: ${levelIndex+1}</div>`);
         this.button = new $(`<button><i class="fas fa-pause-circle"></i></button>`);
         this.restart = new $(`<button>Restart</button>`);
         this.exit = new $(`<button>Exit</button>`);
@@ -47,6 +48,7 @@ class HUD {
         this.jquery.append(this.hp);
         this.jquery.append(this.money);
         this.jquery.append(this.wave);
+        this.jquery.append(this.level);
         this.jquery.append(this.button);
         this.button.append(this.pauseIcon);
 
@@ -104,6 +106,88 @@ class Encyclopedia {
             enJquery.append(`<div class="quantity"><p>${enemy.quantity}</p></div>`);
             this.content.append(enJquery);
         })
+    }
+}
+
+class Card {
+    constructor(content, {waitTime = -1, extraClass = "", callback}) {
+        this.modalBox = new ModalBox(content, '', "card " + extraClass);
+        this.waitTime = waitTime;
+        this.callback = callback;
+        this.isWaiting = false;
+        this.setup()
+    }
+    inAndOut(bottom) {
+        this.in(bottom);
+        this.wait(bottom);
+        this.out();
+    }
+    in() {
+        this.modalBox.jquery.children('.box')
+        .animate({
+            bottom: this.getBottomPos()
+        }, {
+            duration: 1000,
+            easing: 'easeOutBounce'
+        })
+    }
+    wait() {
+        this.isWaiting = true;
+        this.modalBox.jquery.children('.box')
+        .animate({ bottom: this.getBottomPos() }, {
+            duration: this.waitTime,
+            complete: () => this.isWaiting = false
+        })
+    }
+    out() {
+        let initRight;
+        this.modalBox.jquery.children('.box')
+        .animate({
+            right: "120%"
+        }, {
+            duration: 1000,
+            step: function(now, fx) {
+                if (!initRight) initRight = now;
+                let deg = ((now - initRight) / 120) * -30;
+                $(this).css({ transform: `rotateZ(${deg}deg)` })
+            },
+            complete: () => {
+                $('.card .overlay')
+                .animate({opacity: 0}, {
+                    duration: 3000,
+                    complete: () => {
+                        this.modalBox.jquery.remove();
+                        if (typeof this.callback === 'function') {
+                            this.callback();
+                        }
+                    }
+                })
+            }
+        })
+    }
+    getBottomPos(windowHeight) {
+        console.log(windowHeight);
+        windowHeight = windowHeight || windowSize.height;
+        let boxHeight = this.modalBox.jquery.children('.box').height();
+        let halfHeight = boxHeight / 2;
+        let boxRelHeight = (halfHeight / windowHeight) * 100;
+        return (50 - boxRelHeight) + "%";
+    }
+    setup() {
+        game.append(this.modalBox.jquery);
+
+        this.modalBox.jquery.on('click' , () => {
+            if (this.isWaiting) {
+                this.modalBox.jquery.children('.box').stop();
+                this.out();
+            }
+        })
+
+        if (this.waitTime === -1) {
+            this.in();
+        } else {
+            this.inAndOut();
+        }
     }
 }
 

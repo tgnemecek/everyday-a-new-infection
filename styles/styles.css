@@ -489,8 +489,8 @@ button {
 .hud {
   display: -ms-grid;
   display: grid;
-  -ms-grid-columns: 12% 12% 1fr auto;
-      grid-template-columns: 12% 12% 1fr auto;
+  -ms-grid-columns: 12% 12% 12% 1fr auto;
+      grid-template-columns: 12% 12% 12% 1fr auto;
   -ms-flex-line-pack: start;
       align-content: flex-start;
   gap: 0 25px;
@@ -617,9 +617,6 @@ button {
   background-color: #fff3c4;
   padding: 10px;
   z-index: 3;
-  width: 40%;
-  min-width: 200px;
-  max-width: 410px;
 }
 
 .modal .box h2 {
@@ -647,7 +644,7 @@ button {
   -webkit-box-shadow: inset 0px 0px 3px 1px #ffe991;
           box-shadow: inset 0px 0px 3px 1px #ffe991;
   font-size: 2em;
-  padding: 10%;
+  padding: 1em;
   -webkit-transition: background-color 0.2s;
   transition: background-color 0.2s;
 }
@@ -723,73 +720,51 @@ button {
   font-weight: bold;
 }
 
-.game-over {
-  text-align: center;
-}
-
-.game-over h2 {
+.game-over h2, .win-game h2 {
   font-size: 3em;
   margin-bottom: 1%;
 }
 
-.game-over .buttons {
+.game-over .buttons, .win-game .buttons {
   width: 100%;
   display: -ms-grid;
   display: grid;
   -ms-grid-columns: 1fr 1fr;
       grid-template-columns: 1fr 1fr;
-  height: 100px;
   gap: 15px;
   margin-top: 5%;
 }
 
-.game-over .buttons button {
+.game-over .buttons button, .win-game .buttons button {
   background-color: #fffdf7;
   border: none;
   -webkit-box-shadow: inset 0px 0px 3px 1px #ffe991;
           box-shadow: inset 0px 0px 3px 1px #ffe991;
   font-size: 2em;
-  padding: 10%;
+  padding: 1em;
   -webkit-transition: background-color 0.2s;
   transition: background-color 0.2s;
 }
 
-.game-over .buttons button:hover {
+.game-over .buttons button:hover, .win-game .buttons button:hover {
   background-color: #ffe991;
 }
 
-.wave-cutscene {
+.card {
   text-align: center;
 }
 
-.wave-cutscene h2 {
+.card h2 {
   font-size: 2em;
+  white-space: nowrap;
 }
 
-.wave-cutscene i {
+.card i {
   margin: 0.5em;
   font-size: 4em;
 }
 
-.wave-cutscene .box {
-  position: absolute;
-  bottom: 100%;
-}
-
-.win-cutscene {
-  text-align: center;
-}
-
-.win-cutscene h2 {
-  font-size: 2em;
-}
-
-.win-cutscene i {
-  margin: 0.5em;
-  font-size: 4em;
-}
-
-.win-cutscene .box {
+.card .box {
   position: absolute;
   bottom: 100%;
 }

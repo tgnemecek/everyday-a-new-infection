@@ -5,11 +5,13 @@ let windowSize = {};
 let gameState;
 
 class GameState {
-    constructor(levelIndex) {
+    constructor({levelIndex = 0, skipIntro = false}) {
         this.levelIndex = levelIndex
+        this.skipIntro = skipIntro
         this.inGameTime = new Date().getTime()
         this.inGameTimeId = undefined
-        this.hud = new HUD()
+        this.hud = new HUD(levelIndex)
+        this.card = undefined
         this.towerPicker = undefined
         this.encyclopedia = undefined
         this.queuedActions = []
@@ -29,7 +31,7 @@ class GameState {
     }
     getLevelData(getLength) {
         let levels = [
-            {
+            { // DAY 1
                 image: "images/level1.jpg",
                 nodes: [
                     { left: "75%", top: "22%"},
@@ -61,6 +63,39 @@ class GameState {
                         {type: EnemyBig, quantity: 1, waitTime: 5000},
                     ]
                 ]
+            },
+            { // DAY 2
+                image: "images/level1.jpg",
+                nodes: [
+                    // { left: "75%", top: "22%"},
+                    // { left: "19%", top: "40%"},
+                    // { left: "10%", top: "12%"},
+                    // { left: "10%", top: "70%"},
+                    // { left: "75%", top: "65%"},
+                ],
+                path: [
+                    { left: "90%", top: "-15%"},
+                    { left: "90%", top: "25%"},
+                    { left: "80%", top: "40%"},
+                    { left: "65%", top: "40%"},
+                    { left: "50%", top: "20%"},
+                    { left: "25%", top: "20%"},
+                    { left: "15%", top: "30%"},
+                    { left: "15%", top: "60%"},
+                    { left: "25%", top: "75%"},
+                    { left: "60%", top: "85%"},
+                    { left: "100%", top: "80%"},
+                ],
+                waves: [
+                    [
+                        {type: EnemySmall, quantity: 10, waitTime: 5000},
+                        // {type: EnemySmall, quantity: 10, waitTime: 5000},
+                        // {type: EnemyBig, quantity: 2, waitTime: 5000},
+                    ],
+                    [
+                        {type: EnemyBig, quantity: 1, waitTime: 5000},
+                    ]
+                ]
             }
         ]
         if (getLength) return levels.length;
@@ -68,17 +103,26 @@ class GameState {
     }
     loadLevelCutscene(callback) {
         let levelCount = this.getLevelData(true);
+        let title;
+        let subText;
+        if (this.levelIndex+1 === levelCount) {
+            title = "Last Day"
+            subText = "Can you survive the ultimate battle against the Corona Queen?"
+        } else {
+            title = `Day ${this.levelIndex+1}`;
+            subText = `Can you survive all ${levelCount} days of infections?`;
+        }
         $('.black-screen')
             .css({opacity: 1, pointerEvents: "all"})
         $('.black-screen .content')
-            .append(`<h2>Day ${this.levelIndex+1}</h2>`)
-            .append(`<p>Can you survive all ${levelCount} days of infections?</p>`)
+            .append(`<h2>${title}</h2>`)
+            .append(`<p>${subText}</p>`)
             .animate({opacity: 1}, 1000)
-            .animate({opacity: 1}, 2000) // Wait time
+            .animate({opacity: 1}, 3000) // Wait time
             .animate({opacity: 0}, {
                 duration: 1000,
                 complete: () => {
-                    $('.black-screen .content').remove();
+                    $('.black-screen .content').children().remove();
                     $('.black-screen').animate({opacity: 0}, {
                         duration: 2000,
                         start: () => {
@@ -222,8 +266,7 @@ class GameState {
         })
     }
     reset() {
-        clearInterval(this.inGameTimeId);
-        startGame(this.levelIndex);
+        startGame({levelIndex: this.levelIndex, skipIntro: true});
     }
     exit() {
         clearInterval(this.inGameTimeId);
@@ -244,7 +287,7 @@ class GameState {
         const getContent = () => {
             let waves = this.getLevelData().waves;
             if (this.currentWave === 0) {
-                return "<h2>NEW INFECTION DETECTED!</h2><p>Stop invading microbes!</p>"
+                return "<h2>NEW INFECTION DETECTED!</h2><p>Stop the invading microbes!</p>"
             } else if (this.currentWave+1 === waves.length) {
                 return '<h2>JUST ONE MORE TO GO!</h2><p>You can do this!</p>'
             } else {
@@ -259,86 +302,59 @@ class GameState {
         }
         let content = new $(`<div class="content"><h2>${getContent()}</h2></div>`)
             .append(`<i class="fas fa-exclamation-triangle"></i>`)
-        let cusceneModal = new ModalBox(content, '', "wave-cutscene");
-        let initRight;
-        game.append(cusceneModal.jquery);
-        $('.wave-cutscene .box')
-        .animate({
-            bottom: "35%"
-        }, {
-            duration: 1000,
-            easing: 'easeOutBounce'
-        })
-        .animate({bottom: "35%"}, 3000)
-        .animate({
-            right: "120%"
-        }, {
-            duration: 1000,
-            step: function(now, fx) {
-                if (!initRight) initRight = now;
-                let deg = ((now - initRight) / 120) * -30;
-                $(this).css({ transform: `rotateZ(${deg}deg)` })
-            },
-            complete: () => {
-                $('.wave-cutscene .overlay')
-                .animate({opacity: 0}, {
-                    duration: 3000,
-                    complete: () => {
-                        cusceneModal.jquery.remove();
-                        this.spawnWave();
-                    }
-                })
-            }
-        })
+        this.card = new Card(content, {
+            waitTime: 3000,
+            callback: this.spawnWave.bind(this)
+        });
     }
     win() {
-        console.log('win');
-        clearInterval(this.inGameTimeId);
-        saveProgress(this.levelIndex+1);
-        let content = new $(`<div class="content"><h2>Victory!</h2></div>`)
+        this.pause();
+        $('.modal').remove();
+        let exit = new $(`<button>Exit</button>`);
+        let next = new $(`<button>Next Day</button>`);
+        exit.on('click', () => this.exit());
+        next.on('click', () => this.nextDay());
+
+        let buttons = new $(`<div class="buttons"></div>`)
+            .append(exit)
+            .append(next)
+        let content = new $(`<div class="container"><h2>Victory!</h2></div>`)
             .append(`<p>Your body has survived today's infection!</p>`)
             .append(`<i class="far fa-heart"></i>`)
-        let cusceneModal = new ModalBox(content, '', "win-cutscene");
-        let initRight;
-        game.append(cusceneModal.jquery);
-        $('.win-cutscene .box')
-        .animate({
-            bottom: "35%"
-        }, {
-            duration: 1000,
-            easing: 'easeOutBounce'
-        })
-        .animate({bottom: "35%"}, {
-            duration: 5000,
-            complete: () => {
-                $('.black-screen').animate({opacity: 1}, {
-                    duration: 3000,
-                    complete: () => startGame(this.levelIndex+1)
-                })
-            }
+            .append(buttons)
+
+        this.card = new Card(content, {
+            extraClass: "win-game"
         })
     }
     gameOver() {
         this.hp = 0;
         this.pause();
         $('.modal').remove();
-        let container = new $(`<div class="game-over"><h2>Game Over!</h2></div>`);
-        let text = new $(`<p>Your body was overtaken by the invaders...</p><p>Maybe wash your hands next time?</p>`)
-        let buttons = new $(`<div class="buttons"></div>`);
         let exit = new $(`<button>Exit</button>`);
         let restart = new $(`<button>Restart</button>`);
-        container.append(text);
-        container.append(buttons);
-        buttons.append(exit);
-        buttons.append(restart);
         exit.on('click', () => this.exit());
         restart.on('click', () => this.reset());
-        let gameOver = new ModalBox(container);
-        game.append(gameOver.jquery);
+
+        let buttons = new $(`<div class="buttons"></div>`)
+            .append(exit)
+            .append(restart)
+        let content = new $(`<div class="container"><h2>Game Over!</h2></div>`)
+            .append(`<p>Your body was overtaken by the invaders...</p>`)
+            .append(`<p>Maybe wash your hands next time?</p>`)
+            .append(buttons)
+
+        this.card = new Card(content, {
+            extraClass: "game-over"
+        })
+    }
+    nextDay() {
+        startGame({levelIndex: this.levelIndex+1});
     }
     setup() {
         let levelData = this.getLevelData();
-        this.loadLevelCutscene(() => {
+
+        const subSetup = () => {
             this.waves = levelData.waves;
             game.append($(`<img src="${levelData.image}" class="background"></img>`));
             game.append(this.hud.jquery);
@@ -354,10 +370,16 @@ class GameState {
                 path.css(pathPosition);
             })
             this.startInGameTime();
-            this.modifyHp(1000);
+            this.modifyHp(100);
             this.modifyMoney(300);
             this.nextWave();
-        });
+        }
+
+        if (!this.skipIntro) {
+            this.loadLevelCutscene(subSetup);
+        } else {
+            subSetup();
+        }
     }
 }
 function getCookie(key) {
@@ -367,9 +389,12 @@ function getCookie(key) {
         return parts.pop().split(";").shift();
     }
 }
-function startGame(levelIndex) {
+function startGame(levelIndex, options) {
     game.children().remove();
-    gameState = new GameState(levelIndex);
+    if (gameState) {
+        clearInterval(gameState.inGameTimeId);
+    }
+    gameState = new GameState(levelIndex, options);
 }
 function startMainMenu() {
     game.children().remove();
@@ -419,7 +444,7 @@ function resizeGameArea() {
             ...gameState.nodes,
             ...gameState.towers,
             ...gameState.projectiles,
-            gameState.hud
+            gameState.hud,
 
         ].forEach((instance) => {
             if (typeof instance.onResize === 'function') {
@@ -449,7 +474,7 @@ function onPageLoad() {
     startGameButton.on('click', () => {
         mainMenu.hide();
         game.show();
-        startGame(0);
+        startGame({levelIndex: 0});
     })
     let loadLevelIndex = getCookie("loadLevelIndex");
     if (loadLevelIndex === undefined) {
@@ -458,7 +483,7 @@ function onPageLoad() {
     $('.load-game').on('click', () => {
         mainMenu.hide();
         game.show();
-        startGame(loadLevelIndex);
+        startGame({levelIndex: loadLevelIndex});
     })
 
     resizeGameArea();
