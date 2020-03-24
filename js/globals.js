@@ -11,6 +11,7 @@ class GameState {
         this.inGameTime = new Date().getTime()
         this.inGameTimeId = undefined
         this.hud = new HUD(levelIndex)
+        this.callWaveButton = new $(`<button class="call-wave">START!</button>`)
         this.card = undefined
         this.towerPicker = undefined
         this.encyclopedia = undefined
@@ -55,7 +56,9 @@ class GameState {
                 ],
                 waves: [
                     [
-                        {type: EnemySmall, quantity: 10, waitTime: 5000},
+                        {type: EnemySmall, quantity: 3, waitTime: 2000},
+                        {type: EnemySmall, quantity: 3, waitTime: 5000},
+                        {type: EnemySmall, quantity: 8, waitTime: 5000},
                         // {type: EnemySmall, quantity: 10, waitTime: 5000},
                         // {type: EnemyBig, quantity: 2, waitTime: 5000},
                     ],
@@ -139,13 +142,13 @@ class GameState {
         let enemies = [...this.waves[this.currentWave]];
     
         for (let i = 0; i < enemies.length; i++) {
+            if (i === enemies.length-1) this.waveFullySpawned = true;
             await this.spawnGroup(
                 enemies[i].type,
                 enemies[i].quantity,
                 enemies[i].waitTime
             );
         }
-        this.waveFullySpawned = true;
     }
     spawnGroup(Type, numberOfEnemies, groupWaitTime) {
         return new Promise((resolve, reject) => {
@@ -230,6 +233,7 @@ class GameState {
             }
         })
         this.enemies.splice(enIndex, 1);
+        debugger;
         if (this.waveFullySpawned && !this.enemies.length) {
             this.nextWave();
         }
@@ -273,7 +277,6 @@ class GameState {
         startMainMenu();
     }
     nextWave() {
-        console.log('next wave sent!');
         let totalWaves = this.waves.length;
         if (this.currentWave+1 === totalWaves) {
             this.win();
@@ -358,6 +361,11 @@ class GameState {
             this.waves = levelData.waves;
             game.append($(`<img src="${levelData.image}" class="background"></img>`));
             game.append(this.hud.jquery);
+            game.append(this.callWaveButton);
+            this.callWaveButton.on('click', () => {
+                this.callWaveButton.remove();
+                this.nextWave();
+            })
             this.encyclopedia = new Encyclopedia(this.getLevelData());
             this.hud.jquery.append(this.encyclopedia.jquery);
             levelData.nodes.forEach((position) => {
@@ -372,7 +380,6 @@ class GameState {
             this.startInGameTime();
             this.modifyHp(1000);
             this.modifyMoney(300);
-            this.nextWave();
         }
 
         if (!this.skipIntro) {

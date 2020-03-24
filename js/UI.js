@@ -97,10 +97,10 @@ class Encyclopedia {
         })
         this.enemies.forEach((enemy) => {
             let enJquery = new $(`<div></div>`);
-            let img = new $(`<img src="${enemy.type.image}"/>`);
+            let img = new $(`<img src="${enemy.type.image()}"/>`);
             let description = new $(`<div class="description"></div>`);
-            description.append(`<h2>${enemy.type.name}</h2><p>${enemy.type.description}</p>`);
-            img.css({ filter: `hue-rotate(${enemy.type.baseHue}deg)` });
+            description.append(`<h2>${enemy.type.name()}</h2><p>${enemy.type.description()}</p>`);
+            img.css({ filter: `hue-rotate(${enemy.type.baseHue()}deg)` });
             enJquery.append(img);
             enJquery.append(description);
             enJquery.append(`<div class="quantity"><p>${enemy.quantity}</p></div>`);
@@ -132,11 +132,11 @@ class Card {
         })
     }
     wait() {
-        this.isWaiting = true;
         this.modalBox.jquery.children('.box')
         .animate({ bottom: this.getBottomPos() }, {
             duration: this.waitTime,
-            complete: () => this.isWaiting = false
+            start: () => this.isWaiting = true,
+            always: () => this.isWaiting = false
         })
     }
     out() {
@@ -174,7 +174,6 @@ class Card {
     }
     setup() {
         game.append(this.modalBox.jquery);
-
         this.modalBox.jquery.on('click' , () => {
             if (this.isWaiting) {
                 this.modalBox.jquery.children('.box').stop();
@@ -212,16 +211,16 @@ class TowerPicker {
         $('.tower-picker .container button').each((i, element) => {
             $(element).removeClass('selected');
         })
-        $(`.${Tower.id} button`).addClass('selected');
+        $(`.${Tower.id()} button`).addClass('selected');
         this.towerSelected = Tower;
         this.confirm.prop('disabled', false);
         this.jquery.append(this.description);
         this.description.children().remove();
-        this.description.append(`<h3>${Tower.name}</h3><p>${Tower.description}</p>`)
+        this.description.append(`<h3>${Tower.name()}</h3><p>${Tower.description()}</p>`)
     }
     checkIfDisabled(Tower) {
-        let button = $(`.tower-picker .${Tower.id} button`);
-        if (gameState.money >= Tower.cost) {
+        let button = $(`.tower-picker .${Tower.id()} button`);
+        if (gameState.money >= Tower.cost()) {
             button.prop("disabled", false);
         } else button.prop("disabled", true);
     }
@@ -233,16 +232,6 @@ class TowerPicker {
             this.closeTowerPicker();
             clearInterval(this.updateInterval);
         }
-
-        // this.updateInterval = setInterval(() => {
-        //     this.towers.forEach((Tower) => {
-        //         this.checkIfDisabled(Tower);
-        //     })
-        //     if (gameState.isPaused) {
-        //         this.closeTowerPicker();
-        //         clearInterval(this.updateInterval);
-        //     }
-        // }, fps)
     }
     setup() {
         this.jquery.append(this.container);
@@ -252,9 +241,9 @@ class TowerPicker {
         });
         game.append(this.modalBox.jquery);
         this.towers.forEach((Tower) => {
-            let towerDiv = new $(`<div class=${Tower.id}></div>`);
-            let button = new $(`<button><img src="${Tower.thumbnail}"/></button>`);
-            let label = $(`<label>$${Tower.cost}</label>`);
+            let towerDiv = new $(`<div class=${Tower.id()}></div>`);
+            let button = new $(`<button><img src="${Tower.thumbnail()}"/></button>`);
+            let label = $(`<label>$${Tower.cost()}</label>`);
 
             towerDiv.append(button);
             towerDiv.append(label);

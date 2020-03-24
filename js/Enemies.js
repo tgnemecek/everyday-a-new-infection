@@ -8,7 +8,7 @@ class Enemy {
         
         this.width = 0.03;
         this.height = 0.03;
-        this.moveSpeed = 50;
+        this.moveSpeed = 40;
         this.maxHp = 50;
         this.money = 10;
         this.rotationSpeed = 1;
@@ -26,8 +26,7 @@ class Enemy {
         // this.setup();
     }
 
-    static image = "";
-    static deathImageIndex = 0;
+    static image() { return "" }
 
     randomizePosition(value, range) {
         let factor = windowSize.width / 1920;
@@ -78,17 +77,10 @@ class Enemy {
         let height = this.sprite.height();
         let width = this.sprite.width();
 
-        // let size = this.deathImages.length;
-        // let chosenIndex = Math.floor(Math.random() * size);
-        // console.log(chosenIndex);
-
-        let chosenIndex = this.constructor.deathImageIndex + 1;
-        chosenIndex = chosenIndex >= this.deathImages.length ? 0 : chosenIndex;
-
-        this.constructor.deathImageIndex = chosenIndex;
-        
+        let size = this.deathImages.length;
+        let chosenIndex = Math.floor(Math.random() * size);
         let chosenImage = this.deathImages[chosenIndex];
-        console.log(chosenImage);
+
         this.sprite.css({
             backgroundImage: `url(${chosenImage})`,
             height: height * 2,
@@ -208,11 +200,11 @@ class Enemy {
         });
         this.sprite.css({
             backgroundSize: `100%`,
-            backgroundImage: `url(${this.constructor.image})`,
+            backgroundImage: `url(${this.constructor.image()})`,
             backgroundPosition: 0,
             backgroundRepeat: "no-repeat",
             filter: `brightness(${tools.randomize(1, 0.2)})
-                    hue-rotate(${tools.randomize(this.constructor.baseHue, 40)}deg)`,
+                    hue-rotate(${tools.randomize(this.constructor.baseHue(), 40)}deg)`,
         });
         let randDirection = Math.round(Math.random());
         this.rotation = tools.addRotationLoop(
@@ -234,11 +226,10 @@ class EnemySmall extends Enemy {
         this.deathImages = ["images/cold-influenza-death1.png", "images/cold-influenza-death2.png", "images/cold-influenza-death3.png"];
         this.setup();
     }
-    static name = "Cold Virus";
-    static description = "Really common and fast, but easy to treat.";
-    static image = "images/cold-influenza.png";
-    static baseHue = 0;
-    static deathImageIndex = 0;
+    static name() { return "Cold Virus" }
+    static description() { return "Really common and fast, but easy to treat." }
+    static image() { return "images/cold-influenza.png" }
+    static baseHue() { return 0 }
 }
 
 class EnemyBig extends Enemy {
@@ -250,8 +241,8 @@ class EnemyBig extends Enemy {
         this.deathImages = ["images/cold-influenza-death1.png", "images/cold-influenza-death2.png", "images/cold-influenza-death3.png"];
         this.setup();
     }
-    static name = "Influenza";
-    static description = "Harder to treat but slow.";
-    static image = "images/cold-influenza.png";
-    static baseHue = -150;
+    static name() { return "Influenza" }
+    static description() { return "Harder to treat but slow." }
+    static image() { return "images/cold-influenza.png" }
+    static baseHue() { return -150 }
 }

@@ -28,7 +28,7 @@ class Node {
         this.towerPicker = undefined;
     }
     chooseTower(ChosenTower) {
-        gameState.modifyMoney(-ChosenTower.cost);
+        gameState.modifyMoney(-ChosenTower.cost());
         let tower = new ChosenTower(this.jquery);
         this.jquery.css('border', 'none');
         gameState.towers.push(tower);
@@ -200,14 +200,14 @@ class Tower {
         this.attackSpeed = 2;
         this.projectileSpeed = 0.4;
         this.projectileSize = 0.006;
-        this.damage = 10;
+        this.damage = 20;
         this.projectileColor = [35, 196, 196];
 
         // this.paused = false;
         // this.setup();
     }
 
-    static image = "";
+    static image() { return "" }
 
     onResize(newWidth) {
         this.radar.onResize(newWidth);
@@ -238,7 +238,7 @@ class Tower {
     setup() {
         this.jquery.css({
             backgroundSize: `100%`,
-            backgroundImage: `url(${this.constructor.image})`,
+            backgroundImage: `url(${this.constructor.image()})`,
             backgroundPosition: 0,
             backgroundRepeat: "no-repeat",
         })
@@ -307,12 +307,12 @@ class TowerFast extends Tower {
             1
         )
     }
-    static name = "B Cell (White Blood)";
-    static id = "fast-tower";
-    static cost = 100;
-    static description = "Shoots antibodies at a high speed and range, but causes low damage.";
-    static image = "images/b-cell.png";
-    static thumbnail = "images/b-cell.png";
+    static name() { return  "B Cell (White Blood)" }
+    static id() { return  "fast-tower" }
+    static cost() { return  100 }
+    static description() { return  "Shoots antibodies at a high speed and range, but causes low damage." }
+    static image() { return  "images/b-cell.png" }
+    static thumbnail() { return  "images/b-cell.png" }
 }
 
 class TowerSlow extends Tower {
@@ -329,12 +329,12 @@ class TowerSlow extends Tower {
             3
         )
     }
-    static name = "T Cell (White Blood)";
-    static id = "slow-tower";
-    static cost = 120;
-    static description = "Shoots phagocytes that cause high damage but have slow speed.";
-    static image = "images/t-cell.png";
-    static thumbnail = "images/t-cell.png";
+    static name() { return  "T Cell (White Blood)" }
+    static id() { return  "slow-tower" }
+    static cost() { return  120 }
+    static description() { return  "Shoots phagocytes that cause high damage but have slow speed." }
+    static image() { return  "images/t-cell.png" }
+    static thumbnail() { return  "images/t-cell.png" }
 }
 
 class TowerSticky extends Tower {
@@ -352,12 +352,12 @@ class TowerSticky extends Tower {
             0.8
         )
     }
-    static name = "Mucosa";
-    static id = "sticky-tower";
-    static cost = 70;
-    static description = "Generate mucus to slow down enemies in range.";
-    static image = "images/mucosa.png";
-    static thumbnail = "images/mucosa-thumbnail.png";
+    static name() { return  "Mucosa" }
+    static id() { return  "sticky-tower" }
+    static cost() { return  70 }
+    static description() { return  "Generate mucus to slow down enemies in range." }
+    static image() { return  "images/mucosa.png" }
+    static thumbnail() { return  "images/mucosa-thumbnail.png" }
 
     update() {
         gameState.enemies.forEach((enemy, i) => {

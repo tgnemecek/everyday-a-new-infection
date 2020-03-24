@@ -592,6 +592,22 @@ button {
   font-weight: bold;
 }
 
+.call-wave {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  margin: 1em;
+  font-size: 2.5em;
+  padding: .25em;
+  background-color: #fff3c4;
+  border: none;
+  z-index: 2;
+}
+
+.call-wave:hover {
+  background-color: #ffe991;
+}
+
 .modal {
   top: 0;
   left: 0;
