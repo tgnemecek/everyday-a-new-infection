@@ -166,7 +166,6 @@ class Card {
         })
     }
     getBottomPos(windowHeight) {
-        console.log(windowHeight);
         windowHeight = windowHeight || windowSize.height;
         let boxHeight = this.modalBox.jquery.children('.box').height();
         let halfHeight = boxHeight / 2;

@@ -15,10 +15,11 @@ let tools = {
         let disY = y1 - y2;
         return Math.sqrt(disX * disX + disY * disY);
     },
-    addSpriteAnimation: function (jquery, numberOfSprites, speed) {
+    addSpriteAnimation: function (jquery, numberOfSprites, speed, extras) {
+        extras = extras || "infinite normal forwards";
         jquery.css({
             backgroundSize: `${numberOfSprites*100}% auto`,
-            animation: `sprite-animation ${speed}s steps(${numberOfSprites-1}) infinite`
+            animation: `sprite-animation ${speed}s steps(${numberOfSprites-1}) ${extras}`
         })
         return {
             stop: function() {
@@ -29,6 +30,7 @@ let tools = {
         };
     },
     addRotationLoop: function (jquery, speed, direction) {
+        
         jquery.css({
             animation: `rotation-animation ${speed}s linear infinite`,
             animationDirection: direction || "normal"

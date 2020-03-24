@@ -370,7 +370,7 @@ class GameState {
                 path.css(pathPosition);
             })
             this.startInGameTime();
-            this.modifyHp(100);
+            this.modifyHp(1000);
             this.modifyMoney(300);
             this.nextWave();
         }
@@ -474,7 +474,7 @@ function onPageLoad() {
     startGameButton.on('click', () => {
         mainMenu.hide();
         game.show();
-        startGame({levelIndex: 0});
+        startGame({levelIndex: 0, skipIntro: true});// Remove skipIntro for production!
     })
     let loadLevelIndex = getCookie("loadLevelIndex");
     if (loadLevelIndex === undefined) {

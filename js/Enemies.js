@@ -12,6 +12,7 @@ class Enemy {
         this.maxHp = 50;
         this.money = 10;
         this.rotationSpeed = 1;
+        this.rotation = undefined;
 
         this.hp = this.maxHp;
         this.path = path;
@@ -21,10 +22,12 @@ class Enemy {
         this.animation = undefined;
         this.spriteAnimation = undefined;
         this.regularSpeedFilter = undefined;
+        this.deathImages = [];
         // this.setup();
     }
 
     static image = "";
+    static deathImageIndex = 0;
 
     randomizePosition(value, range) {
         let factor = windowSize.width / 1920;
@@ -59,12 +62,53 @@ class Enemy {
         })
 
         if (this.hp <= 0) {
-            this.hp = 0;
-            gameState.modifyMoney(this.money);
-            gameState.removeEnemy(this.id);
-            this.isAlive = false;
-            $(this.jquery).remove();
+            this.die();
+            // $(this.jquery).remove();
         }
+    }
+
+    die() {
+        this.hp = 0;
+        gameState.modifyMoney(this.money);
+        gameState.removeEnemy(this.id);
+        this.isAlive = false;
+        this.hpBar.remove();
+        this.jquery.stop();
+        this.rotation.stop();
+        let height = this.sprite.height();
+        let width = this.sprite.width();
+
+        // let size = this.deathImages.length;
+        // let chosenIndex = Math.floor(Math.random() * size);
+        // console.log(chosenIndex);
+
+        let chosenIndex = this.constructor.deathImageIndex + 1;
+        chosenIndex = chosenIndex >= this.deathImages.length ? 0 : chosenIndex;
+
+        this.constructor.deathImageIndex = chosenIndex;
+        
+        let chosenImage = this.deathImages[chosenIndex];
+        console.log(chosenImage);
+        this.sprite.css({
+            backgroundImage: `url(${chosenImage})`,
+            height: height * 2,
+            width: width * 2,
+            top: -height/2,
+            left: -width/2,
+            position: "relative"
+        })
+        tools.addSpriteAnimation(
+            this.sprite,
+            6,
+            0.3,
+            "1 normal forwards"
+        )
+        setTimeout(() => {
+            this.sprite.animate({opacity: 0}, {
+                duration: 2000,
+                complete: () => $(this.jquery).remove()
+            })
+        }, 10000)
     }
 
     slowDown(towerId) {
@@ -171,7 +215,7 @@ class Enemy {
                     hue-rotate(${tools.randomize(this.constructor.baseHue, 40)}deg)`,
         });
         let randDirection = Math.round(Math.random());
-        tools.addRotationLoop(
+        this.rotation = tools.addRotationLoop(
             this.sprite,
             1/this.rotationSpeed,
             randDirection ? "normal" : "reverse"
@@ -187,12 +231,14 @@ class Enemy {
 class EnemySmall extends Enemy {
     constructor(path) {
         super(path);
+        this.deathImages = ["images/cold-influenza-death1.png", "images/cold-influenza-death2.png", "images/cold-influenza-death3.png"];
         this.setup();
     }
     static name = "Cold Virus";
     static description = "Really common and fast, but easy to treat.";
     static image = "images/cold-influenza.png";
     static baseHue = 0;
+    static deathImageIndex = 0;
 }
 
 class EnemyBig extends Enemy {
@@ -201,6 +247,7 @@ class EnemyBig extends Enemy {
         this.height = 0.06;
         this.width = 0.06;
         this.rotationSpeed = 0.4;
+        this.deathImages = ["images/cold-influenza-death1.png", "images/cold-influenza-death2.png", "images/cold-influenza-death3.png"];
         this.setup();
     }
     static name = "Influenza";
