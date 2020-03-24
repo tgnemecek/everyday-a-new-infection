@@ -24,9 +24,10 @@ class HUD {
         this.jquery = new $(`<div class="hud"></div>`);
         this.hp = new $(`<div><i class="fas fa-heart"></i><span class="hp"></span></div>`);
         this.money = new $(`<div><i class="fas fa-atom"></i><span class="money"></span></div>`);
-        this.wave = new $(`<div class="wave"></div>`);
+        this.wave = new $(`<div class="wave">INFECTION:</div>`);
         this.level = new $(`<div class="level">Day: ${levelIndex+1}</div>`);
-        this.button = new $(`<button><i class="fas fa-pause-circle"></i></button>`);
+        this.volume = new $(`<button class="volume"><i class="fas fa-volume-up"></i></button>`)
+        this.playPause = new $(`<button class="playPause"><i class="fas fa-pause-circle"></i></button>`);
         this.restart = new $(`<button>Restart</button>`);
         this.exit = new $(`<button>Exit</button>`);
         this.modal = new $(`<div class="pause-menu"></div>`);
@@ -45,17 +46,20 @@ class HUD {
         }
     }
     setup() {
-        this.jquery.append(this.hp);
-        this.jquery.append(this.money);
-        this.jquery.append(this.wave);
-        this.jquery.append(this.level);
-        this.jquery.append(this.button);
-        this.button.append(this.pauseIcon);
+        this.jquery
+            .append(this.hp)
+            .append(this.money)
+            .append(this.wave)
+            .append(this.level)
+            .append(this.volume)
+            .append(this.playPause)
+
+        this.playPause.append(this.pauseIcon);
 
         this.modal.append(this.exit);
         this.modal.append(this.restart);
 
-        this.button.on('click', () => {
+        this.playPause.on('click', () => {
             this.togglePause();
         });
 
@@ -65,6 +69,16 @@ class HUD {
 
         this.exit.on('click', () => {
             gameState.exit();
+        })
+
+        this.volume.on('click', function() {
+            audioManager.toggleMute();
+            $(this).children().remove();
+            if (audioManager.isMuted) {
+                $(this).append(`<i class="fas fa-volume-mute"></i>`);
+            } else {
+                $(this).append(`<i class="fas fa-volume-up"></i>`);
+            }
         })
     }
 

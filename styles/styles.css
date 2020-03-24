@@ -489,14 +489,18 @@ button {
 .hud {
   display: -ms-grid;
   display: grid;
-  -ms-grid-columns: 12% 12% 12% 1fr auto;
-      grid-template-columns: 12% 12% 12% 1fr auto;
+  -ms-grid-columns: 12% 12% 12% 12% 1fr auto;
+      grid-template-columns: 12% 12% 12% 12% 1fr auto;
   -ms-flex-line-pack: start;
       align-content: flex-start;
   gap: 0 25px;
   padding: 2%;
   color: white;
   font-size: 1em;
+}
+
+.hud .volume {
+  text-align: right;
 }
 
 .hud button {

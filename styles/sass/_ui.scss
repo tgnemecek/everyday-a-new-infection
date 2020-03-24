@@ -1,11 +1,14 @@
 .hud {
     display: grid;
-    grid-template-columns: 12% 12% 12% 1fr auto;
+    grid-template-columns: 12% 12% 12% 12% 1fr auto;
     align-content: flex-start;
     gap: 0 25px;
     padding: 2%;
     color: white;
     font-size: 1em;
+    .volume {
+        text-align: right;
+    }
     button {
         background: none;
         color: white;

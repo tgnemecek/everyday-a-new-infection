@@ -95,6 +95,12 @@ class Enemy {
             0.3,
             "1 normal forwards"
         )
+        
+        audioManager.play('audioEnemyDeath', {
+            group: 'sfx',
+            volumeRange: 0.2
+        });
+
         setTimeout(() => {
             this.sprite.animate({opacity: 0}, {
                 duration: 2000,

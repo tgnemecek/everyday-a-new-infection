@@ -202,6 +202,7 @@ class Tower {
         this.projectileSize = 0.006;
         this.damage = 20;
         this.projectileColor = [35, 196, 196];
+        this.audioName = undefined;
 
         // this.paused = false;
         // this.setup();
@@ -294,6 +295,10 @@ class Tower {
                 this.projectileSize
             );
             gameState.projectiles.push(projectile);
+            audioManager.play(this.audioName, {
+                group: 'sfx',
+                volumeRange: 0.5
+            })
         }
     }
 }
@@ -301,6 +306,7 @@ class Tower {
 class TowerFast extends Tower {
     constructor(node) {
         super(node);
+        this.audioName = 'audioTowerFast';
         this.setup();
         tools.addRotationLoop(
             this.jquery,
@@ -323,6 +329,7 @@ class TowerSlow extends Tower {
         this.projectileSpeed = 0.1;
         this.projectileSize = 0.03;
         this.damage = 50;
+        this.audioName = 'audioTowerSlow';
         this.setup();
         tools.addRotationLoop(
             this.jquery,

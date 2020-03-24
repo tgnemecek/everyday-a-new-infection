@@ -1,6 +1,7 @@
 const mainMenu = $('.main-menu');
 const game = $('.game');
 const fps = 60;
+let audioManager = new AudioManager();
 let windowSize = {};
 let gameState;
 
@@ -215,6 +216,13 @@ class GameState {
     }
     modifyHp(amount) {
         this.hp += amount;
+        if (amount < 0) {
+            audioManager.play('audioDamageTaken', {
+                group: 'sfx',
+                volumeRange: .2,
+                timeout: 500
+            })
+        }
         if (this.hp <= 0) {
             this.gameOver();
         }
