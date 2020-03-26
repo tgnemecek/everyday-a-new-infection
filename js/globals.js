@@ -1,6 +1,5 @@
 const mainMenu = $('.main-menu');
 const game = $('.game');
-const fps = 60;
 let audioManager = new AudioManager();
 let windowSize = {};
 let gameState;
@@ -11,12 +10,15 @@ class GameState {
         this.skipIntro = skipIntro
         this.inGameTime = new Date().getTime()
         this.inGameTimeId = undefined
+        this.updateRate = 30 // Only affects queued actions, ignores animations
         this.hud = new HUD(levelIndex)
         this.callWaveButton = new $(`<button class="call-wave">START!</button>`)
         this.card = undefined
         this.towerPicker = undefined
         this.encyclopedia = undefined
+        // waitTime (ms), queuedAt (ms), callback, loop (boolean)
         this.queuedActions = []
+
         this.enemies = []
         this.nodes = []
         this.towers = []
@@ -57,9 +59,9 @@ class GameState {
                 ],
                 waves: [
                     [
-                        {type: EnemySmall, quantity: 30, waitTime: 2000},
-                        {type: EnemySmall, quantity: 3, waitTime: 5000},
-                        {type: EnemySmall, quantity: 8, waitTime: 5000},
+                        {type: EnemySmall, quantity: 50, waitTime: 2000},
+                        // {type: EnemySmall, quantity: 3, waitTime: 5000},
+                        // {type: EnemySmall, quantity: 8, waitTime: 5000},
                         // {type: EnemySmall, quantity: 10, waitTime: 5000},
                         // {type: EnemyBig, quantity: 2, waitTime: 5000},
                     ],
@@ -92,7 +94,7 @@ class GameState {
                 ],
                 waves: [
                     [
-                        {type: EnemySmall, quantity: 10, waitTime: 5000},
+                        {type: EnemySmall, quantity: 1, waitTime: 5000},
                         // {type: EnemySmall, quantity: 10, waitTime: 5000},
                         // {type: EnemyBig, quantity: 2, waitTime: 5000},
                     ],
@@ -212,7 +214,7 @@ class GameState {
             } else {
                 if (!this.lastPaused) this.lastPaused = new Date().getTime();
             }
-        }, 1);
+        }, this.updateRate);
     }
     modifyHp(amount) {
         this.hp += amount;
@@ -489,7 +491,7 @@ function onPageLoad() {
     startGameButton.on('click', () => {
         mainMenu.hide();
         game.show();
-        startGame({levelIndex: 0, skipIntro: false});// Remove skipIntro for production!
+        startGame({levelIndex: 0, skipIntro: true});// Remove skipIntro for production!
     })
     let loadLevelIndex = getCookie("loadLevelIndex");
     if (loadLevelIndex === undefined) {
@@ -504,7 +506,7 @@ function onPageLoad() {
     resizeGameArea();
     startMainMenu();
 }
-// onPageLoad();
+onPageLoad();
 
 
 

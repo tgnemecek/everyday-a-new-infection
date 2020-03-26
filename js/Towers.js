@@ -365,21 +365,23 @@ class TowerSticky extends Tower {
     static description() { return  "Generate mucus to slow down enemies in range." }
     static image() { return  "images/mucosa.png" }
     static thumbnail() { return  "images/mucosa-thumbnail.png" }
-
     update() {
-        gameState.enemies.forEach((enemy, i) => {
-            let enPosition = enemy.jquery.position();
-            let enX = enPosition.left;
-            let enY = enPosition.top;
-
-            let nodeX = this.getProjectilePosition().left;
-            let nodeY = this.getProjectilePosition().top;
-
-            let distance = tools.distanceTo(nodeX, nodeY, enX, enY);
-
-            if (distance < this.getActualRange()) {
-                enemy.slowDown(this.id);
-            } else enemy.regularSpeed(this.id);
-        })
+        
     }
+    // update() {
+    //     gameState.enemies.forEach((enemy, i) => {
+    //         let enPosition = enemy.jquery.position();
+    //         let enX = enPosition.left;
+    //         let enY = enPosition.top;
+
+    //         let nodeX = this.getProjectilePosition().left;
+    //         let nodeY = this.getProjectilePosition().top;
+
+    //         let distance = tools.distanceTo(nodeX, nodeY, enX, enY);
+
+    //         if (distance < this.getActualRange()) {
+    //             enemy.slowDown(this.id);
+    //         } else enemy.regularSpeed(this.id);
+    //     })
+    // }
 }

@@ -1,4 +1,7 @@
 let tools = {
+    generateId: function () {
+        return Math.random().toString(36).substr(2, 9);
+    },
     randomize: function (input, range) {
         input = Number(input);
         let random = (Math.random() * range) - range / 2;
@@ -53,9 +56,16 @@ let tools = {
             let yIntercept = y1 - (slope * x1);
             return yIntercept;
         }
+
+        function findY(x, slope, yIntercept) {
+            let y = slope * x + yIntercept;
+            return y;
+        }
     
         let m = getSlope(x1, y1, x2, y2);
         let n = getYIntercept(x1, y1, m);
+
+        let result;
     
     
         // circle: (x - h)^2 + (y - k)^2 = r^2
@@ -75,17 +85,25 @@ let tools = {
         var d = b*b - 4 * a * c;
         if (d >= 0) {
             // insert into quadratic formula
-            var intersections = [
+            var intersectionsX = [
                 (-b + Math.sqrt(b*b - 4 * a * c)) / (2 * a),
                 (-b - Math.sqrt(b*b - 4 * a * c)) / (2 * a)
             ];
             if (d == 0) {
                 // only 1 intersection
-                return [intersections[0]];
+                result = intersectionsX[0].pop();
+            } else {
+                result = intersectionsX;
             }
-            return intersections;
+        } else {
+            // no intersection
+            result = [];
         }
-        // no intersection
-        return [];
+        return result.map((x) => {
+            return {
+                x,
+                y: findY(x, m, n)
+            }
+        })
     }
 }
