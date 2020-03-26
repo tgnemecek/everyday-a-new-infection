@@ -348,7 +348,7 @@ class TowerSticky extends Tower {
     constructor(node) {
         super(node);
         this.range = 0.2;
-        this.attackSpeed = 1000;
+        this.attackSpeed = 100;
         this.projectileSpeed = 0.1;
         this.damage = 5;
         this.enemiesChosen = [];

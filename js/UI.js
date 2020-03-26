@@ -137,6 +137,9 @@ class Card {
         this.out();
     }
     in() {
+        audioManager.play('audioCardIn', {
+            group: 'sfx'
+        })
         this.modalBox.jquery.children('.box')
         .animate({
             bottom: this.getBottomPos()
@@ -160,6 +163,12 @@ class Card {
             right: "120%"
         }, {
             duration: 1000,
+            start: () => {
+                console.log('started');
+                audioManager.play('audioCardOut', {
+                    group: 'sfx'
+                })
+            },
             step: function(now, fx) {
                 if (!initRight) initRight = now;
                 let deg = ((now - initRight) / 120) * -30;
@@ -168,7 +177,8 @@ class Card {
             complete: () => {
                 $('.card .overlay')
                 .animate({opacity: 0}, {
-                    duration: 3000,
+                    duration: 2000,
+                    start: () => this.modalBox.jquery.css({pointerEvents: "none"}),
                     complete: () => {
                         this.modalBox.jquery.remove();
                         if (typeof this.callback === 'function') {
@@ -191,7 +201,6 @@ class Card {
         this.modalBox.jquery.on('click' , () => {
             if (this.isWaiting) {
                 this.modalBox.jquery.children('.box').stop();
-                this.out();
             }
         })
 

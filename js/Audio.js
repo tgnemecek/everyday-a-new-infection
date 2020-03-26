@@ -30,9 +30,9 @@ class AudioManager {
             return this.indexes.length-1;
         }
     }
-    shuffleVolume(audio, volumeRange) {
+    setVolume(audio, volume, volumeRange) {
         let random = (Math.random() * volumeRange) - volumeRange/2;
-        audio.volume = 0.8 + random;
+        audio.volume = (volume - volumeRange/2) + random;
     }
     sendToMixer(audio, group) {
         audio.volume = audio.volume * this.mixer[group] * this.mixer.master;
@@ -49,7 +49,6 @@ class AudioManager {
         return newIndex;
     }
     verifyTiming(index, timeout) {
-        debugger;
         if (!timeout) return true;
         let obj = this.indexes[index];
         if (!obj.lastPlayed) {
@@ -64,18 +63,17 @@ class AudioManager {
             return true;
         } else return false;
     }
-    play(audioName, {group, volumeRange, timeout, loop}) {
+    play(audioName, {group, volume = 1, volumeRange = 0, timeout, loop}) {
         if (this.isMuted) return;
 
         let jquery = $(`.${audioName}`).clone();
 
         let index = this.addToIndexes(jquery, audioName);
 
-
         let fileIndex = this.shuffleFiles(index);
         let audio = jquery.children(`.RR${fileIndex}`)[0];
         
-        this.shuffleVolume(audio, volumeRange);
+        this.setVolume(audio, volume, volumeRange);
         this.sendToMixer(audio, group);
         let canPlay = this.verifyTiming(index, timeout);
         if (canPlay) audio.play();

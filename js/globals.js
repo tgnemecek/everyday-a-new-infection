@@ -57,7 +57,7 @@ class GameState {
                 ],
                 waves: [
                     [
-                        {type: EnemySmall, quantity: 3, waitTime: 2000},
+                        {type: EnemySmall, quantity: 30, waitTime: 2000},
                         {type: EnemySmall, quantity: 3, waitTime: 5000},
                         {type: EnemySmall, quantity: 8, waitTime: 5000},
                         // {type: EnemySmall, quantity: 10, waitTime: 5000},
@@ -241,7 +241,6 @@ class GameState {
             }
         })
         this.enemies.splice(enIndex, 1);
-        debugger;
         if (this.waveFullySpawned && !this.enemies.length) {
             this.nextWave();
         }
@@ -364,6 +363,7 @@ class GameState {
     }
     setup() {
         let levelData = this.getLevelData();
+        
 
         const subSetup = () => {
             this.waves = levelData.waves;
@@ -489,7 +489,7 @@ function onPageLoad() {
     startGameButton.on('click', () => {
         mainMenu.hide();
         game.show();
-        startGame({levelIndex: 0, skipIntro: true});// Remove skipIntro for production!
+        startGame({levelIndex: 0, skipIntro: false});// Remove skipIntro for production!
     })
     let loadLevelIndex = getCookie("loadLevelIndex");
     if (loadLevelIndex === undefined) {
@@ -504,4 +504,9 @@ function onPageLoad() {
     resizeGameArea();
     startMainMenu();
 }
-onPageLoad();
+// onPageLoad();
+
+
+
+
+

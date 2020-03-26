@@ -60,10 +60,7 @@ class Enemy {
             visibility: "inherit"
         })
 
-        if (this.hp <= 0) {
-            this.die();
-            // $(this.jquery).remove();
-        }
+        if (this.hp <= 0) this.die();
     }
 
     die() {
