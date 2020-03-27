@@ -157,6 +157,7 @@ class Enemy {
     }
 
     queueSlowDown(destinationX, destinationY, duration) {
+        // debugger;
         this.intersections = [];
         let towers = gameState.towers;
         let pos = this.jquery.position();

@@ -24,7 +24,6 @@ class Node {
         this.paused = false;
     }
     closeTowerPicker() {
-        this.towerPicker.jquery.remove();
         this.towerPicker = undefined;
     }
     chooseTower(ChosenTower) {
@@ -32,6 +31,7 @@ class Node {
         let tower = new ChosenTower(this.jquery);
         this.jquery.css('border', 'none');
         gameState.towers.push(tower);
+        tower.addToScene();
         this.hasTower = true;
         this.closeTowerPicker();
     }
@@ -97,7 +97,7 @@ class Radar {
 }
 
 class Projectile {
-    constructor(getInitPosition, enemy, damage, moveSpeed, color, size) {
+    constructor(getInitPosition, enemy, damage, moveSpeed, color, size, areaOfEffect) {
         this.id = new Date().getTime();
         this.jquery = new $(`<div class="projectile"></div>`);
         this.style = {
@@ -109,6 +109,7 @@ class Projectile {
         this.enemy = enemy;
         this.moveSpeed = moveSpeed;
         this.damage = damage;
+        this.areaOfEffect = areaOfEffect;
         this.animationEnded = false;
         this.destination = this.enemy.spritePosition();
         this.setup();
@@ -176,10 +177,32 @@ class Projectile {
             return projectile.id === this.id;
         })
         gameState.projectiles.splice(projIndex, 1);
-        this.jquery.remove();
-        if (this.enemy.isAlive) {
+        if (this.areaOfEffect) {
+            this.explode();
+        } else if (this.enemy.isAlive) {
             this.enemy.modifyHp(-this.damage);
         }
+        this.jquery.remove();
+    }
+    explode() {
+        let enemies = gameState.enemies;
+        let curPosition = this.jquery.position();
+        let x = curPosition.left;
+        let y = curPosition.top;
+        let relativeAreaOfEffect = this.areaOfEffect * windowSize.width / 1920;
+        debugger;
+        enemies.forEach((enemy) => {
+            let enPosition = enemy.spritePosition();
+            let enX = enPosition.left - this.jquery.width()/2;
+            let enY = enPosition.top - this.jquery.height()/2;
+
+            let distance = tools.distanceTo(x, y, enX, enY);
+            
+            if (distance <= relativeAreaOfEffect) {
+                
+                enemy.modifyHp(-this.damage);
+            }
+        })
     }
     setup() {
         game.append(this.jquery);
@@ -202,6 +225,7 @@ class Tower {
         this.projectileSize = 0.006;
         this.damage = 20;
         this.projectileColor = [35, 196, 196];
+        this.areaOfEffect = 0;
         this.audioName = undefined;
 
         // this.paused = false;
@@ -237,13 +261,14 @@ class Tower {
         // this.paused = false;
     }
     setup() {
+        this.node.append(this.jquery);
         this.jquery.css({
             backgroundSize: `100%`,
             backgroundImage: `url(${this.constructor.image()})`,
             backgroundPosition: 0,
             backgroundRepeat: "no-repeat",
         })
-        this.node.append(this.jquery);
+        
         this.radar = new Radar(
             this.node,
             this.jquery,
@@ -292,7 +317,8 @@ class Tower {
                 this.damage,
                 this.projectileSpeed,
                 this.projectileColor,
-                this.projectileSize
+                this.projectileSize,
+                this.areaOfEffect
             );
             gameState.projectiles.push(projectile);
             audioManager.play(this.audioName, {
@@ -326,9 +352,10 @@ class TowerSlow extends Tower {
         super(node);
         this.range = 0.13;
         this.attackSpeed = 1;
-        this.projectileSpeed = 0.1;
-        this.projectileSize = 0.03;
+        this.projectileSpeed = 0.07;
+        this.projectileSize = 0.04;
         this.damage = 50;
+        this.areaOfEffect = 70;
         this.audioName = 'audioTowerSlow';
         this.setup();
         tools.addRotationLoop(
@@ -339,7 +366,7 @@ class TowerSlow extends Tower {
     static name() { return  "T Cell (White Blood)" }
     static id() { return  "slow-tower" }
     static cost() { return  120 }
-    static description() { return  "Shoots phagocytes that cause high damage but have slow speed." }
+    static description() { return  "Shoots phagocytes that cause high area damage but have slow speed." }
     static image() { return  "images/t-cell.png" }
     static thumbnail() { return  "images/t-cell.png" }
 }
@@ -368,6 +395,7 @@ class TowerSticky extends Tower {
     static thumbnail() { return  "images/mucosa-thumbnail.png" }
     update() {}
     recalculateEnemies() {
+        debugger;
         gameState.enemies.forEach((enemy) => {
             if (enemy.isAlive) {
                 let enPosition = enemy.jquery.position();
@@ -381,8 +409,8 @@ class TowerSticky extends Tower {
                 // FIX THIS
                 enemy.pause();
                 enemy.resume();
-                if (distance < this.getActualRange()) {
-                    enemy.slowDown();
+                if (distance <= this.getActualRange()) {
+                    // enemy.slowDown();
                 }
             }
         })

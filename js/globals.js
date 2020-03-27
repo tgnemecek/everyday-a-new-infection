@@ -14,7 +14,6 @@ class GameState {
         this.hud = new HUD(levelIndex)
         this.callWaveButton = new $(`<button class="call-wave">START!</button>`)
         this.card = undefined
-        this.towerPicker = undefined
         this.encyclopedia = undefined
         // waitTime (ms), queuedAt (ms), callback, loop (boolean)
         this.queuedActions = []
@@ -46,6 +45,7 @@ class GameState {
                 ],
                 path: [
                     { left: "90%", top: "-15%"},
+                    { left: "90%", top: "0%"},
                     { left: "90%", top: "25%"},
                     { left: "80%", top: "40%"},
                     { left: "65%", top: "40%"},
@@ -59,7 +59,7 @@ class GameState {
                 ],
                 waves: [
                     [
-                        {type: EnemySmall, quantity: 50, waitTime: 2000},
+                        {type: EnemySmall, quantity: 1, waitTime: 2000},
                         // {type: EnemySmall, quantity: 3, waitTime: 5000},
                         // {type: EnemySmall, quantity: 8, waitTime: 5000},
                         // {type: EnemySmall, quantity: 10, waitTime: 5000},
@@ -94,7 +94,7 @@ class GameState {
                 ],
                 waves: [
                     [
-                        {type: EnemySmall, quantity: 1, waitTime: 5000},
+                        {type: EnemySmall, quantity: 100, waitTime: 5000},
                         // {type: EnemySmall, quantity: 10, waitTime: 5000},
                         // {type: EnemyBig, quantity: 2, waitTime: 5000},
                     ],
@@ -191,6 +191,7 @@ class GameState {
     }
     startInGameTime() {
         this.inGameTimeId = setInterval(() => {
+            // console.log(this.queuedActions);
             let now = new Date().getTime();
             if (!this.isPaused) {
                 if (this.lastPaused) {

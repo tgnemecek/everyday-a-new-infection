@@ -221,14 +221,22 @@ class TowerPicker {
         this.confirmTower = confirmTower;
         this.closeTowerPicker = closeTowerPicker;
         this.towerSelected = undefined;
+        this.actionId = tools.generateId();
         this.modalBox = undefined;
-        this.updateInterval = undefined;
         this.towers = [
             TowerFast,
             TowerSlow,
             TowerSticky
         ]
         this.setup();
+    }
+    close() {
+        this.jquery.remove();
+        let actionIndex = gameState.queuedActions.findIndex((action) => {
+            return action.id === this.actionId
+        })
+        gameState.queuedActions.splice(actionIndex, 1);
+        this.closeTowerPicker();
     }
     selectTower(Tower) {
         $('.tower-picker .container button').each((i, element) => {
@@ -252,15 +260,14 @@ class TowerPicker {
             this.checkIfDisabled(Tower);
         })
         if (gameState.isPaused) {
-            this.closeTowerPicker();
-            clearInterval(this.updateInterval);
+            this.close();
         }
     }
     setup() {
         this.jquery.append(this.container);
         this.modalBox = new ModalBox(this.jquery, () => {
             this.modalBox.jquery.remove();
-            this.closeTowerPicker();
+            this.close();
         });
         game.append(this.modalBox.jquery);
         this.towers.forEach((Tower) => {
@@ -282,6 +289,7 @@ class TowerPicker {
             this.confirmTower(this.towerSelected);
         });
         gameState.queuedActions.push({
+            id: this.actionId,
             waitTime: 1,
             loop: true,
             callback: this.update.bind(this),
