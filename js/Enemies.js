@@ -111,6 +111,7 @@ class Enemy {
     }
 
     slowDown() {
+        if (!this.isAlive) return;
         this.beingSlowedDown++;
         console.log('slowing down :' + this.beingSlowedDown);
         if (this.beingSlowedDown === 1) {
@@ -124,6 +125,7 @@ class Enemy {
     }
 
     regularSpeed() {
+        if (!this.isAlive) return;
         this.beingSlowedDown--;
         console.log('regular :' + this.beingSlowedDown);
         if (this.beingSlowedDown < 0) this.beingSlowedDown = 0;
@@ -261,25 +263,6 @@ class Enemy {
             start: (an) => {
                 this.animation = an;
             },
-            // step: (now, tween) => {
-            //     let axis = tween.prop === "left" ? "x" : "y";
-            //     this.intersections.forEach((intersection) => {
-            //         if (intersection.length) {
-            //             let values = [intersection[0][axis], intersection[1][axis]];
-            //             values.sort(function(a, b) {
-            //                 if (a > b) return 1;
-            //                 if (a < b) return -1;
-            //                 return 0;
-            //             });
-            //             if (values[1] < values[0]) debugger;
-            //             if (now > values[0] && now < values[1]) {
-            //                 this.slowDown("towerId");
-            //             } else {
-            //                 this.regularSpeed("towerId")
-            //             }
-            //         }
-            //     })
-            // },
             progress: (an, prog, remaining) => {
                 this.percentWalked = prog;
             },

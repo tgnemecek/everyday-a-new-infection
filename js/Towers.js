@@ -196,7 +196,7 @@ class Tower {
         this.node = node;
         this.id = new Date().getTime();
 
-        this.range = 0.2; // Range to be adjusted
+        this.range = 0.15; // Range to be adjusted
         this.attackSpeed = 2;
         this.projectileSpeed = 0.4;
         this.projectileSize = 0.006;
@@ -324,7 +324,7 @@ class TowerFast extends Tower {
 class TowerSlow extends Tower {
     constructor(node) {
         super(node);
-        this.range = 0.15;
+        this.range = 0.13;
         this.attackSpeed = 1;
         this.projectileSpeed = 0.1;
         this.projectileSize = 0.03;
@@ -347,12 +347,13 @@ class TowerSlow extends Tower {
 class TowerSticky extends Tower {
     constructor(node) {
         super(node);
-        this.range = 0.2;
+        this.range = 0.13;
         this.attackSpeed = 100;
         this.projectileSpeed = 0.1;
         this.damage = 5;
         this.enemiesChosen = [];
         this.setup();
+        this.recalculateEnemies();
         this.spriteAnimation = tools.addSpriteAnimation(
             this.jquery,
             5,
@@ -365,23 +366,25 @@ class TowerSticky extends Tower {
     static description() { return  "Generate mucus to slow down enemies in range." }
     static image() { return  "images/mucosa.png" }
     static thumbnail() { return  "images/mucosa-thumbnail.png" }
-    update() {
+    update() {}
+    recalculateEnemies() {
+        gameState.enemies.forEach((enemy) => {
+            if (enemy.isAlive) {
+                let enPosition = enemy.jquery.position();
+                let enX = enPosition.left;
+                let enY = enPosition.top;
         
+                let nodeX = this.getProjectilePosition().left;
+                let nodeY = this.getProjectilePosition().top;
+        
+                let distance = tools.distanceTo(nodeX, nodeY, enX, enY);
+                // FIX THIS
+                enemy.pause();
+                enemy.resume();
+                if (distance < this.getActualRange()) {
+                    enemy.slowDown();
+                }
+            }
+        })
     }
-    // update() {
-    //     gameState.enemies.forEach((enemy, i) => {
-    //         let enPosition = enemy.jquery.position();
-    //         let enX = enPosition.left;
-    //         let enY = enPosition.top;
-
-    //         let nodeX = this.getProjectilePosition().left;
-    //         let nodeY = this.getProjectilePosition().top;
-
-    //         let distance = tools.distanceTo(nodeX, nodeY, enX, enY);
-
-    //         if (distance < this.getActualRange()) {
-    //             enemy.slowDown(this.id);
-    //         } else enemy.regularSpeed(this.id);
-    //     })
-    // }
 }
