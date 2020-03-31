@@ -3,6 +3,9 @@
 $primary-color: #fff3c4;
 $primary-color-lighter: lighten($primary-color, 10%);
 $primary-color-darker: darken($primary-color, 10%);
+
+$secondary-color: #c4cfff;
+
 $info-box-color: #8080803b;
 
 @mixin primaryButton() {

@@ -223,41 +223,38 @@ class TowerPicker {
         this.towerSelected = undefined;
         this.actionId = tools.generateId();
         this.modalBox = undefined;
-        this.towers = [
-            TowerFast,
-            TowerSlow,
-            TowerSticky
-        ]
+        this.towers = gameState.getLevelData().towersAvailable;
         this.setup();
     }
     close() {
+        console.log(this.actionId);
         this.jquery.remove();
+        this.modalBox.jquery.remove();
         let actionIndex = gameState.queuedActions.findIndex((action) => {
             return action.id === this.actionId
         })
         gameState.queuedActions.splice(actionIndex, 1);
-        this.closeTowerPicker();
     }
-    selectTower(Tower) {
+    selectTower(TowerType) {
         $('.tower-picker .container button').each((i, element) => {
             $(element).removeClass('selected');
         })
-        $(`.${Tower.id()} button`).addClass('selected');
-        this.towerSelected = Tower;
+        $(`.${TowerType.id()} button`).addClass('selected');
+        this.towerSelected = TowerType;
         this.confirm.prop('disabled', false);
         this.jquery.append(this.description);
         this.description.children().remove();
-        this.description.append(`<h3>${Tower.name()}</h3><p>${Tower.description()}</p>`)
+        this.description.append(`<h3>${TowerType.name()}</h3><p>${TowerType.description()}</p>`)
     }
-    checkIfDisabled(Tower) {
-        let button = $(`.tower-picker .${Tower.id()} button`);
-        if (gameState.money >= Tower.cost()) {
+    checkIfDisabled(TowerType) {
+        let button = $(`.tower-picker .${TowerType.id()} button`);
+        if (gameState.money >= TowerType.cost()) {
             button.prop("disabled", false);
         } else button.prop("disabled", true);
     }
     update() {
         this.towers.forEach((Tower) => {
-            this.checkIfDisabled(Tower);
+            this.checkIfDisabled(Tower.type);
         })
         if (gameState.isPaused) {
             this.close();
@@ -271,21 +268,25 @@ class TowerPicker {
         });
         game.append(this.modalBox.jquery);
         this.towers.forEach((Tower) => {
-            let towerDiv = new $(`<div class=${Tower.id()}></div>`);
-            let button = new $(`<button><img src="${Tower.thumbnail()}"/></button>`);
-            let label = $(`<label>$${Tower.cost()}</label>`);
+            let towerDiv = new $(`<div class=${Tower.type.id()}></div>`);
+            let button = new $(`<button><img src="${Tower.type.thumbnail()}"/></button>`);
+            let label = $(`<label>$${Tower.type.cost()}</label>`);
 
-            towerDiv.append(button);
-            towerDiv.append(label);
+            towerDiv.append(button)
+                    .append(label);
+            
+            if (Tower.new) {
+                towerDiv.append(`<label class="new">new!</label>`)
+            }
 
             this.container.append(towerDiv);
-            button.on('click', () => this.selectTower(Tower));
-            this.checkIfDisabled(Tower);
+            button.on('click', () => this.selectTower(Tower.type));
+            this.checkIfDisabled(Tower.type);
         })
         this.confirm.prop('disabled', true);
         this.jquery.append(this.confirm);
         this.confirm.on('click', () => {
-            this.modalBox.jquery.remove();
+            this.close();
             this.confirmTower(this.towerSelected);
         });
         gameState.queuedActions.push({

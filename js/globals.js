@@ -15,7 +15,7 @@ class GameState {
         this.callWaveButton = new $(`<button class="call-wave">START!</button>`)
         this.card = undefined
         this.encyclopedia = undefined
-        // waitTime (ms), queuedAt (ms), callback, loop (boolean)
+        // waitTime (ms), queuedAt (ms), callback, loop (boolean), id (string)
         this.queuedActions = []
 
         this.enemies = []
@@ -36,6 +36,41 @@ class GameState {
         let levels = [
             { // DAY 1
                 image: "images/level1.jpg",
+                startingHP: 10,
+                startingMoney: 180,
+                nodes: [
+                    { left: "25%", top: "32%"},
+                    { left: "53%", top: "38%"},
+                    { left: "72%", top: "65%"},
+                ],
+                path: [
+                    { left: "18%", top: "-15%"},
+                    { left: "18%", top: "0%"},
+                    { left: "22%", top: "50%"},
+                    { left: "42%", top: "58%"},
+                    { left: "80%", top: "58%"},
+                    { left: "85%", top: "70%"},
+                    { left: "85%", top: "100%"},
+                ],
+                towersAvailable: [
+                    {type: TowerFast, new: true}
+                ],
+                waves: [
+                    [
+                        {type: EnemySmall, quantity: 1, waitTime: 1000},
+                        {type: EnemySmall, quantity: 2, waitTime: 2000},
+                        {type: EnemySmall, quantity: 4, waitTime: 2000},
+                    ],
+                    [
+                        {type: EnemySmall, quantity: 6, waitTime: 1000},
+                        {type: EnemySmall, quantity: 4, waitTime: 1000},
+                    ]
+                ]
+            },
+            { // DAY 2
+                image: "images/level2.jpg",
+                startingHP: 10,
+                startingMoney: 210,
                 nodes: [
                     { left: "75%", top: "22%"},
                     { left: "19%", top: "40%"},
@@ -57,52 +92,122 @@ class GameState {
                     { left: "60%", top: "85%"},
                     { left: "100%", top: "80%"},
                 ],
+                towersAvailable: [
+                    {type: TowerFast, new: false},
+                    {type: TowerSticky, new: true},
+                ],
                 waves: [
                     [
-                        {type: EnemySmall, quantity: 1, waitTime: 2000},
-                        // {type: EnemySmall, quantity: 3, waitTime: 5000},
-                        // {type: EnemySmall, quantity: 8, waitTime: 5000},
-                        // {type: EnemySmall, quantity: 10, waitTime: 5000},
-                        // {type: EnemyBig, quantity: 2, waitTime: 5000},
+                        {type: EnemySmall, quantity: 3, waitTime: 2000},
+                        {type: EnemySmall, quantity: 3, waitTime: 2000},
+                        {type: EnemySmall, quantity: 4, waitTime: 2000},
+                        {type: EnemySmall, quantity: 5, waitTime: 2000},
                     ],
                     [
-                        {type: EnemyBig, quantity: 1, waitTime: 5000},
+                        {type: EnemySmall, quantity: 3, waitTime: 500},
+                        {type: EnemySmall, quantity: 3, waitTime: 500},
+                        {type: EnemySmall, quantity: 6, waitTime: 2000},
+                        {type: EnemySmall, quantity: 10, waitTime: 2000},
+                    ],
+                    [
+                        {type: EnemyBig, quantity: 1, waitTime: 3000},
+                        {type: EnemyBig, quantity: 1, waitTime: 3000},
+                        {type: EnemyBig, quantity: 1, waitTime: 3000},
                     ]
                 ]
             },
-            { // DAY 2
-                image: "images/level1.jpg",
+            { // DAY 3
+                image: "images/level3.jpg",
+                startingHP: 10,
+                startingMoney: 210,
                 nodes: [
-                    // { left: "75%", top: "22%"},
-                    // { left: "19%", top: "40%"},
-                    // { left: "10%", top: "12%"},
-                    // { left: "10%", top: "70%"},
-                    // { left: "75%", top: "65%"},
+                    { left: "11%", top: "51%"},
+                    { left: "29%", top: "30%"},
+                    { left: "46%", top: "60%"},
+                    { left: "45%", top: "20%"},
+                    { left: "62%", top: "20%"},
                 ],
                 path: [
-                    { left: "90%", top: "-15%"},
-                    { left: "90%", top: "25%"},
-                    { left: "80%", top: "40%"},
-                    { left: "65%", top: "40%"},
-                    { left: "50%", top: "20%"},
-                    { left: "25%", top: "20%"},
-                    { left: "15%", top: "30%"},
-                    { left: "15%", top: "60%"},
-                    { left: "25%", top: "75%"},
-                    { left: "60%", top: "85%"},
-                    { left: "100%", top: "80%"},
+                    { left: "7%", top: "-15%"},
+                    { left: "7%", top: "0%"},
+                    { left: "7%", top: "60%"},
+                    { left: "14%", top: "73%"},
+                    { left: "22%", top: "65%"},
+                    { left: "23%", top: "35%"},
+                    { left: "30%", top: "20%"},
+                    { left: "40%", top: "30%"},
+                    { left: "41%", top: "70%"},
+                    { left: "50%", top: "80%"},
+                    { left: "58%", top: "70%"},
+                    { left: "55%", top: "20%"},
+                    { left: "62%", top: "12%"},
+                    { left: "78%", top: "20%"},
+                    { left: "100%", top: "60%"},
+                ],
+                towersAvailable: [
+                    {type: TowerFast, new: false},
+                    {type: TowerSticky, new: false},
+                    {type: TowerSlow, new: true},
                 ],
                 waves: [
                     [
-                        {type: EnemySmall, quantity: 100, waitTime: 5000},
-                        // {type: EnemySmall, quantity: 10, waitTime: 5000},
-                        // {type: EnemyBig, quantity: 2, waitTime: 5000},
+                        {type: EnemySmall, quantity: 3, waitTime: 500},
+                        {type: EnemySmall, quantity: 3, waitTime: 300},
+                        {type: EnemySmall, quantity: 4, waitTime: 300},
+                        {type: EnemySmall, quantity: 5, waitTime: 2000},
                     ],
                     [
-                        {type: EnemyBig, quantity: 1, waitTime: 5000},
+                        {type: EnemyBig, quantity: 1, waitTime: 500},
+                        {type: EnemySmall, quantity: 6, waitTime: 300},
+                        {type: EnemySmall, quantity: 6, waitTime: 1},
+                        {type: EnemyBig, quantity: 1, waitTime: 500},
+                        {type: EnemySmall, quantity: 7, waitTime: 2000},
+                    ],
+                    [
+                        {type: EnemyBig, quantity: 1, waitTime: 1000},
+                        {type: EnemyBig, quantity: 2, waitTime: 5000},
                     ]
                 ]
-            }
+            },
+            { // DAY 4
+                image: "images/level3.jpg",
+                startingHP: 10,
+                startingMoney: 210,
+                nodes: [
+                    { left: "11%", top: "51%"},
+                    { left: "29%", top: "30%"},
+                    { left: "46%", top: "60%"},
+                    { left: "45%", top: "20%"},
+                    { left: "62%", top: "20%"},
+                ],
+                path: [
+                    { left: "7%", top: "-15%"},
+                    { left: "7%", top: "0%"},
+                    { left: "7%", top: "60%"},
+                    { left: "14%", top: "73%"},
+                    { left: "22%", top: "65%"},
+                    { left: "23%", top: "35%"},
+                    { left: "30%", top: "20%"},
+                    { left: "40%", top: "30%"},
+                    { left: "41%", top: "70%"},
+                    { left: "50%", top: "80%"},
+                    { left: "58%", top: "70%"},
+                    { left: "55%", top: "20%"},
+                    { left: "62%", top: "12%"},
+                    { left: "78%", top: "20%"},
+                    { left: "100%", top: "60%"},
+                ],
+                towersAvailable: [
+                    {type: TowerFast, new: false},
+                    {type: TowerSticky, new: false},
+                    {type: TowerSlow, new: true},
+                ],
+                waves: [
+                    [
+                        {type: EnemyDivide, quantity: 1, waitTime: 500}
+                    ],
+                ]
+            },
         ]
         if (getLength) return levels.length;
         return levels[this.levelIndex];
@@ -188,10 +293,10 @@ class GameState {
         const path = $('.path');
         let enemy = new Type(path);
         this.enemies.push(enemy);
+        enemy.addToScene();
     }
     startInGameTime() {
         this.inGameTimeId = setInterval(() => {
-            // console.log(this.queuedActions);
             let now = new Date().getTime();
             if (!this.isPaused) {
                 if (this.lastPaused) {
@@ -200,17 +305,21 @@ class GameState {
                 }
                 this.inGameTime = now - this.totalPaused;
                 let loops = [];
+                let toBeCalled = [];
                 this.queuedActions = this.queuedActions
                 .filter((action) => {
                     if (action.queuedAt + action.waitTime <= this.inGameTime) {
-                        action.callback();
-                        if (action.loop) loops.push({
-                            ...action,
-                            queuedAt: this.inGameTime
-                        })
+                        toBeCalled.push(action);
+                        if (action.loop) {
+                            loops.push({
+                                ...action,
+                                queuedAt: this.inGameTime
+                            })
+                        }
                         return false;
                     } else return true;
                 })
+                toBeCalled.forEach((action) => action.callback());
                 this.queuedActions = this.queuedActions.concat(loops);
             } else {
                 if (!this.lastPaused) this.lastPaused = new Date().getTime();
@@ -289,7 +398,11 @@ class GameState {
     nextWave() {
         let totalWaves = this.waves.length;
         if (this.currentWave+1 === totalWaves) {
-            this.win();
+            this.queuedActions.push({
+                waitTime: 2000,
+                queuedAt: new Date().getTime(),
+                callback: () => this.win()
+            })
         } else {
             this.currentWave++;
             $('.hud .wave').text(`INFECTION: ${this.currentWave+1}/${totalWaves}`);
@@ -309,7 +422,7 @@ class GameState {
                     "NICE! KEEP IT UP!",
                     "WAY TO GO! BUT DON'T STOP NOW!"
                 ]
-                let random = Math.round(Math.random() * options.length);
+                let random = Math.round(Math.random() * (options.length-1));
                 return `<h2>${options[random]}</h2>`;
             }
         }
@@ -367,7 +480,6 @@ class GameState {
     setup() {
         let levelData = this.getLevelData();
         
-
         const subSetup = () => {
             this.waves = levelData.waves;
             game.append($(`<img src="${levelData.image}" class="background"></img>`));
@@ -388,9 +500,9 @@ class GameState {
                 game.append(path);
                 path.css(pathPosition);
             })
+            this.modifyHp(levelData.startingHP);
+            this.modifyMoney(levelData.startingMoney);
             this.startInGameTime();
-            this.modifyHp(1000);
-            this.modifyMoney(300);
         }
 
         if (!this.skipIntro) {
@@ -492,7 +604,7 @@ function onPageLoad() {
     startGameButton.on('click', () => {
         mainMenu.hide();
         game.show();
-        startGame({levelIndex: 0, skipIntro: true});// Remove skipIntro for production!
+        startGame({levelIndex: 3, skipIntro: true});// Remove skipIntro for production!
     })
     let loadLevelIndex = getCookie("loadLevelIndex");
     if (loadLevelIndex === undefined) {

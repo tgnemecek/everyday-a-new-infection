@@ -23,17 +23,14 @@ class Node {
     resume() {
         this.paused = false;
     }
-    closeTowerPicker() {
-        this.towerPicker = undefined;
-    }
     chooseTower(ChosenTower) {
         gameState.modifyMoney(-ChosenTower.cost());
         let tower = new ChosenTower(this.jquery);
         this.jquery.css('border', 'none');
         gameState.towers.push(tower);
-        tower.addToScene();
+        tower.setup();
         this.hasTower = true;
-        this.closeTowerPicker();
+        this.towerPicker = undefined;
     }
     setup() {
         game.append(this.jquery);
@@ -42,8 +39,7 @@ class Node {
         this.jquery.on('click', () => {
             if (!this.hasTower && !this.paused) {
                 this.towerPicker = new TowerPicker(
-                    this.chooseTower.bind(this),
-                    this.closeTowerPicker.bind(this)
+                    this.chooseTower.bind(this)
                 );
             }
         })
@@ -227,6 +223,8 @@ class Tower {
         this.projectileColor = [35, 196, 196];
         this.areaOfEffect = 0;
         this.audioName = undefined;
+        this.hasSpriteAnimation = false;
+        this.spriteAnimation = undefined;
 
         // this.paused = false;
         // this.setup();
@@ -241,6 +239,8 @@ class Tower {
     getActualRange() {
         return this.range * windowSize.width;
     }
+
+    onMount() {} // To be overriden
 
     getProjectilePosition() {
         let offset = {
@@ -274,6 +274,15 @@ class Tower {
             this.jquery,
             this.getActualRange.bind(this)
         );
+
+        if (this.hasSpriteAnimation) {
+            this.spriteAnimation = tools.addSpriteAnimation(
+                ...this.hasSpriteAnimation
+            )
+        }
+
+        this.onMount();
+
         gameState.queuedActions.push({
             waitTime: 1000/this.attackSpeed,
             queuedAt: new Date().getTime(),
@@ -333,7 +342,6 @@ class TowerFast extends Tower {
     constructor(node) {
         super(node);
         this.audioName = 'audioTowerFast';
-        this.setup();
         tools.addRotationLoop(
             this.jquery,
             1
@@ -351,13 +359,12 @@ class TowerSlow extends Tower {
     constructor(node) {
         super(node);
         this.range = 0.13;
-        this.attackSpeed = 1;
+        this.attackSpeed = 0.6;
         this.projectileSpeed = 0.07;
         this.projectileSize = 0.04;
         this.damage = 50;
         this.areaOfEffect = 70;
         this.audioName = 'audioTowerSlow';
-        this.setup();
         tools.addRotationLoop(
             this.jquery,
             3
@@ -379,13 +386,7 @@ class TowerSticky extends Tower {
         this.projectileSpeed = 0.1;
         this.damage = 5;
         this.enemiesChosen = [];
-        this.setup();
-        this.recalculateEnemies();
-        this.spriteAnimation = tools.addSpriteAnimation(
-            this.jquery,
-            5,
-            0.8
-        )
+        this.hasSpriteAnimation = [this.jquery, 5, 0.8];
     }
     static name() { return  "Mucosa" }
     static id() { return  "sticky-tower" }
@@ -394,8 +395,7 @@ class TowerSticky extends Tower {
     static image() { return  "images/mucosa.png" }
     static thumbnail() { return  "images/mucosa-thumbnail.png" }
     update() {}
-    recalculateEnemies() {
-        debugger;
+    onMount() {
         gameState.enemies.forEach((enemy) => {
             if (enemy.isAlive) {
                 let enPosition = enemy.jquery.position();
@@ -406,11 +406,11 @@ class TowerSticky extends Tower {
                 let nodeY = this.getProjectilePosition().top;
         
                 let distance = tools.distanceTo(nodeX, nodeY, enX, enY);
-                // FIX THIS
+
                 enemy.pause();
                 enemy.resume();
                 if (distance <= this.getActualRange()) {
-                    // enemy.slowDown();
+                    enemy.slowDown();
                 }
             }
         })

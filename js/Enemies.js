@@ -11,11 +11,14 @@ class Enemy {
         this.moveSpeed = 40;
         this.maxHp = 50;
         this.money = 10;
+        this.damage = 1;
         this.rotationSpeed = 1;
         this.rotation = undefined;
 
-        this.hp = this.maxHp;
-        this.path = path;
+        this.hp = 0;
+        this.path = path instanceof jQuery ? $.makeArray(path).map((jquery) => {
+            return $(jquery).position()
+        }) : path;
         this.percentWalked = 0;
         this.nextPath = 1;
         this.randomRange = 100;
@@ -25,8 +28,9 @@ class Enemy {
         this.animation = undefined;
         this.spriteAnimation = undefined;
         this.regularSpeedFilter = undefined;
-        this.intersections = [];
         this.deathImages = [];
+        this.waitToRemove = 10000;
+        this.fadeOutTime = 2000;
         // this.setup();
     }
 
@@ -102,18 +106,21 @@ class Enemy {
             volumeRange: 0.2
         });
 
-        setTimeout(() => {
-            this.sprite.animate({opacity: 0}, {
-                duration: 2000,
-                complete: () => $(this.jquery).remove()
-            })
-        }, 10000)
+        gameState.queuedActions.push({
+            waitTime: this.waitToRemove,
+            queuedAt: new Date().getTime(),
+            callback: () => {
+                this.sprite.animate({opacity: 0}, {
+                    duration: this.fadeOutTime,
+                    complete: () => $(this.jquery).remove()
+                })
+            }
+        })
     }
 
     slowDown() {
         if (!this.isAlive) return;
         this.beingSlowedDown++;
-        console.log('slowing down :' + this.beingSlowedDown);
         if (this.beingSlowedDown === 1) {
             this.jquery.stop();
             this.regularSpeedFilter = this.sprite.css('filter');
@@ -127,7 +134,6 @@ class Enemy {
     regularSpeed() {
         if (!this.isAlive) return;
         this.beingSlowedDown--;
-        console.log('regular :' + this.beingSlowedDown);
         if (this.beingSlowedDown < 0) this.beingSlowedDown = 0;
 
         if (this.beingSlowedDown === 0) {
@@ -157,8 +163,6 @@ class Enemy {
     }
 
     queueSlowDown(destinationX, destinationY, duration) {
-        // debugger;
-        this.intersections = [];
         let towers = gameState.towers;
         let pos = this.jquery.position();
         let currX = pos.left;
@@ -234,7 +238,7 @@ class Enemy {
         })
     }
 
-    moveTo(x, y, keepLastRandom) {
+    moveTo(x, y, keepLastRandom, callback) {
         if (!keepLastRandom) {
             this.lastRandomX = tools.randomize(0, this.randomRange);
             this.lastRandomY = tools.randomize(0, this.randomRange);
@@ -254,7 +258,6 @@ class Enemy {
 
         this.queueSlowDown(x, y, duration);
 
-
         this.jquery.animate({
             left: x,
             top: y
@@ -268,8 +271,13 @@ class Enemy {
                 this.percentWalked = prog;
             },
             complete: () => {
-                this.nextPath++;
-                this.followPath({keepLastRandom: false});
+                if (typeof callback === 'function') {
+                    callback();
+                } else {
+                    this.nextPath++;
+                    this.followPath({keepLastRandom: false});
+                }
+
             }
         })
     }
@@ -281,20 +289,26 @@ class Enemy {
             return;
         };
 
-        let x = Number($(this.path[this.nextPath]).css('left').replace("px", ""));
-        let y = Number($(this.path[this.nextPath]).css('top').replace("px", ""));
+        let x = this.path[this.nextPath].left;
+        let y = this.path[this.nextPath].top;
+
+        // let x = Number($(this.path[this.nextPath]).css('left').replace("px", ""));
+        // let y = Number($(this.path[this.nextPath]).css('top').replace("px", ""));
 
 
         this.moveTo(x, y, keepLastRandom)
     }
 
     arrived() {
-        gameState.modifyHp(-10);
+        gameState.modifyHp(-this.damage);
         gameState.removeEnemy(this.id);
         this.jquery.remove();
     }
 
-    setup() {
+    onMount() {} // To be overridden
+
+    addToScene() {
+        this.hp = this.maxHp;
         game.append(this.jquery);
         this.jquery.append(this.hpBar);
         this.jquery.append(this.sprite);
@@ -304,8 +318,8 @@ class Enemy {
         let randY = tools.randomize(0, this.randomRange * factor);
 
         this.jquery.css({
-            top: $(this.path[0]).position().top + randX,
-            left: $(this.path[0]).position().left + randY,
+            top: this.path[0].top + randX,
+            left: this.path[0].left + randY,
         });
 
         this.sprite.css({
@@ -327,6 +341,7 @@ class Enemy {
         this.sprite.width(this.width * windowSize.width);
         
         this.followPath({keepLastRandom: false});
+        this.onMount();
     }
 }
 
@@ -334,7 +349,6 @@ class EnemySmall extends Enemy {
     constructor(path) {
         super(path);
         this.deathImages = ["images/cold-influenza-death1.png", "images/cold-influenza-death2.png", "images/cold-influenza-death3.png"];
-        this.setup();
     }
     static name() { return "Cold Virus" }
     static description() { return "Really common and fast, but easy to treat." }
@@ -348,11 +362,85 @@ class EnemyBig extends Enemy {
         this.height = 0.06;
         this.width = 0.06;
         this.rotationSpeed = 0.4;
+        this.maxHp = 600;
+        this.moveSpeed = 25;
         this.deathImages = ["images/cold-influenza-death1.png", "images/cold-influenza-death2.png", "images/cold-influenza-death3.png"];
-        this.setup();
     }
     static name() { return "Influenza" }
     static description() { return "Harder to treat but slow." }
     static image() { return "images/cold-influenza.png" }
     static baseHue() { return -150 }
+}
+
+class EnemyDivide extends Enemy {
+    constructor(path, isClone) {
+        super(path);
+        this.isClone = isClone;
+        this.height = 0.06;
+        this.width = 0.06;
+        this.moveSpeed = 25;
+        this.deathImages = ["images/covid-death.png"];
+        this.waitToRemove = 1000;
+        this.fadeOutTime = 1;
+        this.divideTime = 5000;
+        this.divideRange = 30;
+    }
+    static name() { return "COVID-19" }
+    static description() { return "We've never seen this before. Good luck, I guess..." }
+    static image() { return "images/covid.png" }
+    static baseHue() { return 0 }
+
+    static divide() {
+        let maxDivisions = 64;
+        let newEnemies = [];
+
+        let count = gameState.enemies.reduce((acc, enemy) => {
+            if (enemy instanceof EnemyDivide) {
+                return acc + 1;
+            } else return acc;
+        }, 0);
+
+        if (count >= maxDivisions) return;
+
+        gameState.enemies.forEach((enemy) => {
+            if (enemy instanceof EnemyDivide) {
+                let currPos = enemy.jquery.position();
+                let actualDivideRange = enemy.divideRange * windowSize.width / 1920;
+                let divideX = currPos.left + actualDivideRange;
+                let divideY = currPos.top + actualDivideRange;
+                let hpLost = enemy.maxHp - enemy.hp;
+
+                let clone = new EnemyDivide(enemy.path, true);
+                newEnemies.push(clone);
+    
+                clone.addToScene();
+                clone.pause();
+                if (hpLost) clone.modifyHp(-hpLost);
+                clone.jquery.css({...currPos});
+                clone.nextPath = enemy.nextPath;
+                clone.moveTo(divideX, divideY, false, function() {
+                    clone.resume();
+                })
+            }
+        })
+        gameState.enemies = gameState.enemies.concat(newEnemies);
+        if (count === 0) {
+            let index = gameState.queuedActions.findIndex((action) => {
+                return action.id === 'EnemyDivide';
+            })
+            gameState.queuedActions.splice(index, 1);
+        }
+    }
+
+    onMount() {
+        if (!this.isClone) {
+            gameState.queuedActions.push({
+                id: 'EnemyDivide',
+                waitTime: this.divideTime,
+                queuedAt: new Date().getTime(),
+                callback: () => EnemyDivide.divide(),
+                loop: true
+            })
+        }
+    }
 }

@@ -156,6 +156,9 @@
         display: flex;
         justify-content: space-evenly;
         height: 100px;
+        > div {
+            position: relative;
+        }
     }
     button {
         height: 50px;
@@ -180,6 +183,14 @@
         position: absolute;
         left: 95%;
         top: 85%;
+    }
+    .new {
+        position: absolute;
+        top: 5%;
+        left: 70%;
+        padding: 2px;
+        border-radius: 5px;
+        background-color: $secondary-color;
     }
     .description {
         h3 {
