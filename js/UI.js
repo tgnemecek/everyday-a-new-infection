@@ -20,8 +20,12 @@ class ModalBox {
 }
 
 class HUD {
-    constructor(levelIndex) {
+    constructor(levelIndex, levelData, usePower) {
+        this.levelData = levelData;
+        this.usePower = usePower;
         this.jquery = new $(`<div class="hud"></div>`);
+        this.encyclopedia = new Encyclopedia(levelData);
+        this.topHud = new $(`<div class="top-hud"></div>`);
         this.hp = new $(`<div><i class="fas fa-heart"></i><span class="hp"></span></div>`);
         this.money = new $(`<div><i class="fas fa-atom"></i><span class="money"></span></div>`);
         this.wave = new $(`<div class="wave">INFECTION:</div>`);
@@ -32,6 +36,8 @@ class HUD {
         this.exit = new $(`<button>Exit</button>`);
         this.modal = new $(`<div class="pause-menu"></div>`);
         this.modalBox = undefined;
+
+        this.bottomHud = new $(`<div class="bottom-hud"></div>`);
         this.setup();
     }
     togglePause() {
@@ -46,13 +52,16 @@ class HUD {
         }
     }
     setup() {
-        this.jquery
+        this.jquery.append(this.topHud);
+        this.jquery.append(this.bottomHud);
+        this.topHud
             .append(this.hp)
             .append(this.money)
             .append(this.wave)
             .append(this.level)
             .append(this.volume)
             .append(this.playPause)
+            .append(this.encyclopedia.jquery)
 
         this.playPause.append(this.pauseIcon);
 
@@ -79,6 +88,11 @@ class HUD {
             } else {
                 $(this).append(`<i class="fas fa-volume-up"></i>`);
             }
+        })
+
+        this.levelData.powersAvailable.forEach((powerData) => {
+            let power = new powerData.type(this.usePower);
+            power.addToScene(this.bottomHud);
         })
     }
 

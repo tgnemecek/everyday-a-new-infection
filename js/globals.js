@@ -11,10 +11,9 @@ class GameState {
         this.inGameTime = new Date().getTime()
         this.inGameTimeId = undefined
         this.updateRate = 30 // Only affects queued actions, ignores animations
-        this.hud = new HUD(levelIndex)
+        this.hud = undefined
         this.callWaveButton = new $(`<button class="call-wave">START!</button>`)
         this.card = undefined
-        this.encyclopedia = undefined
         // waitTime (ms), queuedAt (ms), callback, loop (boolean), id (string)
         this.queuedActions = []
 
@@ -30,6 +29,7 @@ class GameState {
         this.currentWave = -1
         this.waves = []
         this.waveFullySpawned = false;
+        this.canUsePower = false;
         this.setup()
     }
     getLevelData(getLength) {
@@ -51,6 +51,9 @@ class GameState {
                     { left: "80%", top: "58%"},
                     { left: "85%", top: "70%"},
                     { left: "85%", top: "100%"},
+                ],
+                powersAvailable: [
+                    {type: PowerFreeze, new: true}
                 ],
                 towersAvailable: [
                     {type: TowerFast, new: true}
@@ -326,6 +329,39 @@ class GameState {
             }
         }, this.updateRate);
     }
+    usePower(powerName, options) {
+        if (!this.canUsePower) return false;
+
+        if (powerName === 'PowerFreeze') {
+            let frozenEnemies = [];
+            gameState.enemies.forEach((enemy) => {
+                enemy.pause();
+                frozenEnemies.push(enemy);
+                game.css({ filter: 'invert(1)' });
+            })
+            this.queuedActions.push({
+                id: powerName,
+                waitTime: options.waitTime,
+                queuedAt: new Date().getTime(),
+                loop: false,
+                callback: () => {
+                    game.css({ filter: '' });
+                    frozenEnemies.forEach((enemy) => {
+                        enemy.resume();
+                    })
+                }
+            })
+        }
+        this.canUsePower = false;
+        return true;
+    }
+    getSetCanUsePower(value) {
+        if (value === undefined) {
+            return this.canUsePower;
+        } else {
+            this.canUsePower = value;
+        }
+    }
     modifyHp(amount) {
         this.hp += amount;
         if (amount < 0) {
@@ -482,15 +518,19 @@ class GameState {
         
         const subSetup = () => {
             this.waves = levelData.waves;
+            this.hud = new HUD(
+                this.levelIndex,
+                this.getLevelData(),
+                this.usePower.bind(this)
+            );
             game.append($(`<img src="${levelData.image}" class="background"></img>`));
             game.append(this.hud.jquery);
             game.append(this.callWaveButton);
             this.callWaveButton.on('click', () => {
                 this.callWaveButton.remove();
                 this.nextWave();
+                this.canUsePower = true;
             })
-            this.encyclopedia = new Encyclopedia(this.getLevelData());
-            this.hud.jquery.append(this.encyclopedia.jquery);
             levelData.nodes.forEach((position) => {
                 let node = new Node(position);
                 this.nodes.push(node);
@@ -500,6 +540,7 @@ class GameState {
                 game.append(path);
                 path.css(pathPosition);
             })
+            levelData
             this.modifyHp(levelData.startingHP);
             this.modifyMoney(levelData.startingMoney);
             this.startInGameTime();
@@ -604,7 +645,7 @@ function onPageLoad() {
     startGameButton.on('click', () => {
         mainMenu.hide();
         game.show();
-        startGame({levelIndex: 3, skipIntro: true});// Remove skipIntro for production!
+        startGame({levelIndex: 0, skipIntro: true});// Remove skipIntro for production!
     })
     let loadLevelIndex = getCookie("loadLevelIndex");
     if (loadLevelIndex === undefined) {
@@ -619,9 +660,4 @@ function onPageLoad() {
     resizeGameArea();
     startMainMenu();
 }
-onPageLoad();
-
-
-
-
-
+// onPageLoad();

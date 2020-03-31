@@ -405,7 +405,8 @@ class EnemyDivide extends Enemy {
         gameState.enemies.forEach((enemy) => {
             if (enemy instanceof EnemyDivide) {
                 let currPos = enemy.jquery.position();
-                let actualDivideRange = enemy.divideRange * windowSize.width / 1920;
+                let range = tools.randomize(0, enemy.divideRange);
+                let actualDivideRange = range * windowSize.width / 1920;
                 let divideX = currPos.left + actualDivideRange;
                 let divideY = currPos.top + actualDivideRange;
                 let hpLost = enemy.maxHp - enemy.hp;

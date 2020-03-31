@@ -487,6 +487,20 @@ button {
 }
 
 .hud {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  -webkit-box-pack: justify;
+      -ms-flex-pack: justify;
+          justify-content: space-between;
+  height: 100%;
+}
+
+.hud .top-hud {
   display: -ms-grid;
   display: grid;
   -ms-grid-columns: 12% 12% 12% 12% 1fr auto;
@@ -499,11 +513,11 @@ button {
   font-size: 1em;
 }
 
-.hud .volume {
+.hud .top-hud .volume {
   text-align: right;
 }
 
-.hud button {
+.hud .top-hud button {
   background: none;
   color: white;
   border: none;
@@ -511,8 +525,59 @@ button {
   z-index: 2;
 }
 
-.hud .fa-heart, .hud .fa-atom {
+.hud .top-hud .fa-heart, .hud .top-hud .fa-atom {
   margin-right: 5px;
+}
+
+.hud .bottom-hud {
+  padding: 2%;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+}
+
+.hud .bottom-hud .power {
+  position: relative;
+}
+
+.hud .bottom-hud .description {
+  display: none;
+  position: absolute;
+  bottom: 4.5em;
+  left: 0;
+  padding: 1em;
+  background-color: #8080803b;
+  color: white;
+  width: 12em;
+}
+
+.hud .bottom-hud button {
+  font-size: 2em;
+  width: 2em;
+  height: 2em;
+  line-height: 1em;
+  border-radius: 50%;
+  border: none;
+  background-color: #fff3c4;
+  color: #55596d;
+  opacity: 0.8;
+  -webkit-transition: opacity 0.3s;
+  transition: opacity 0.3s;
+}
+
+.hud .bottom-hud button:disabled {
+  background-color: grey;
+}
+
+.hud .bottom-hud button:hover {
+  opacity: 1;
+}
+
+.hud .bottom-hud button:hover + .description {
+  display: block;
 }
 
 .encyclopedia {
