@@ -645,6 +645,7 @@ function onPageLoad() {
     startGameButton.on('click', () => {
         mainMenu.hide();
         game.show();
+        audioManager.init();
         startGame({levelIndex: 0, skipIntro: true});// Remove skipIntro for production!
     })
     let loadLevelIndex = getCookie("loadLevelIndex");
@@ -660,4 +661,4 @@ function onPageLoad() {
     resizeGameArea();
     startMainMenu();
 }
-// onPageLoad();
+onPageLoad();

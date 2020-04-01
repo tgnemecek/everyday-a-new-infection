@@ -1,18 +1,27 @@
 class AudioManager {
     constructor() {
+        // this.audioContext = new AudioContext();
         this.isMuted = false;
-        this.indexes = []; // Object: name, index, size, lastPlayed
+        this.log = []; // Object: name, index, size, lastPlayed
         this.mixer = {
             sfx: 1,
             music: 1,
             master: 1
         }
     }
+    init() { // Must be called by player interaction
+        // this.audioContext.resume();
+    }
     toggleMute() {
         this.isMuted = !this.isMuted;
+        if (this.isMuted) {
+            this.audioContext.suspend();
+        } else {
+            this.audioContext.resume();
+        }
     }
-    addToIndexes(jquery, audioName) {
-        let index = this.indexes.findIndex((item) => {
+    addToLog(jquery, audioName) {
+        let index = this.log.findIndex((item) => {
             return item.name === audioName;
         })
         if (index !== -1) {
@@ -22,12 +31,12 @@ class AudioManager {
             let size = jquery.children().length;
             let index = Math.floor(Math.random() * size);
 
-            this.indexes.push({
+            this.log.push({
                 name,
                 size,
                 index
             })
-            return this.indexes.length-1;
+            return this.log.length-1;
         }
     }
     setVolume(audio, volume, volumeRange) {
@@ -38,7 +47,7 @@ class AudioManager {
         audio.volume = audio.volume * this.mixer[group] * this.mixer.master;
     }
     shuffleFiles(index) {
-        let obj = this.indexes[index];
+        let obj = this.log[index];
         let newIndex = Math.floor(Math.random() * obj.size);
         if (newIndex === obj.index) {
             if (newIndex === obj.size-1) {
@@ -50,7 +59,7 @@ class AudioManager {
     }
     verifyTiming(index, timeout) {
         if (!timeout) return true;
-        let obj = this.indexes[index];
+        let obj = this.log[index];
         if (!obj.lastPlayed) {
             obj.lastPlayed = new Date().getTime();
             return true;
@@ -64,11 +73,11 @@ class AudioManager {
         } else return false;
     }
     play(audioName, {group, volume = 1, volumeRange = 0, timeout, loop}) {
-        if (this.isMuted) return;
+        // if (this.isMuted) return;
 
         let jquery = $(`.${audioName}`).clone();
 
-        let index = this.addToIndexes(jquery, audioName);
+        let index = this.addToLog(jquery, audioName);
 
         let fileIndex = this.shuffleFiles(index);
         let audio = jquery.children(`.RR${fileIndex}`)[0];
@@ -76,7 +85,9 @@ class AudioManager {
         this.setVolume(audio, volume, volumeRange);
         this.sendToMixer(audio, group);
         let canPlay = this.verifyTiming(index, timeout);
-        if (canPlay) audio.play();
+        if (canPlay) {
+            audio.play();
+        }
     }
 }
 
