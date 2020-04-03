@@ -1,6 +1,7 @@
 class Power {
-    constructor(usePower) {
+    constructor(usePower, isNew) {
         this.usePower = usePower;
+        this.isNew = isNew;
         this.jquery = new $(`<div class="power"></div>`);
         this.button = new $(`<button></button>`);
         this.icon = '';
@@ -22,10 +23,16 @@ class Power {
             .append(this.descriptionBox);
         this.button.append(this.icon);
 
+        if (this.isNew) {
+            this.jquery.append(`<label class="new">new!</label>`)
+        }
+
         this.button.on('click', () => {
             let success = this.usePower(this.constructor.name, this.options);
             if (success) {
-                this.button.attr('disabled', true);
+                let parent = this.jquery.parent();
+                parent.find('button').attr('disabled', true);
+                parent.find('.new').hide();
             }
         })
 
@@ -36,15 +43,25 @@ class Power {
     }
 }
 
-class PowerFreeze extends Power { // Don't change class name
-    constructor(usePower) {
-        super(usePower);
+class PowerFreeze extends Power {
+    constructor(usePower, isNew) {
+        super(usePower, isNew);
         this.icon = new $(`<i class="fas fa-prescription-bottle-alt"></i>`);
         this.title = 'Medication';
         this.options = {
             waitTime: 3000
         }
         this.description = `Freezes all enemies on-screen for ${this.options.waitTime/1000} seconds.`;
+        this.setup();
+    }
+}
+
+class PowerNothing extends Power {
+    constructor(usePower, isNew) {
+        super(usePower, isNew);
+        this.icon = new $(`<i class="fas fa-leaf"></i>`);
+        this.title = 'Essential Oils';
+        this.description = `Does literally nothing.`;
         this.setup();
     }
 }

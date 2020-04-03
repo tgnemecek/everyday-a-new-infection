@@ -72,20 +72,60 @@ class AudioManager {
             return true;
         } else return false;
     }
-    play(audioName, {group, volume = 1, volumeRange = 0, timeout, loop}) {
+    play(audioName, {
+        group,
+        volume = 1,
+        volumeRange = 0,
+        timeout,
+        loop = false,
+        buffer = 0.2,
+        onComplete = undefined
+    }) {
         // if (this.isMuted) return;
 
         let jquery = $(`.${audioName}`).clone();
 
         let index = this.addToLog(jquery, audioName);
-
-        let fileIndex = this.shuffleFiles(index);
-        let audio = jquery.children(`.RR${fileIndex}`)[0];
         
-        this.setVolume(audio, volume, volumeRange);
-        this.sendToMixer(audio, group);
         let canPlay = this.verifyTiming(index, timeout);
         if (canPlay) {
+            let fileIndex = this.shuffleFiles(index);
+            let audio = jquery.children(`.RR${fileIndex}`)[0];
+
+            this.setVolume(audio, volume, volumeRange);
+            this.sendToMixer(audio, group);
+
+            audio.addEventListener('onloadeddata', () => {
+                console.log('load started');
+            })
+
+
+            if (loop) {
+                audio.addEventListener('timeupdate', () => {
+                    if (audio.currentTime > audio.duration - buffer){
+                        audio.currentTime = 0
+                        audio.play()
+                    }
+                });
+            } else if (typeof onComplete === 'function') {
+                audio.addEventListener('onplay', () => {
+                    let duration = audio.duration * 1000;
+                    console.log(duration);
+                    setTimeout(() => {
+                        onComplete();
+                    }, duration)
+                })
+
+                // audio.addEventListener('timeupdate', () => {
+                //     console.log(audio.currentTime);
+                //     if (audio.currentTime > audio.duration - buffer) {
+                //         if (!this.isComplete) {
+                //             onComplete();
+                //             this.isComplete = true;
+                //         }                        
+                //     }
+                // });
+            }
             audio.play();
         }
     }

@@ -91,7 +91,7 @@ class HUD {
         })
 
         this.levelData.powersAvailable.forEach((powerData) => {
-            let power = new powerData.type(this.usePower);
+            let power = new powerData.type(this.usePower, powerData.new);
             power.addToScene(this.bottomHud);
         })
     }

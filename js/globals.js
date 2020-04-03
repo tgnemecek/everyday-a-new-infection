@@ -53,7 +53,8 @@ class GameState {
                     { left: "85%", top: "100%"},
                 ],
                 powersAvailable: [
-                    {type: PowerFreeze, new: true}
+                    {type: PowerFreeze, new: true},
+                    {type: PowerNothing, new: true}
                 ],
                 towersAvailable: [
                     {type: TowerFast, new: true}
@@ -334,10 +335,10 @@ class GameState {
 
         if (powerName === 'PowerFreeze') {
             let frozenEnemies = [];
+            game.css({ filter: 'invert(1)' });
             gameState.enemies.forEach((enemy) => {
                 enemy.pause();
                 frozenEnemies.push(enemy);
-                game.css({ filter: 'invert(1)' });
             })
             this.queuedActions.push({
                 id: powerName,
@@ -347,20 +348,15 @@ class GameState {
                 callback: () => {
                     game.css({ filter: '' });
                     frozenEnemies.forEach((enemy) => {
-                        enemy.resume();
+                        if (enemy.isAlive) {
+                            enemy.resume();
+                        }
                     })
                 }
             })
         }
         this.canUsePower = false;
         return true;
-    }
-    getSetCanUsePower(value) {
-        if (value === undefined) {
-            return this.canUsePower;
-        } else {
-            this.canUsePower = value;
-        }
     }
     modifyHp(amount) {
         this.hp += amount;
@@ -432,6 +428,17 @@ class GameState {
         startMainMenu();
     }
     nextWave() {
+        audioManager.play('audioTestIn', {
+            volume: 0.8,
+            group: 'sfx',
+            buffer: 0.34,
+            onComplete: () => {
+                audioManager.play('audioTestOut', {
+                    volume: 0.8,
+                    group: 'sfx',
+                })
+            }
+        })
         let totalWaves = this.waves.length;
         if (this.currentWave+1 === totalWaves) {
             this.queuedActions.push({
