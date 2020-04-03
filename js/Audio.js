@@ -9,7 +9,8 @@ class AudioManager {
             },
             music: {
                 gainNode: this.audioContext.createGain(),
-                volume: 1
+                filterNode: this.audioContext.createBiquadFilter(),
+                volume: 0.5
             },
             master: {
                 gainNode: this.audioContext.createGain(),
@@ -17,6 +18,21 @@ class AudioManager {
             }
         }
         this.sounds = {
+            combatMusic: {
+                urls: [
+                    'audio/Music.ogg',
+                ],
+                volume: 1,
+                volumeRange: 0,
+                rate: 1,
+                rateRange: 0,
+                group: 'music',
+                loop: true,
+                buffers: [],
+                lastPlayed: undefined,
+                lastRR: undefined,
+                timeout: undefined,
+            },
             towerFast: {
                 urls: [
                     'audio/JP3towerFastRR0.ogg',
@@ -147,6 +163,34 @@ class AudioManager {
         this.groups.sfx.gainNode.gain.setValueAtTime(this.groups.sfx.volume, 0);
         this.groups.music.gainNode.gain.setValueAtTime(this.groups.music.volume, 0);
         this.groups.master.gainNode.gain.setValueAtTime(this.groups.master.volume, 0);
+
+        // Sets filter
+        this.groups.music.filterNode.connect(this.groups.master.gainNode);
+    }
+
+    filterMusic() {
+        let filter = this.groups.music.filterNode;
+        let initialFreq = 3000;
+        let finalFreq = 300;
+        let speed = 100;
+        let q = 10;
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(initialFreq, 0);
+        filter.Q.setValueAtTime(q, 0);
+        this.groups.music.gainNode.disconnect(this.groups.master.gainNode);
+        this.groups.music.gainNode.connect(this.groups.music.filterNode);
+        let interval = setInterval(() => {
+            let currFreq = filter.frequency.value;
+            console.log(currFreq);
+            if (currFreq > finalFreq) {
+                filter.frequency.setValueAtTime(currFreq - speed, 0);
+            } else clearInterval(interval);
+        }, 30)
+    }
+
+    unfilterMusic() {
+        this.groups.music.gainNode.disconnect(this.groups.music.filterNode);
+        this.groups.music.gainNode.connect(this.groups.master.gainNode);
     }
 
     toggleMute() {
@@ -196,7 +240,7 @@ class AudioManager {
         let volume = (1 - sound.volumeRange/2) + random;
         gainNode.gain.setValueAtTime(volume, 0);
         source.connect(gainNode);
-        gainNode.connect(this.audioContext.destination);
+        gainNode.connect(this.groups[sound.group].gainNode);
         return gainNode;
     }
 
@@ -229,6 +273,9 @@ class AudioManager {
             source.onended = () => {
                 gainNode.disconnect();
                 source.disconnect();
+                if (sound.loop) {
+                    this.play(soundName, onEnd);
+                }
                 if (typeof onEnd === 'function') {
                     onEnd();
                 }

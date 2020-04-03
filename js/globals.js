@@ -335,6 +335,7 @@ class GameState {
 
         if (powerName === 'PowerFreeze') {
             let frozenEnemies = [];
+            audioManager.filterMusic();
             game.css({ filter: 'invert(1)' });
             gameState.enemies.forEach((enemy) => {
                 enemy.pause();
@@ -346,6 +347,7 @@ class GameState {
                 queuedAt: new Date().getTime(),
                 loop: false,
                 callback: () => {
+                    audioManager.unfilterMusic()
                     game.css({ filter: '' });
                     frozenEnemies.forEach((enemy) => {
                         if (enemy.isAlive) {
@@ -523,6 +525,7 @@ class GameState {
                 this.callWaveButton.remove();
                 this.nextWave();
                 this.canUsePower = true;
+                audioManager.play('combatMusic');
             })
             levelData.nodes.forEach((position) => {
                 let node = new Node(position);
@@ -533,7 +536,6 @@ class GameState {
                 game.append(path);
                 path.css(pathPosition);
             })
-            levelData
             this.modifyHp(levelData.startingHP);
             this.modifyMoney(levelData.startingMoney);
             this.startInGameTime();
