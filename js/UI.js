@@ -151,9 +151,7 @@ class Card {
         this.out();
     }
     in() {
-        audioManager.play('audioCardIn', {
-            group: 'sfx'
-        })
+        audioManager.play('audioCardIn');
         this.modalBox.jquery.children('.box')
         .animate({
             bottom: this.getBottomPos()
@@ -179,9 +177,7 @@ class Card {
             duration: 1000,
             start: () => {
                 console.log('started');
-                audioManager.play('audioCardOut', {
-                    group: 'sfx'
-                })
+                audioManager.play('audioCardOut')
             },
             step: function(now, fx) {
                 if (!initRight) initRight = now;

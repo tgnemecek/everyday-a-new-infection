@@ -361,11 +361,7 @@ class GameState {
     modifyHp(amount) {
         this.hp += amount;
         if (amount < 0) {
-            audioManager.play('audioDamageTaken', {
-                group: 'sfx',
-                volumeRange: .2,
-                timeout: 500
-            })
+            audioManager.play('audioDamageTaken');
         }
         if (this.hp <= 0) {
             this.gameOver();
@@ -428,17 +424,7 @@ class GameState {
         startMainMenu();
     }
     nextWave() {
-        audioManager.play('audioTestIn', {
-            volume: 0.8,
-            group: 'sfx',
-            buffer: 0.34,
-            onComplete: () => {
-                audioManager.play('audioTestOut', {
-                    volume: 0.8,
-                    group: 'sfx',
-                })
-            }
-        })
+
         let totalWaves = this.waves.length;
         if (this.currentWave+1 === totalWaves) {
             this.queuedActions.push({
@@ -652,7 +638,6 @@ function onPageLoad() {
     startGameButton.on('click', () => {
         mainMenu.hide();
         game.show();
-        audioManager.init();
         startGame({levelIndex: 0, skipIntro: true});// Remove skipIntro for production!
     })
     let loadLevelIndex = getCookie("loadLevelIndex");

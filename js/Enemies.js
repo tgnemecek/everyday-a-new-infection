@@ -101,10 +101,7 @@ class Enemy {
             "1 normal forwards"
         )
         
-        audioManager.play('audioEnemyDeath', {
-            group: 'sfx',
-            volumeRange: 0.2
-        });
+        audioManager.play('audioEnemyDeath');
 
         gameState.queuedActions.push({
             waitTime: this.waitToRemove,
