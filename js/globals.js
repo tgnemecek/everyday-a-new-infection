@@ -342,7 +342,6 @@ class GameState {
             ...this.towers,
             ...this.projectiles,
             this.hud,
-
         ].forEach((instance) => {
             if (typeof instance.onResize === 'function') {
                 instance.onResize(newWidth, newHeight)
@@ -508,24 +507,26 @@ class GameState {
 
     }
     win() {
-        this.pause();
-        $('.modal').remove();
-        let exit = new $(`<button>Exit</button>`);
-        let next = new $(`<button>Next Day</button>`);
-        exit.on('click', () => this.exit());
-        next.on('click', () => this.nextDay());
-
-        let buttons = new $(`<div class="buttons"></div>`)
-            .append(exit)
-            .append(next)
-        let content = new $(`<div class="container"><h2>Victory!</h2></div>`)
-            .append(`<p>Your body has survived today's infection!</p>`)
-            .append(`<i class="far fa-heart"></i>`)
-            .append(buttons)
-
-        this.card = new Card(content, {
-            extraClass: "win-game"
-        })
+        audioManager.playAtTempo('victoryMusic', 'combatMusic', 1)
+            .then(() => {
+                this.pause();
+                $('.modal').remove();
+                let exit = new $(`<button>Exit</button>`);
+                let next = new $(`<button>Next Day</button>`);
+                exit.on('click', () => this.exit());
+                next.on('click', () => this.nextDay());
+                
+                let buttons = new $(`<div class="buttons"></div>`)
+                    .append(exit)
+                    .append(next)
+                let content = new $(`<div class="container"><h2>Victory!</h2></div>`)
+                    .append(`<p>Your body has survived today's infection!</p>`)
+                    .append(`<i class="far fa-heart"></i>`)
+                    .append(buttons)
+                this.card = new Card(content, {
+                    extraClass: "win-game"
+                })
+            })
     }
     gameOver() {
         this.hp = 0;
@@ -624,7 +625,9 @@ class GameState {
                 this.removeTutorial();
                 this.nextWave();
                 this.canUsePower = true;
+                audioManager.stop('preCombatMusic');
                 audioManager.play('combatMusic');
+
             })
             levelData.nodes.forEach((position) => {
                 let node = new Node(position);
@@ -639,6 +642,7 @@ class GameState {
             this.modifyMoney(levelData.startingMoney);
             this.startInGameTime();
             this.tutorialSetup();
+            audioManager.play('preCombatMusic');
         }
 
         if (!this.skipIntro) {
@@ -648,10 +652,6 @@ class GameState {
         }
     }
 }
-
-
-
-
 
 
 
@@ -736,7 +736,7 @@ function saveProgress(nextLevel) {
 }
 function onPageLoad() {
     $(window).resize(resizeGameArea);
-    $(window).on('resize', resizeGameArea);
+    // $(window).on('resize', resizeGameArea);
     windowSize = {
         width: window.innerWidth,
         height: window.innerHeight,

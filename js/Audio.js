@@ -2,6 +2,7 @@ class AudioManager {
     constructor() {
         this.isMuted = false;
         this.audioContext = new AudioContext();
+        this.looping = {};
         this.groups = {
             sfx: {
                 gainNode: this.audioContext.createGain(),
@@ -10,7 +11,7 @@ class AudioManager {
             music: {
                 gainNode: this.audioContext.createGain(),
                 filterNode: this.audioContext.createBiquadFilter(),
-                volume: 0.5
+                volume: 1
             },
             master: {
                 gainNode: this.audioContext.createGain(),
@@ -18,20 +19,41 @@ class AudioManager {
             }
         }
         this.sounds = {
-            combatMusic: {
+            victoryMusic: {
                 urls: [
-                    'audio/Music.ogg',
+                    'audio/JP3victory.ogg',
                 ],
                 volume: 1,
                 volumeRange: 0,
-                rate: 1,
-                rateRange: 0,
                 group: 'music',
-                loop: true,
                 buffers: [],
-                lastPlayed: undefined,
-                lastRR: undefined,
-                timeout: undefined,
+                loop: false
+            },
+            preCombatMusic: {
+                urls: [
+                    'audio/JP3preCombat.ogg',
+                ],
+                volume: 1,
+                volumeRange: 0,
+                group: 'music',
+                buffers: [],
+                loop: true,
+                loopStart: 0,
+                loopEnd: 19.2
+            },
+            combatMusic: {
+                urls: [
+                    'audio/JP3combat.ogg',
+                ],
+                volume: 1,
+                volumeRange: 0,
+                group: 'music',
+                buffers: [],
+                loop: true,
+                loopStart: 2,
+                loopEnd: 94,
+                bpm: 120,
+                beatsPerBar: 4
             },
             towerFast: {
                 urls: [
@@ -174,6 +196,8 @@ class AudioManager {
         let finalFreq = 300;
         let speed = 100;
         let q = 10;
+        let volume = this.groups.music.volume * 0.5;
+        this.groups.music.gainNode.gain.setValueAtTime(volume, 0);
         filter.type = 'lowpass';
         filter.frequency.setValueAtTime(initialFreq, 0);
         filter.Q.setValueAtTime(q, 0);
@@ -191,6 +215,7 @@ class AudioManager {
     unfilterMusic() {
         this.groups.music.gainNode.disconnect(this.groups.music.filterNode);
         this.groups.music.gainNode.connect(this.groups.master.gainNode);
+        this.groups.music.gainNode.gain.setValueAtTime(this.groups.music.volume, 0);
     }
 
     toggleMute() {
@@ -250,14 +275,119 @@ class AudioManager {
         source.playbackRate.value = rate;
     }
 
-    play(soundName, onEnd) {
-        if (this.isMuted) return;
-        if (this.audioContext.state === 'suspended') {
-            this.audioContext.resume();
+    stop(soundName) {
+        let source = this.looping[soundName].source;
+        let gainNode = this.looping[soundName].gainNode;
+        console.log(this.audioContext.currentTime);
+        source.stop();
+        gainNode.disconnect();
+        source.disconnect();
+        delete this.looping[soundName];
+    }
+
+    playTail(sound) {
+        let buffer = this.getBuffer(sound);
+        let source = this.audioContext.createBufferSource();
+
+        let gainNode = this.setVolume(sound, source);
+
+        source.buffer = buffer;
+        
+        source.onended = () => {
+            gainNode.disconnect();
+            source.disconnect();
+        }
+        source.start(0, sound.loopEnd);
+    }
+
+    playAtTempo(nextSoundName, currentSoundName, barDivision) {
+        return new Promise((resolve, reject) => {
+            // Stops current sound
+            let currSoundPlaying = this.looping[currentSoundName];
+
+            currSoundPlaying.manualStop = true;
+
+            let currSource = currSoundPlaying.source;
+            let currGainNode = currSoundPlaying.gainNode;
+            currSource.stop();
+            currGainNode.disconnect();
+            currSource.disconnect();
+            
+            // Plays the same sound, at the same position
+            let sound = this.sounds[currentSoundName];
+
+            let buffer = this.getBuffer(sound);
+            let source = this.audioContext.createBufferSource();
+
+            let gainNode = this.setVolume(sound, source);
+
+            source.buffer = buffer;
+
+            // Schedules the next sound
+            let nextSound = this.sounds[nextSoundName];
+
+            source.onended = () => {
+                gainNode.disconnect();
+                source.disconnect();
+                this.playMusic(nextSound, nextSoundName);
+                resolve();
+            }
+
+            // Calculates the duration
+            let startedAt = currSoundPlaying.startedAt;
+            let currTime = this.audioContext.currentTime;
+            let currPlayPos = currTime - startedAt;
+
+            let beat = 60 / sound.bpm;
+            let bar = (beat * sound.beatsPerBar) / barDivision;
+            let posInBar = currPlayPos % bar;
+            let duration = bar - posInBar;
+            source.start(0, currPlayPos, duration);
+        })
+    }
+
+    playMusic(sound, soundName, onEnd, isPartOfLoop) {
+        let buffer = this.getBuffer(sound);
+        let source = this.audioContext.createBufferSource();
+
+        let gainNode = this.setVolume(sound, source);
+
+        source.buffer = buffer;
+
+        this.looping[soundName] = {};
+
+        if (sound.loop) {
+            this.looping[soundName] = {
+                source,
+                gainNode,
+            };
         }
 
-        let sound = this.sounds[soundName];
+        this.looping[soundName].startedAt = this.audioContext.currentTime;
+        
+        source.onended = () => {
+            gainNode.disconnect();
+            source.disconnect();
+            if (this.looping[soundName] && !this.looping[soundName].manualStop) {
+                if (sound.loop && this.looping[soundName]) {
+                    this.playMusic(sound, soundName, onEnd, true);
+                    this.playTail(sound);
+                }
+            }
+            if (typeof onEnd === 'function') {
+                onEnd();
+            }
+        }
+        if (isPartOfLoop) {
+            let start = sound.loopStart || 0;
+            let duration = sound.loopEnd ? sound.loopEnd - start : undefined;
+            source.start(0, sound.loopStart, duration);
+        } else {
+            source.start(0, 0, sound.loopEnd);
+        }
+    }
 
+    playSfx(sound, soundName, onEnd) {
         let canPlay = this.verifyTiming(sound);
 
         if (canPlay) {
@@ -282,5 +412,18 @@ class AudioManager {
             }
             source.start();
         }
+    }
+
+    play(soundName, onEnd) {
+        if (this.isMuted) return;
+        if (this.audioContext.state === 'suspended') {
+            this.audioContext.resume();
+        }
+
+        let sound = this.sounds[soundName];
+
+        if (sound.group === 'music') {
+            this.playMusic(sound, soundName, onEnd);
+        } else this.playSfx(sound, soundName, onEnd);
     }
 }
