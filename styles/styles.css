@@ -298,7 +298,7 @@ button {
   bottom: 0;
   left: 0;
   right: 0;
-  z-index: 5;
+  z-index: 8;
   background-color: black;
   pointer-events: none;
   opacity: 0;
@@ -450,6 +450,8 @@ button {
   position: absolute;
   border-radius: 50%;
   background-color: transparent;
+  padding: 0;
+  z-index: 4;
 }
 
 .node:hover {
@@ -458,7 +460,7 @@ button {
 
 .node .radar {
   background-color: rgba(0, 88, 29, 0.102);
-  border: 2px solid rgba(0, 189, 63, 0.397);
+  border: 0.5em solid rgba(0, 189, 63, 0.397);
   position: absolute;
   z-index: -1;
   border-radius: 50%;
@@ -529,6 +531,7 @@ button {
   padding: 2%;
   color: white;
   font-size: 1em;
+  z-index: 8;
 }
 
 .hud .top-hud .volume {
@@ -555,6 +558,7 @@ button {
   -webkit-box-pack: center;
       -ms-flex-pack: center;
           justify-content: center;
+  z-index: 5;
 }
 
 .hud .bottom-hud .power {
@@ -694,6 +698,7 @@ button {
   position: absolute;
   color: #fff3c4;
   pointer-events: none;
+  z-index: 5;
 }
 
 .tutorial .pointer i {
@@ -720,6 +725,19 @@ button {
   width: 10em;
 }
 
+.tutorial .powers {
+  color: #fff3c4;
+  font-size: 1em;
+}
+
+.tutorial .powers .text {
+  position: relative;
+  width: 10em;
+  text-align: right;
+  right: 11em;
+  bottom: 1em;
+}
+
 .call-wave {
   position: absolute;
   bottom: 0;
@@ -729,7 +747,7 @@ button {
   padding: .25em;
   background-color: #fff3c4;
   border: none;
-  z-index: 2;
+  z-index: 6;
 }
 
 .call-wave:hover {
@@ -751,7 +769,7 @@ button {
   -webkit-box-align: center;
       -ms-flex-align: center;
           align-items: center;
-  z-index: 2;
+  z-index: 7;
 }
 
 .modal .box {
@@ -759,8 +777,8 @@ button {
   -webkit-box-shadow: 5px 5px 5px 0px rgba(0, 0, 0, 0.75);
           box-shadow: 5px 5px 5px 0px rgba(0, 0, 0, 0.75);
   background-color: #fff3c4;
-  padding: 10px;
-  z-index: 3;
+  padding: 1em;
+  z-index: 1;
 }
 
 .modal .box h2 {
@@ -800,11 +818,12 @@ button {
 .tower-picker {
   text-align: center;
   position: relative;
+  padding: 0 3em;
 }
 
 .tower-picker h2 {
-  padding: 15px;
   font-size: 2em;
+  margin-bottom: 0.5em;
 }
 
 .tower-picker .container {
@@ -814,7 +833,6 @@ button {
   -webkit-box-pack: space-evenly;
       -ms-flex-pack: space-evenly;
           justify-content: space-evenly;
-  height: 100px;
 }
 
 .tower-picker .container > div {
@@ -822,9 +840,9 @@ button {
 }
 
 .tower-picker button {
-  height: 50px;
-  width: 50px;
-  margin: 5px;
+  height: 4em;
+  width: 4em;
+  margin: 0.2em;
   border-radius: 50%;
   overflow: hidden;
   display: block;
@@ -842,7 +860,7 @@ button {
 }
 
 .tower-picker .selected {
-  border: 3px solid yellow;
+  border: 0.5em solid yellow;
 }
 
 .tower-picker .confirm {
@@ -870,7 +888,7 @@ button {
   padding: 5px 15px;
   text-align: left;
   left: 0;
-  top: calc(100% + 10px);
+  top: calc(100% + 1em);
 }
 
 .tower-picker .description h3 {

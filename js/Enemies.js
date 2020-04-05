@@ -16,13 +16,11 @@ class Enemy {
         this.rotation = undefined;
 
         this.hp = 0;
-        this.path = path instanceof jQuery ? $.makeArray(path).map((jquery) => {
-            return $(jquery).position()
-        }) : path;
+        this.path = path;
         this.percentWalked = 0;
         this.nextPath = 1;
         this.isPaused = false;
-        this.randomRange = 100;
+        this.randomRange = 20;
         this.lastRandomX = 1;
         this.lastRandomY = 1;
         this.isAlive = true;
@@ -248,6 +246,9 @@ class Enemy {
         x += this.lastRandomX * factor;
         y += this.lastRandomY * factor;
 
+        x -= this.jquery.width()/2;
+        y -= this.jquery.height()/2;
+
         let currPos = this.jquery.position();
         let currX = currPos.left;
         let currY = currPos.top;
@@ -289,12 +290,8 @@ class Enemy {
             return;
         };
 
-        let x = this.path[this.nextPath].left;
-        let y = this.path[this.nextPath].top;
-
-        // let x = Number($(this.path[this.nextPath]).css('left').replace("px", ""));
-        // let y = Number($(this.path[this.nextPath]).css('top').replace("px", ""));
-
+        let x = $(this.path[this.nextPath]).position().left;
+        let y = $(this.path[this.nextPath]).position().top;
 
         this.moveTo(x, y, keepLastRandom)
     }
@@ -318,8 +315,8 @@ class Enemy {
         let randY = tools.randomize(0, this.randomRange * factor);
 
         this.jquery.css({
-            top: this.path[0].top + randX,
-            left: this.path[0].left + randY,
+            top: $(this.path[0]).position().top + randX,
+            left: $(this.path[0]).position().left + randY,
         });
 
         this.sprite.css({
@@ -366,7 +363,7 @@ class EnemyBig extends Enemy {
         this.moveSpeed = 25;
         this.deathImages = ["images/cold-influenza-death1.png", "images/cold-influenza-death2.png", "images/cold-influenza-death3.png"];
     }
-    static name() { return "Influenza" }
+    static name() { return "Flu" }
     static description() { return "Harder to treat but slow." }
     static image() { return "images/cold-influenza.png" }
     static baseHue() { return -150 }
@@ -383,7 +380,8 @@ class EnemyDivide extends Enemy {
         this.waitToRemove = 1000;
         this.fadeOutTime = 1;
         this.divideTime = 5000;
-        this.divideRange = 30;
+        this.divideMin = 20;
+        this.divideRange = 70;
     }
     static name() { return "COVID-19" }
     static description() { return "We've never seen this before. Good luck, I guess..." }
@@ -406,9 +404,19 @@ class EnemyDivide extends Enemy {
             if (enemy instanceof EnemyDivide) {
                 let currPos = enemy.jquery.position();
                 let range = tools.randomize(0, enemy.divideRange);
+                if (range < 0) {
+                    range -= enemy.divideMin;
+                } else {
+                    range += enemy.divideMin;
+                }
                 let actualDivideRange = range * windowSize.width / 1920;
                 let divideX = currPos.left + actualDivideRange;
                 let divideY = currPos.top + actualDivideRange;
+
+                divideX += enemy.jquery.width()/2;
+                divideY += enemy.jquery.height()/2;
+
+
                 let hpLost = enemy.maxHp - enemy.hp;
 
                 let clone = new EnemyDivide(enemy.path, true);

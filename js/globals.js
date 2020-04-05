@@ -29,6 +29,7 @@ class GameState {
         this.isPaused = false
         this.currentWave = -1
         this.spawnDelay = 0;
+        this.pathALastSpawned = false;
         this.waves = []
         this.waveFullySpawned = false;
         this.canUsePower = false;
@@ -45,7 +46,7 @@ class GameState {
                     { left: "53%", top: "38%"},
                     { left: "72%", top: "65%"},
                 ],
-                path: [
+                pathA: [
                     { left: "18%", top: "-15%"},
                     { left: "18%", top: "0%"},
                     { left: "22%", top: "50%"},
@@ -54,11 +55,8 @@ class GameState {
                     { left: "85%", top: "70%"},
                     { left: "85%", top: "100%"},
                 ],
-                powersAvailable: [
-                    {type: PowerFreeze, new: true},
-                    {type: PowerNothing, new: true},
-                    {type: PowerSpawnDelay, new: true}
-                ],
+                pathB: [],
+                powersAvailable: [],
                 towersAvailable: [
                     {type: TowerFast, new: true}
                 ],
@@ -85,7 +83,7 @@ class GameState {
                     { left: "10%", top: "70%"},
                     { left: "75%", top: "65%"},
                 ],
-                path: [
+                pathA: [
                     { left: "90%", top: "-15%"},
                     { left: "90%", top: "0%"},
                     { left: "90%", top: "25%"},
@@ -99,6 +97,8 @@ class GameState {
                     { left: "60%", top: "85%"},
                     { left: "100%", top: "80%"},
                 ],
+                pathB: [],
+                powersAvailable: [],
                 towersAvailable: [
                     {type: TowerFast, new: false},
                     {type: TowerSticky, new: true},
@@ -134,7 +134,7 @@ class GameState {
                     { left: "45%", top: "20%"},
                     { left: "62%", top: "20%"},
                 ],
-                path: [
+                pathA: [
                     { left: "7%", top: "-15%"},
                     { left: "7%", top: "0%"},
                     { left: "7%", top: "60%"},
@@ -150,6 +150,12 @@ class GameState {
                     { left: "62%", top: "12%"},
                     { left: "78%", top: "20%"},
                     { left: "100%", top: "60%"},
+                ],
+                pathB: [],
+                powersAvailable: [
+                    {type: PowerFreeze, new: true},
+                    {type: PowerNothing, new: true},
+                    {type: PowerSpawnDelay, new: true}
                 ],
                 towersAvailable: [
                     {type: TowerFast, new: false},
@@ -177,7 +183,7 @@ class GameState {
                 ]
             },
             { // DAY 4
-                image: "images/level3.jpg",
+                image: "images/level4.jpg",
                 startingHP: 10,
                 startingMoney: 210,
                 nodes: [
@@ -187,27 +193,88 @@ class GameState {
                     { left: "45%", top: "20%"},
                     { left: "62%", top: "20%"},
                 ],
-                path: [
-                    { left: "7%", top: "-15%"},
-                    { left: "7%", top: "0%"},
-                    { left: "7%", top: "60%"},
-                    { left: "14%", top: "73%"},
-                    { left: "22%", top: "65%"},
-                    { left: "23%", top: "35%"},
-                    { left: "30%", top: "20%"},
-                    { left: "40%", top: "30%"},
-                    { left: "41%", top: "70%"},
-                    { left: "50%", top: "80%"},
-                    { left: "58%", top: "70%"},
-                    { left: "55%", top: "20%"},
-                    { left: "62%", top: "12%"},
-                    { left: "78%", top: "20%"},
-                    { left: "100%", top: "60%"},
+                pathA: [
+                    { left: "13%", top: "-15%"},
+                    { left: "13%", top: "0%"},
+                    { left: "16%", top: "30%"},
+                    { left: "40%", top: "50%"},
+                    { left: "50%", top: "55%"},
+                    { left: "50%", top: "100%"},
+                ],
+                pathB: [
+                    { left: "88%", top: "-15%"},
+                    { left: "88%", top: "0%"},
+                    { left: "83%", top: "30%"},
+                    { left: "60%", top: "50%"},
+                    { left: "50%", top: "55%"},
+                    { left: "50%", top: "100%"},
+                ],
+                powersAvailable: [
+                    {type: PowerFreeze, new: false},
+                    {type: PowerNothing, new: false},
+                    {type: PowerSpawnDelay, new: false}
                 ],
                 towersAvailable: [
                     {type: TowerFast, new: false},
                     {type: TowerSticky, new: false},
-                    {type: TowerSlow, new: true},
+                    {type: TowerSlow, new: false},
+                ],
+                waves: [
+                    [
+                        {type: EnemySmall, quantity: 4, waitTime: 500}
+                    ],
+                ]
+            },
+            { // DAY 5
+                image: "images/level5.jpg",
+                startingHP: 10,
+                startingMoney: 210,
+                nodes: [
+                    { left: "5%", top: "18%"},
+                    { left: "86%", top: "37%"},
+                    { left: "72%", top: "50%"},
+                    { left: "55%", top: "54%"},
+                    { left: "40%", top: "33%"},
+                    { left: "13%", top: "55%"},
+                    { left: "11%", top: "70%"},
+                    { left: "30%", top: "70%"},
+                    { left: "46%", top: "75%"},
+                    { left: "93%", top: "87%"},
+                ],
+                pathA: [
+                    { left: "99%", top: "-15%"},
+                    { left: "99%", top: "0%"},
+                    { left: "92%", top: "20%"},
+                    { left: "2%", top: "19%"},
+                    { left: "2%", top: "30%"},
+                    { left: "8%", top: "34%"},
+                    { left: "92%", top: "34%"},
+                    { left: "96%", top: "57%"},
+                    { left: "90%", top: "67%"},
+                    { left: "80%", top: "70%"},
+                    { left: "72%", top: "70%"},
+                    { left: "65%", top: "50%"},
+                    { left: "65%", top: "50%"},
+                    { left: "12%", top: "52%"},
+                    { left: "8%", top: "70%"},
+                    { left: "12%", top: "88%"},
+                    { left: "40%", top: "84%"},
+                    { left: "45%", top: "72%"},
+                    { left: "57%", top: "75%"},
+                    { left: "66%", top: "90%"},
+                    { left: "87%", top: "90%"},
+                    { left: "100%", top: "80%"},
+                ],
+                pathB: [],
+                powersAvailable: [
+                    {type: PowerFreeze, new: false},
+                    {type: PowerNothing, new: false},
+                    {type: PowerSpawnDelay, new: false}
+                ],
+                towersAvailable: [
+                    {type: TowerFast, new: false},
+                    {type: TowerSticky, new: false},
+                    {type: TowerSlow, new: false},
                 ],
                 waves: [
                     [
@@ -220,6 +287,7 @@ class GameState {
         return levels[this.levelIndex];
     }
     loadLevelCutscene(callback) {
+        audioManager.play('dayMusic');
         let levelCount = this.getLevelData(true);
         let title;
         let subText;
@@ -299,10 +367,25 @@ class GameState {
         })
     }
     spawnEnemy(Type) {
-        const path = $('.path');
-        let enemy = new Type(path);
-        this.enemies.push(enemy);
-        enemy.addToScene();
+        const pathA = $('.path-a');
+        const pathB = $('.path-b');
+        if (pathB.length) {
+            let path;
+            if (this.pathALastSpawned) {
+                path = pathB;
+                this.pathALastSpawned = false;
+            } else {
+                path = pathA;
+                this.pathALastSpawned = true;
+            }
+            let enemy = new Type(path);
+            this.enemies.push(enemy);
+            enemy.addToScene();
+        } else {
+            let enemy = new Type(pathA);
+            this.enemies.push(enemy);
+            enemy.addToScene();
+        }
     }
     startInGameTime() {
         this.inGameTimeId = setInterval(() => {
@@ -341,7 +424,6 @@ class GameState {
             ...this.nodes,
             ...this.towers,
             ...this.projectiles,
-            this.hud,
         ].forEach((instance) => {
             if (typeof instance.onResize === 'function') {
                 instance.onResize(newWidth, newHeight)
@@ -532,29 +614,33 @@ class GameState {
         this.hp = 0;
         this.pause();
         $('.modal').remove();
-        let exit = new $(`<button>Exit</button>`);
-        let restart = new $(`<button>Restart</button>`);
-        exit.on('click', () => this.exit());
-        restart.on('click', () => this.reset());
 
-        let buttons = new $(`<div class="buttons"></div>`)
-            .append(exit)
-            .append(restart)
-        let content = new $(`<div class="container"><h2>Game Over!</h2></div>`)
-            .append(`<p>Your body was overtaken by the invaders...</p>`)
-            .append(`<p>Maybe wash your hands next time?</p>`)
-            .append(buttons)
-
-        this.card = new Card(content, {
-            extraClass: "game-over"
-        })
+        audioManager.playAtTempo('gameOverMusic', 'combatMusic', 4)
+            .then(() => {
+                let exit = new $(`<button>Exit</button>`);
+                let restart = new $(`<button>Restart</button>`);
+                exit.on('click', () => this.exit());
+                restart.on('click', () => this.reset());
+        
+                let buttons = new $(`<div class="buttons"></div>`)
+                    .append(exit)
+                    .append(restart)
+                let content = new $(`<div class="container"><h2>Game Over!</h2></div>`)
+                    .append(`<p>Your body was overtaken by the invaders...</p>`)
+                    .append(`<p>Maybe wash your hands next time?</p>`)
+                    .append(buttons)
+        
+                this.card = new Card(content, {
+                    extraClass: "game-over"
+                })
+            })
     }
     nextDay() {
         startGame({levelIndex: this.levelIndex+1});
     }
     tutorialSetup() {
-        this.tutorial = new $(`<div class="tutorial"><div>`);
-        let pointer = new $(`<div class="pointer"><i class="fas fa-hand-point-up"></i><div>`);
+        this.tutorial = new $(`<div class="tutorial"></div>`);
+        let pointer = new $(`<div class="pointer"><i class="fas fa-hand-point-up"></i></div>`);
         game.append(this.tutorial);
         if (this.levelIndex === 0) {
             this.nodes.forEach((node, i) => {
@@ -592,6 +678,18 @@ class GameState {
             let moneyText = new $(`<p class="money-text">Use Resources to build structures. Destroy invaders to collect more!</p>`);
             moneyPointer.append(moneyText);
             this.tutorial.append(moneyPointer);
+        } else if (this.levelIndex === 2) {
+            let currPointer = pointer.clone();
+            let text = new $(`<div class="text">Powers are now available! Once per day you can use <strong>one</strong> power. Choose wisely.</div>`);
+            currPointer.css({
+                position: 'absolute',
+                top: '80%',
+                left: '30%',
+            })
+            currPointer.addClass('powers');
+            currPointer.append(text);
+            currPointer.children('i').css({ transform: 'rotate(90deg)' });
+            this.tutorial.append(currPointer)
         }
     }
     removeTutorial() {
@@ -633,8 +731,13 @@ class GameState {
                 let node = new Node(position);
                 this.nodes.push(node);
             })
-            levelData.path.forEach((pathPosition) => {
-                let path = new $(`<div class="path"></div>`);
+            levelData.pathA.forEach((pathPosition) => {
+                let path = new $(`<div class="path path-a"></div>`);
+                game.append(path);
+                path.css(pathPosition);
+            })
+            levelData.pathB.forEach((pathPosition) => {
+                let path = new $(`<div class="path path-b"></div>`);
                 game.append(path);
                 path.css(pathPosition);
             })
@@ -735,17 +838,17 @@ function saveProgress(nextLevel) {
     document.cookie = cookie;
 }
 function onPageLoad() {
-    $(window).resize(resizeGameArea);
-    // $(window).on('resize', resizeGameArea);
     windowSize = {
         width: window.innerWidth,
         height: window.innerHeight,
     }
+    $(window).resize(resizeGameArea);
+
     let startGameButton = $(`.main-menu .start-game`);
     startGameButton.on('click', () => {
         mainMenu.hide();
         game.show();
-        startGame({levelIndex: 0, skipIntro: true});// Remove skipIntro for production!
+        startGame({levelIndex: 0, skipIntro: false});// Remove skipIntro for production!
     })
     let loadLevelIndex = getCookie("loadLevelIndex");
     if (loadLevelIndex === undefined) {

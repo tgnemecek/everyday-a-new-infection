@@ -1,8 +1,13 @@
 .path {
     width: 25px;
     height: 25px;
-    // background-color: green;
     position: absolute;
+    &-a {
+        // background-color: green; // For debugging
+    }
+    &-b {
+        // background-color: red; // For debugging
+    }
 }
 
 .node {
@@ -10,12 +15,14 @@
     position: absolute;
     border-radius: 50%;
     background-color: transparent;
+    padding: 0;
+    z-index: 4;
     &:hover {
         border: 1px solid yellow;
     }
     .radar {
         background-color: rgba(0, 88, 29, 0.102);
-        border: 2px solid rgba(0, 189, 63, 0.397);
+        border: 0.5em solid rgba(0, 189, 63, 0.397);
         position: absolute;
         z-index: -1;
         border-radius: 50%;

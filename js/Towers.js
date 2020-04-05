@@ -1,10 +1,11 @@
 class Node {
     constructor(position) {
         this.jquery = new $('<button></button>');
+        this.sizeRelative = 15;
         this.style = {
             ...position,
-            width: windowSize.width / 12,
-            height: windowSize.width / 12
+            width: windowSize.width / this.sizeRelative,
+            height: windowSize.width / this.sizeRelative
         };
         this.hasTower = false;
         this.towerPicker = undefined;
@@ -13,8 +14,8 @@ class Node {
     }
     onResize(newWidth) {
         this.jquery.css({
-            width: newWidth / 12,
-            height: newWidth / 12
+            width: newWidth / this.sizeRelative,
+            height: newWidth / this.sizeRelative
         })
     }
     pause() {
@@ -53,32 +54,37 @@ class Radar {
         this.getActualRange = getActualRange;
         this.jquery = new $(`<div class="radar"></div>`);
         this.animationDuration = 3000;
-        this.progress = 0;
-        this.style = {
+        this.setup();
+    }
+    style() {
+        return {
             width: 0,
             height: 0,
-            left: this.tower.width()/2 - 0,
-            top: this.tower.height()/2 - 0,
-            opacity: 1
+            left: this.tower.width()/2,
+            top: this.tower.height()/2,
+            opacity: 1,
         }
-        this.setup();
     }
     onResize() {
         this.jquery.stop();
+        this.jquery.css(this.style());
         this.animation();
     }
     animation() {
         this.jquery.animate({
             width: this.getActualRange()*2,
             height: this.getActualRange()*2,
-            left: this.tower.width()/2 - this.getActualRange(),
-            top: this.tower.height()/2 - this.getActualRange(),
             opacity: 0
         }, {
             duration: this.animationDuration,
-            progress: (prog) => this.progress = prog,
+            progress: () => {
+                this.jquery.css({
+                    left: this.node.innerWidth()/2 - this.jquery.outerWidth()/2,
+                    top: this.node.innerHeight()/2 - this.jquery.outerHeight()/2,
+                })
+            },
             complete: () => {
-                this.jquery.css(this.style);
+                this.jquery.css(this.style());
                 this.animation();
             }
         })
@@ -87,7 +93,7 @@ class Radar {
         this.node.append(this.jquery);
         this.jquery.width(0);
         this.jquery.height(0);
-        this.jquery.css(this.style);
+        this.jquery.css(this.style());
         this.animation();
     }
 }
@@ -361,7 +367,7 @@ class TowerSlow extends Tower {
         this.projectileSize = 0.04;
         this.damage = 50;
         this.areaOfEffect = 70;
-        this.audioName = 'audioTowerSlow';
+        this.audioName = 'towerSlow';
         tools.addRotationLoop(
             this.jquery,
             3

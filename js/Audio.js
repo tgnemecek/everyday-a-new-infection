@@ -19,6 +19,26 @@ class AudioManager {
             }
         }
         this.sounds = {
+            dayMusic: {
+                urls: [
+                    'audio/JP3day.ogg',
+                ],
+                volume: 1,
+                volumeRange: 0,
+                group: 'music',
+                buffers: [],
+                loop: false
+            },
+            gameOverMusic: {
+                urls: [
+                    'audio/JP3gameOver.ogg',
+                ],
+                volume: 1,
+                volumeRange: 0,
+                group: 'music',
+                buffers: [],
+                loop: false
+            },
             victoryMusic: {
                 urls: [
                     'audio/JP3victory.ogg',
@@ -415,9 +435,10 @@ class AudioManager {
     }
 
     play(soundName, onEnd) {
-        if (this.isMuted) return;
         if (this.audioContext.state === 'suspended') {
-            this.audioContext.resume();
+            if (!this.isMuted) {
+                this.audioContext.resume();
+            }
         }
 
         let sound = this.sounds[soundName];
