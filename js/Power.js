@@ -61,8 +61,20 @@ class PowerNothing extends Power {
         super(usePower, isNew);
         this.icon = new $(`<i class="fas fa-leaf"></i>`);
         this.title = 'Essential Oils';
-        this.description = `Does literally nothing.`;
+        this.description = `Does literally nothing. You can still use it though.`;
         this.setup();
     }
 }
 
+class PowerSpawnDelay extends Power {
+    constructor(usePower, isNew) {
+        super(usePower, isNew);
+        this.icon = new $(`<i class="fas fa-street-view"></i>`);
+        this.title = 'Social Distancing';
+        this.options = {
+            waitTime: 10000
+        }
+        this.description = `Slows the rate of new infections for ${this.options.waitTime/1000} seconds.`;
+        this.setup();
+    }
+}

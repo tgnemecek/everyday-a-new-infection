@@ -21,6 +21,7 @@ class Enemy {
         }) : path;
         this.percentWalked = 0;
         this.nextPath = 1;
+        this.isPaused = false;
         this.randomRange = 100;
         this.lastRandomX = 1;
         this.lastRandomY = 1;
@@ -53,10 +54,12 @@ class Enemy {
 
     pause() {
         this.jquery.stop();
+        this.isPaused = true;
     }
 
     resume() {
         this.followPath({keepLastRandom: true});
+        this.isPaused = false;
     }
 
     modifyHp(amount) {

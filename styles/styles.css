@@ -24,6 +24,24 @@
   }
 }
 
+@-webkit-keyframes pointer {
+  0% {
+    top: 1em;
+  }
+  100% {
+    top: 0.5em;
+  }
+}
+
+@keyframes pointer {
+  0% {
+    top: 1em;
+  }
+  100% {
+    top: 0.5em;
+  }
+}
+
 a, abbr, acronym, address, applet, article, aside, audio, b, big, blockquote, body, canvas, caption, center, cite, code, dd, del, details, dfn, div, dl, dt, em, embed, fieldset, figcaption, figure, footer, form, h1, h2, h3, h4, h5, h6, header, hgroup, html, i, iframe, img, ins, kbd, label, legend, li, mark, menu, nav, object, ol, output, p, pre, q, ruby, s, samp, section, small, span, strike, strong, sub, summary, sup, table, tbody, td, tfoot, th, thead, time, tr, tt, u, ul, var, video {
   margin: 0;
   padding: 0;
@@ -670,6 +688,36 @@ button {
 
 .encyclopedia .content > div .description h2 {
   font-weight: bold;
+}
+
+.tutorial .pointer {
+  position: absolute;
+  color: #fff3c4;
+  pointer-events: none;
+}
+
+.tutorial .pointer i {
+  font-size: 3em;
+  position: relative;
+  -webkit-animation: pointer 1s infinite;
+          animation: pointer 1s infinite;
+}
+
+.tutorial .pointer .node-text {
+  position: relative;
+  font-size: 1.5em;
+}
+
+.tutorial .pointer .hp-text {
+  position: relative;
+  top: 3em;
+  width: 8em;
+}
+
+.tutorial .pointer .money-text {
+  position: relative;
+  top: 3em;
+  width: 10em;
 }
 
 .call-wave {

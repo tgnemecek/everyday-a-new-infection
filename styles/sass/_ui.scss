@@ -145,6 +145,34 @@
 
 }
 
+.tutorial {
+    .pointer {
+        position: absolute;
+        
+        color: $primary-color;
+        pointer-events: none;
+        i {
+            font-size: 3em;
+            position: relative;
+            animation: pointer 1s infinite;
+        }
+        .node-text {
+            position: relative;
+            font-size: 1.5em;
+        }
+        .hp-text {
+            position: relative;
+            top: 3em;
+            width: 8em;
+        }
+        .money-text {
+            position: relative;
+            top: 3em;
+            width: 10em;
+        }
+    }
+}
+
 .call-wave {
     position: absolute;
     bottom: 0;

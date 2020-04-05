@@ -28,3 +28,12 @@ $info-box-color: #8080803b;
  @keyframes rotation-animation {
     100% { transform: rotate(360deg); }
  }
+
+ @keyframes pointer {
+   0% {
+      top: 1em;
+   }
+   100% {
+      top: 0.5em;
+   }
+ }

@@ -12,9 +12,10 @@ class GameState {
         this.inGameTimeId = undefined
         this.updateRate = 30 // Only affects queued actions, ignores animations
         this.hud = undefined
+        this.tutorial = undefined
         this.callWaveButton = new $(`<button class="call-wave">START!</button>`)
         this.card = undefined
-        // waitTime (ms), queuedAt (ms), callback, loop (boolean), id (string)
+        // waitTime (ms), queuedAt (ms), callback, loop (boolean), id (string), group (string)
         this.queuedActions = []
 
         this.enemies = []
@@ -27,6 +28,7 @@ class GameState {
         this.totalPaused = 0
         this.isPaused = false
         this.currentWave = -1
+        this.spawnDelay = 0;
         this.waves = []
         this.waveFullySpawned = false;
         this.canUsePower = false;
@@ -54,7 +56,8 @@ class GameState {
                 ],
                 powersAvailable: [
                     {type: PowerFreeze, new: true},
-                    {type: PowerNothing, new: true}
+                    {type: PowerNothing, new: true},
+                    {type: PowerSpawnDelay, new: true}
                 ],
                 towersAvailable: [
                     {type: TowerFast, new: true}
@@ -273,8 +276,9 @@ class GameState {
                     let random = Math.random() * range;
                     enemyWaitTime += random;
                     this.queuedActions.push({
+                        group: 'spawn-enemy',
                         queuedAt: this.inGameTime,
-                        waitTime: enemyWaitTime,
+                        waitTime: enemyWaitTime + this.spawnDelay,
                         callback: () => {
                             this.spawnEnemy(Type);
                             subResolve();
@@ -287,6 +291,7 @@ class GameState {
                     queuedAt: this.inGameTime,
                     waitTime: groupWaitTime,
                     callback: () => {
+                        this.spawnDelay = 0;
                         resolve();
                     }
                 })
@@ -330,11 +335,27 @@ class GameState {
             }
         }, this.updateRate);
     }
+    onResize(newWidth, newHeight) {
+        [
+            ...this.enemies,
+            ...this.nodes,
+            ...this.towers,
+            ...this.projectiles,
+            this.hud,
+
+        ].forEach((instance) => {
+            if (typeof instance.onResize === 'function') {
+                instance.onResize(newWidth, newHeight)
+            }
+        })
+        this.resizeTutorial();
+    }
     usePower(powerName, options) {
         if (!this.canUsePower) return false;
 
         if (powerName === 'PowerFreeze') {
             let frozenEnemies = [];
+            this.isSpawnDelayed = true;
             audioManager.filterMusic();
             game.css({ filter: 'invert(1)' });
             gameState.enemies.forEach((enemy) => {
@@ -347,7 +368,7 @@ class GameState {
                 queuedAt: new Date().getTime(),
                 loop: false,
                 callback: () => {
-                    audioManager.unfilterMusic()
+                    audioManager.unfilterMusic();
                     game.css({ filter: '' });
                     frozenEnemies.forEach((enemy) => {
                         if (enemy.isAlive) {
@@ -356,7 +377,28 @@ class GameState {
                     })
                 }
             })
+        } else if (powerName === 'PowerSpawnDelay') {
+            audioManager.filterMusic();
+            game.css({ filter: 'grayscale(80%)' });
+
+            this.spawnDelay = options.waitTime;
+            
+            this.queuedActions.forEach((action) => {
+                if (action.group === 'spawn-enemy') {
+                    action.waitTime += this.spawnDelay;
+                }
+            })
+
+            this.queuedActions.push({
+                waitTime: this.spawnDelay,
+                queuedAt: new Date().getTime(),
+                callback: () => {
+                    audioManager.unfilterMusic();
+                    game.css({ filter: '' });
+                }
+            })
         }
+
         this.canUsePower = false;
         return true;
     }
@@ -426,7 +468,6 @@ class GameState {
         startMainMenu();
     }
     nextWave() {
-
         let totalWaves = this.waves.length;
         if (this.currentWave+1 === totalWaves) {
             this.queuedActions.push({
@@ -442,6 +483,7 @@ class GameState {
     }
     waveCustscene() {
         const getContent = () => {
+            if (this.tutorialMessage) return this.tutorialMessage;
             let waves = this.getLevelData().waves;
             if (this.currentWave === 0) {
                 return "<h2>NEW INFECTION DETECTED!</h2><p>Stop the invading microbes!</p>"
@@ -463,6 +505,7 @@ class GameState {
             waitTime: 3000,
             callback: this.spawnWave.bind(this)
         });
+
     }
     win() {
         this.pause();
@@ -508,6 +551,60 @@ class GameState {
     nextDay() {
         startGame({levelIndex: this.levelIndex+1});
     }
+    tutorialSetup() {
+        this.tutorial = new $(`<div class="tutorial"><div>`);
+        let pointer = new $(`<div class="pointer"><i class="fas fa-hand-point-up"></i><div>`);
+        game.append(this.tutorial);
+        if (this.levelIndex === 0) {
+            this.nodes.forEach((node, i) => {
+                let pos = node.jquery.position();
+                let height = node.jquery.height();
+                let width = node.jquery.width();
+                let curPointer = pointer.clone();
+                curPointer.css({
+                    left: pos.left + width/2,
+                    top: pos.top + height/2
+                })
+                this.tutorial.append(curPointer)
+                let text = new $(`<p class="node-text">Build here!</p>`);
+                if (i < 2) {
+                    text.css({left: '2em'});
+                } else text.css({right: '5em'});
+                
+                curPointer.append(text);
+            })
+            let hpPos = $('.hp').position();
+            let hpPointer = pointer.clone();
+            hpPointer.css({
+                left: hpPos.left,
+                top: hpPos.top
+            })
+            let hpText = new $(`<p class="hp-text">This is your Health. Don't let it reach zero!</p>`);
+            hpPointer.append(hpText);
+            this.tutorial.append(hpPointer);
+            let moneyPos = $('.money').position();
+            let moneyPointer = pointer.clone();
+            moneyPointer.css({
+                left: moneyPos.left,
+                top: moneyPos.top
+            })
+            let moneyText = new $(`<p class="money-text">Use Resources to build structures. Destroy invaders to collect more!</p>`);
+            moneyPointer.append(moneyText);
+            this.tutorial.append(moneyPointer);
+        }
+    }
+    removeTutorial() {
+        this.tutorial.remove();
+        this.tutorial = undefined;
+    }
+    resizeTutorial() {
+        if (!this.tutorial) return;
+
+        if (this.levelIndex === 0) {
+            this.removeTutorial();
+            this.tutorialSetup();
+        }
+    }
     setup() {
         let levelData = this.getLevelData();
         
@@ -518,11 +615,13 @@ class GameState {
                 this.getLevelData(),
                 this.usePower.bind(this)
             );
+            
             game.append($(`<img src="${levelData.image}" class="background"></img>`));
             game.append(this.hud.jquery);
             game.append(this.callWaveButton);
             this.callWaveButton.on('click', () => {
                 this.callWaveButton.remove();
+                this.removeTutorial();
                 this.nextWave();
                 this.canUsePower = true;
                 audioManager.play('combatMusic');
@@ -539,6 +638,7 @@ class GameState {
             this.modifyHp(levelData.startingHP);
             this.modifyMoney(levelData.startingMoney);
             this.startInGameTime();
+            this.tutorialSetup();
         }
 
         if (!this.skipIntro) {
@@ -548,6 +648,22 @@ class GameState {
         }
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 function getCookie(key) {
     let value = "; " + document.cookie;
     let parts = value.split("; " + key + "=");
@@ -605,18 +721,7 @@ function resizeGameArea() {
     })
 
     if (gameState) {
-        [
-            ...gameState.enemies,
-            ...gameState.nodes,
-            ...gameState.towers,
-            ...gameState.projectiles,
-            gameState.hud,
-
-        ].forEach((instance) => {
-            if (typeof instance.onResize === 'function') {
-                instance.onResize(newWidth, newHeight)
-            }
-        })
+        gameState.onResize(newWidth, newHeight);
     }
     windowSize = {
         width: newWidth,

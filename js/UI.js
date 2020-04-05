@@ -44,10 +44,12 @@ class HUD {
         if (!gameState.isPaused) {
             this.modalBox = new ModalBox(this.modal, this.togglePause.bind(this));
             game.append(this.modalBox.jquery);
+            if (!audioManager.isMuted) audioManager.audioContext.suspend();
             gameState.pause();
         } else {
             this.modalBox.jquery.remove();
             this.modalBox = undefined;
+            if (!audioManager.isMuted) audioManager.audioContext.resume();
             gameState.resume();
         }
     }
@@ -280,7 +282,7 @@ class TowerPicker {
         this.towers.forEach((Tower) => {
             let towerDiv = new $(`<div class=${Tower.type.id()}></div>`);
             let button = new $(`<button><img src="${Tower.type.thumbnail()}"/></button>`);
-            let label = $(`<label>$${Tower.type.cost()}</label>`);
+            let label = $(`<label><div><i class="fas fa-atom"></i> : ${Tower.type.cost()}</label>`);
 
             towerDiv.append(button)
                     .append(label);
