@@ -29,7 +29,7 @@ class GameState {
         this.isPaused = false
         this.currentWave = -1
         this.spawnDelay = 0;
-        this.pathALastSpawned = false;
+        // this.pathALastSpawned = false;
         this.waves = []
         this.waveFullySpawned = false;
         this.canUsePower = false;
@@ -187,11 +187,16 @@ class GameState {
                 startingHP: 10,
                 startingMoney: 210,
                 nodes: [
-                    { left: "11%", top: "51%"},
-                    { left: "29%", top: "30%"},
-                    { left: "46%", top: "60%"},
-                    { left: "45%", top: "20%"},
-                    { left: "62%", top: "20%"},
+                    { left: "20%", top: "20%"},
+                    { left: "30%", top: "30%"},
+                    { left: "20%", top: "48%"},
+                    { left: "38%", top: "57%"},
+                    { left: "47%", top: "33%"},
+
+                    { left: "75%", top: "10%"},
+                    { left: "65%", top: "27%"},
+                    { left: "78%", top: "42%"},
+                    { left: "56%", top: "57%"},
                 ],
                 pathA: [
                     { left: "13%", top: "-15%"},
@@ -221,7 +226,9 @@ class GameState {
                 ],
                 waves: [
                     [
-                        {type: EnemySmall, quantity: 4, waitTime: 500}
+                        {type: EnemySmall, quantity: 5, waitTime: 10, path: 'a'},
+                        {type: EnemyBig, quantity: 1, waitTime: 500, path: 'b'},
+                        {type: EnemyBig, quantity: 1, waitTime: 10, path: 'b'},
                     ],
                 ]
             },
@@ -329,26 +336,25 @@ class GameState {
             await this.spawnGroup(
                 enemies[i].type,
                 enemies[i].quantity,
-                enemies[i].waitTime
+                enemies[i].waitTime,
+                enemies[i].path,
             );
         }
     }
-    spawnGroup(Type, numberOfEnemies, groupWaitTime) {
+    spawnGroup(Type, numberOfEnemies, groupWaitTime, path) {
         return new Promise((resolve, reject) => {
             let subPromises = [];
-            let enemyWaitTime = 1000; // To separate enemies
-            let range = 300; // How much they are separated
+            let range = 1000; // How much they are separated
             
             for (let i = 0; i < numberOfEnemies; i++) {
                 subPromises.push(new Promise((subResolve) => {
                     let random = Math.random() * range;
-                    enemyWaitTime += random;
                     this.queuedActions.push({
                         group: 'spawn-enemy',
                         queuedAt: this.inGameTime,
-                        waitTime: enemyWaitTime + this.spawnDelay,
+                        waitTime: random + this.spawnDelay,
                         callback: () => {
-                            this.spawnEnemy(Type);
+                            this.spawnEnemy(Type, path);
                             subResolve();
                         }
                     })
@@ -366,26 +372,12 @@ class GameState {
             });
         })
     }
-    spawnEnemy(Type) {
-        const pathA = $('.path-a');
-        const pathB = $('.path-b');
-        if (pathB.length) {
-            let path;
-            if (this.pathALastSpawned) {
-                path = pathB;
-                this.pathALastSpawned = false;
-            } else {
-                path = pathA;
-                this.pathALastSpawned = true;
-            }
-            let enemy = new Type(path);
-            this.enemies.push(enemy);
-            enemy.addToScene();
-        } else {
-            let enemy = new Type(pathA);
-            this.enemies.push(enemy);
-            enemy.addToScene();
-        }
+    spawnEnemy(Type, pathName) {
+        let path = pathName ? $('.path-' + pathName) : $('.path-a');
+
+        let enemy = new Type(path);
+        this.enemies.push(enemy);
+        enemy.addToScene();
     }
     startInGameTime() {
         this.inGameTimeId = setInterval(() => {
@@ -725,7 +717,6 @@ class GameState {
                 this.canUsePower = true;
                 audioManager.stop('preCombatMusic');
                 audioManager.play('combatMusic');
-
             })
             levelData.nodes.forEach((position) => {
                 let node = new Node(position);
@@ -755,10 +746,6 @@ class GameState {
         }
     }
 }
-
-
-
-
 
 
 
@@ -848,7 +835,7 @@ function onPageLoad() {
     startGameButton.on('click', () => {
         mainMenu.hide();
         game.show();
-        startGame({levelIndex: 0, skipIntro: false});// Remove skipIntro for production!
+        startGame({levelIndex: 3, skipIntro: true});// Remove skipIntro for production!
     })
     let loadLevelIndex = getCookie("loadLevelIndex");
     if (loadLevelIndex === undefined) {

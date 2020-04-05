@@ -7,7 +7,7 @@ $primary-color-darker: darken($primary-color, 10%);
 $secondary-color: #c4cfff;
 $secondary-darker: #55596d;
 
-$info-box-color: #8080803b;
+$info-box-color: #535353c9;
 
 @mixin primaryButton() {
    background-color: $primary-color-lighter;

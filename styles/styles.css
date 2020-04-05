@@ -582,7 +582,7 @@ button {
   bottom: 4.5em;
   left: 0;
   padding: 1em;
-  background-color: #8080803b;
+  background-color: #535353c9;
   color: white;
   width: 12em;
 }
@@ -682,7 +682,7 @@ button {
   display: none;
   position: absolute;
   top: 0;
-  background-color: #8080803b;
+  background-color: #535353c9;
   left: 100%;
   min-width: 120px;
   color: white;
@@ -881,7 +881,7 @@ button {
 .tower-picker .description {
   position: absolute;
   color: white;
-  background-color: #8080803b;
+  background-color: #535353c9;
   width: 100%;
   z-index: -1;
   border-radius: 10px;
