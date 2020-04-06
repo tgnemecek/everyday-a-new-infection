@@ -850,4 +850,4 @@ function onPageLoad() {
     resizeGameArea();
     startMainMenu();
 }
-onPageLoad();
+$(document).ready(onPageLoad);
