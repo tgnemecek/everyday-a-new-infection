@@ -80,6 +80,7 @@ class Enemy {
     }
 
     die() {
+        if (!this.isAlive) return;
         this.hp = 0;
         gameState.modifyMoney(this.money);
         this.isAlive = false;
@@ -394,8 +395,9 @@ class EnemyDivide extends Enemy {
     constructor(path, isClone) {
         super(path);
         this.isClone = isClone;
-        this.height = 0.12;
-        this.width = 0.12;
+        this.height = 0.15;
+        this.width = 0.15;
+        this.maxHp = 120;
         // this.moveSpeed = 25;
         this.deathImages = ["images/covid-death.png"];
         this.waitToRemove = 1000;
@@ -413,53 +415,47 @@ class EnemyDivide extends Enemy {
         let maxDivisions = 64;
         let newEnemies = [];
 
-        let count = gameState.enemies.reduce((acc, enemy) => {
-            if (enemy instanceof EnemyDivide) {
-                return acc + 1;
-            } else return acc;
-        }, 0);
-
-        if (count >= maxDivisions) return;
+        let count = 0;
 
         gameState.enemies.forEach((enemy) => {
-            if (enemy instanceof EnemyDivide) {
-                let currPos = enemy.jquery.position();
-                let range = tools.randomize(0, enemy.divideRange);
-                if (range < 0) {
-                    range -= enemy.divideMin;
-                } else {
-                    range += enemy.divideMin;
-                }
-                let actualDivideRange = range * windowSize.width * windowSize.zoom / 1920;
-                let divideX = currPos.left + actualDivideRange;
-                let divideY = currPos.top + actualDivideRange;
-
-                divideX += enemy.jquery.width()/2;
-                divideY += enemy.jquery.height()/2;
-
-
-                let hpLost = enemy.maxHp - enemy.hp;
-
-                let clone = new EnemyDivide(enemy.path, true);
-                newEnemies.push(clone);
+            if (enemy instanceof EnemyDivide && enemy.isAlive) {
+                count++
+                if (count < maxDivisions) {
+                    let currPos = enemy.jquery.position();
+                    let range = tools.randomize(0, enemy.divideRange);
+                    if (range < 0) {
+                        range -= enemy.divideMin;
+                    } else {
+                        range += enemy.divideMin;
+                    }
+                    let actualDivideRange = range * windowSize.width * windowSize.zoom / 1920;
+                    let divideX = currPos.left + actualDivideRange;
+                    let divideY = currPos.top + actualDivideRange;
     
-                clone.addToScene();
-                clone.pause();
-                if (hpLost) clone.modifyHp(-hpLost);
-                clone.jquery.css({...currPos});
-                clone.nextPath = enemy.nextPath;
-                clone.moveTo(divideX, divideY, false, function() {
-                    clone.resume();
-                })
+                    divideX += enemy.jquery.width()/2;
+                    divideY += enemy.jquery.height()/2;
+    
+                    let hpLost = enemy.maxHp - enemy.hp;
+    
+                    let clone = new EnemyDivide(enemy.path, true);
+                    newEnemies.push(clone);
+        
+                    clone.addToScene();
+                    clone.pause();
+                    if (hpLost) clone.modifyHp(-hpLost);
+                    clone.jquery.css({...currPos});
+                    clone.nextPath = enemy.nextPath;
+                    clone.moveTo(divideX, divideY, false, function() {
+                        clone.resume();
+                    })
+                }
             }
         })
         gameState.enemies.push(...newEnemies);
-        // gameState.enemies = gameState.enemies.concat(newEnemies);
         if (count === 0) {
-            let index = gameState.queuedActions.findIndex((action) => {
-                return action.id === 'EnemyDivide';
+            gameState.queuedActions = gameState.queuedActions.filter((action) => {
+                return action.id !== 'EnemyDivide';
             })
-            gameState.queuedActions.splice(index, 1);
         }
     }
 

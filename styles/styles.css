@@ -568,10 +568,10 @@ button {
   -webkit-box-pack: center;
       -ms-flex-pack: center;
           justify-content: center;
-  z-index: 5;
 }
 
 .hud .bottom-hud .power {
+  z-index: 5;
   position: relative;
   margin: 0 0.5em;
 }

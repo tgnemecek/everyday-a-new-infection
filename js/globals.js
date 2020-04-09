@@ -14,9 +14,3 @@ let windowSize = {};
 
 const mainMenu = $('.main-menu');
 const game = $('.game');
-
-function a() {
-    gameState.enemies.forEach((enemy) => {
-        if (!enemy.isAlive) debugger;
-    })
-}
