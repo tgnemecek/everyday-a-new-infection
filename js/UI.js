@@ -178,7 +178,6 @@ class Card {
         }, {
             duration: 1000,
             start: () => {
-                console.log('started');
                 audioManager.play('audioCardOut')
             },
             step: function(now, fx) {
@@ -239,7 +238,6 @@ class TowerPicker {
         this.setup();
     }
     close() {
-        console.log(this.actionId);
         this.jquery.remove();
         this.modalBox.jquery.remove();
         let actionIndex = gameState.queuedActions.findIndex((action) => {

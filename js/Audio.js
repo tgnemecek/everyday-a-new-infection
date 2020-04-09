@@ -19,6 +19,36 @@ class AudioManager {
             }
         }
         this.sounds = {
+            powerFreeze: {
+                urls: [
+                    'audio/JP3powerFreeze.ogg',
+                ],
+                volume: 1,
+                volumeRange: 0,
+                rate: 1,
+                rateRange: 0,
+                group: 'sfx',
+                loop: false,
+                buffers: [],
+                lastPlayed: undefined,
+                lastRR: undefined,
+                timeout: undefined,
+            },
+            powerSpawnDelay: {
+                urls: [
+                    'audio/JP3powerSpawnDelay.ogg',
+                ],
+                volume: 1,
+                volumeRange: 0,
+                rate: 1,
+                rateRange: 0,
+                group: 'sfx',
+                loop: false,
+                buffers: [],
+                lastPlayed: undefined,
+                lastRR: undefined,
+                timeout: undefined,
+            },
             dayMusic: {
                 urls: [
                     'audio/JP3day.ogg',
@@ -100,7 +130,7 @@ class AudioManager {
                     'audio/JP3towerSlowRR1.ogg',
                     'audio/JP3towerSlowRR2.ogg',
                 ],
-                volume: 1,
+                volume: 2,
                 volumeRange: 0.1,
                 rate: 1,
                 rateRange: 0.3,
@@ -177,37 +207,48 @@ class AudioManager {
                 timeout: undefined,
             },
         };
-        this.setup()
     }
     setup() {
-        // Pre-loads all sounds
-        for (let key in this.sounds) {
-            this.sounds[key].urls.forEach((url, i) => {
-                let request = new XMLHttpRequest();
-                request.open('GET', url, true); 
-                request.responseType = 'arraybuffer';
-                request.onload = () => {
-                    this.audioContext.decodeAudioData(request.response, (response) => {
-                        this.sounds[key].buffers[i] = response;
-                    }, function () {
-                        console.error('Request failed.');
-                    });
+        return new Promise((resolve, reject) => {
+            try {
+                let toLoad = 0;
+                let loaded = 0;
+                // Pre-loads all sounds
+                for (let key in this.sounds) {
+                    this.sounds[key].urls.forEach((url, i) => {
+                        toLoad++;
+                        let request = new XMLHttpRequest();
+                        request.open('GET', url, true); 
+                        request.responseType = 'arraybuffer';
+                        request.onload = () => {
+                            this.audioContext.decodeAudioData(request.response, (response) => {
+                                this.sounds[key].buffers[i] = response;
+                                loaded++;
+                                if (loaded === toLoad) resolve(loaded);
+                            }, function () {
+                                console.error('Request failed.');
+                            });
+                        }
+                        request.send();
+                    })
                 }
-                request.send();
-            })
-        }
-        // Connects nodes
-        this.groups.sfx.gainNode.connect(this.groups.master.gainNode);
-        this.groups.music.gainNode.connect(this.groups.master.gainNode);
-        this.groups.master.gainNode.connect(this.audioContext.destination);
+                // Connects nodes
+                this.groups.sfx.gainNode.connect(this.groups.master.gainNode);
+                this.groups.music.gainNode.connect(this.groups.master.gainNode);
+                this.groups.master.gainNode.connect(this.audioContext.destination);
 
-        // Sets volumes
-        this.groups.sfx.gainNode.gain.setValueAtTime(this.groups.sfx.volume, 0);
-        this.groups.music.gainNode.gain.setValueAtTime(this.groups.music.volume, 0);
-        this.groups.master.gainNode.gain.setValueAtTime(this.groups.master.volume, 0);
+                // Sets volumes
+                this.groups.sfx.gainNode.gain.setValueAtTime(this.groups.sfx.volume, 0);
+                this.groups.music.gainNode.gain.setValueAtTime(this.groups.music.volume, 0);
+                this.groups.master.gainNode.gain.setValueAtTime(this.groups.master.volume, 0);
 
-        // Sets filter
-        this.groups.music.filterNode.connect(this.groups.master.gainNode);
+                // Sets filter
+                this.groups.music.filterNode.connect(this.groups.master.gainNode);
+            }
+            catch(err) {
+                reject(err);
+            }
+        })
     }
 
     filterMusic() {
@@ -225,7 +266,6 @@ class AudioManager {
         this.groups.music.gainNode.connect(this.groups.music.filterNode);
         let interval = setInterval(() => {
             let currFreq = filter.frequency.value;
-            console.log(currFreq);
             if (currFreq > finalFreq) {
                 filter.frequency.setValueAtTime(currFreq - speed, 0);
             } else clearInterval(interval);
@@ -298,7 +338,6 @@ class AudioManager {
     stop(soundName) {
         let source = this.looping[soundName].source;
         let gainNode = this.looping[soundName].gainNode;
-        console.log(this.audioContext.currentTime);
         source.stop();
         gainNode.disconnect();
         source.disconnect();
@@ -322,6 +361,12 @@ class AudioManager {
 
     playAtTempo(nextSoundName, currentSoundName, barDivision) {
         return new Promise((resolve, reject) => {
+
+            if (env === 'development' && !debugOptions.loadAudio) {
+                resolve();
+                return;
+            }
+
             // Stops current sound
             let currSoundPlaying = this.looping[currentSoundName];
 

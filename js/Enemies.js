@@ -3,11 +3,18 @@ class Enemy {
         this.id = new Date().getTime();
         this.jquery = new $(`<div class="enemy"></div>`);
         this.sprite = new $(`<div class="sprite"></div>`);
-        this.hpBar = new $(`<div class="hp-bar"><div></div><div></div></div>`);
+        this.hpBar = new $(`
+            <div class="hp-bar">
+                <div class="content">
+                    <div class="green"></div>
+                    <div class="red"></div>
+                </div>
+            </div>
+        `);
         this.beingSlowedDown = 0;
         
-        this.width = 0.03;
-        this.height = 0.03;
+        this.width = 0.06;
+        this.height = 0.06;
         this.moveSpeed = 40;
         this.maxHp = 50;
         this.money = 10;
@@ -20,7 +27,7 @@ class Enemy {
         this.percentWalked = 0;
         this.nextPath = 1;
         this.isPaused = false;
-        this.randomRange = 20;
+        this.randomRange = 100;
         this.lastRandomX = 1;
         this.lastRandomY = 1;
         this.isAlive = true;
@@ -64,7 +71,7 @@ class Enemy {
         this.hp += amount;
         let percentLeft = (this.hp / this.maxHp) * 100;
         let percentLost = ((this.maxHp - this.hp) / this.maxHp) * 100;
-        this.hpBar.css({
+        this.hpBar.children('.content').css({
             gridTemplateColumns: `${percentLeft}% ${percentLost}%`,
             visibility: "inherit"
         })
@@ -75,13 +82,12 @@ class Enemy {
     die() {
         this.hp = 0;
         gameState.modifyMoney(this.money);
-        gameState.removeEnemy(this.id);
         this.isAlive = false;
         this.hpBar.remove();
         this.jquery.stop();
         this.rotation.stop();
-        let height = this.sprite.height();
-        let width = this.sprite.width();
+
+        this.setSize();
 
         let size = this.deathImages.length;
         let chosenIndex = Math.floor(Math.random() * size);
@@ -89,10 +95,6 @@ class Enemy {
 
         this.sprite.css({
             backgroundImage: `url(${chosenImage})`,
-            height: height * 2,
-            width: width * 2,
-            top: -height/2,
-            left: -width/2,
             position: "relative"
         })
         tools.addSpriteAnimation(
@@ -103,6 +105,8 @@ class Enemy {
         )
         
         audioManager.play('audioEnemyDeath');
+        
+        gameState.checkForNextWave();
 
         gameState.queuedActions.push({
             waitTime: this.waitToRemove,
@@ -110,7 +114,10 @@ class Enemy {
             callback: () => {
                 this.sprite.animate({opacity: 0}, {
                     duration: this.fadeOutTime,
-                    complete: () => $(this.jquery).remove()
+                    complete: () => {
+                        gameState.removeEnemy(this.id);
+                        $(this.jquery).remove();
+                    }
                 })
             }
         })
@@ -119,9 +126,14 @@ class Enemy {
     slowDown() {
         if (!this.isAlive) return;
         this.beingSlowedDown++;
+
+        let stickyLen = gameState.towers
+                            .filter((tower) => tower instanceof TowerSticky).length;
+
+        if (this.beingSlowedDown > stickyLen) this.beingSlowedDown = stickyLen;
+
         if (this.beingSlowedDown === 1) {
             this.jquery.stop();
-            this.regularSpeedFilter = this.sprite.css('filter');
             this.sprite.css({
                 filter: `hue-rotate(90deg)`
             })
@@ -143,6 +155,12 @@ class Enemy {
         }
     }
 
+    setSize(screenWidth) {
+        screenWidth = screenWidth || windowSize.width;
+        this.sprite.height(this.height * screenWidth * windowSize.zoom);
+        this.sprite.width(this.width * screenWidth * windowSize.zoom);
+    }
+
     onResize(newWidth, newHeight) {
         let pos = this.jquery.position();
         let xCurRatio = (pos.left / windowSize.width);
@@ -151,20 +169,22 @@ class Enemy {
         let yNewPos = newHeight * yCurRatio;
 
         this.jquery.stop();
-        this.sprite.height(this.height * newWidth);
-        this.sprite.width(this.width * newWidth);
+        this.setSize(newWidth);
         this.jquery.css({
             left: xNewPos,
             top: yNewPos
         })
-        if (!gameState.isPaused) this.followPath({keepLastRandom: true});
+        if (!gameState.isPaused && this.isAlive) {
+            this.followPath({keepLastRandom: true});
+        }
     }
 
     queueSlowDown(destinationX, destinationY, duration) {
+        if (this.nextPath < 2) return;
         let towers = gameState.towers;
         let pos = this.jquery.position();
-        let currX = pos.left;
-        let currY = pos.top;
+        let currX = pos.left + this.jquery.width()/2;
+        let currY = pos.top + this.jquery.height()/2;
         towers.forEach((tower) => {
             if (tower instanceof TowerSticky) {
                 let towerPos = tower.getProjectilePosition();
@@ -253,7 +273,7 @@ class Enemy {
         let currX = currPos.left;
         let currY = currPos.top;
         let distance = tools.distanceTo(x, y, currX, currY);
-        let duration = (distance * 500000 / windowSize.width) / this.moveSpeed;
+        let duration = (distance * 500000 / windowSize.width) / (this.moveSpeed * windowSize.zoom);
         if (this.beingSlowedDown) duration = duration * 2;
 
 
@@ -310,6 +330,8 @@ class Enemy {
         this.jquery.append(this.hpBar);
         this.jquery.append(this.sprite);
 
+        this.randomRange = this.randomRange * windowSize.zoom;
+
         let factor = windowSize.width / 1920;
         let randX = tools.randomize(0, this.randomRange * factor);
         let randY = tools.randomize(0, this.randomRange * factor);
@@ -320,22 +342,21 @@ class Enemy {
         });
 
         this.sprite.css({
-            backgroundSize: `100%`,
+            backgroundSize: `50%`,
             backgroundImage: `url(${this.constructor.image()})`,
-            backgroundPosition: 0,
+            backgroundPosition: 'center',
             backgroundRepeat: "no-repeat",
             filter: `brightness(${tools.randomize(1, 0.2)})
                     hue-rotate(${tools.randomize(this.constructor.baseHue(), 40)}deg)`,
         });
+        this.regularSpeedFilter = this.sprite.css('filter');
         let randDirection = Math.round(Math.random());
         this.rotation = tools.addRotationLoop(
             this.sprite,
             1/this.rotationSpeed,
             randDirection ? "normal" : "reverse"
         );
-
-        this.sprite.height(this.height * windowSize.width);
-        this.sprite.width(this.width * windowSize.width);
+        this.setSize();
         
         this.followPath({keepLastRandom: false});
         this.onMount();
@@ -356,10 +377,10 @@ class EnemySmall extends Enemy {
 class EnemyBig extends Enemy {
     constructor(path) {
         super(path);
-        this.height = 0.06;
-        this.width = 0.06;
+        this.height = 0.12;
+        this.width = 0.12;
         this.rotationSpeed = 0.4;
-        this.maxHp = 600;
+        this.maxHp = 400;
         this.moveSpeed = 25;
         this.deathImages = ["images/cold-influenza-death1.png", "images/cold-influenza-death2.png", "images/cold-influenza-death3.png"];
     }
@@ -373,15 +394,15 @@ class EnemyDivide extends Enemy {
     constructor(path, isClone) {
         super(path);
         this.isClone = isClone;
-        this.height = 0.06;
-        this.width = 0.06;
-        this.moveSpeed = 25;
+        this.height = 0.12;
+        this.width = 0.12;
+        // this.moveSpeed = 25;
         this.deathImages = ["images/covid-death.png"];
         this.waitToRemove = 1000;
         this.fadeOutTime = 1;
         this.divideTime = 5000;
         this.divideMin = 20;
-        this.divideRange = 70;
+        this.divideRange = 10;
     }
     static name() { return "COVID-19" }
     static description() { return "We've never seen this before. Good luck, I guess..." }
@@ -409,7 +430,7 @@ class EnemyDivide extends Enemy {
                 } else {
                     range += enemy.divideMin;
                 }
-                let actualDivideRange = range * windowSize.width / 1920;
+                let actualDivideRange = range * windowSize.width * windowSize.zoom / 1920;
                 let divideX = currPos.left + actualDivideRange;
                 let divideY = currPos.top + actualDivideRange;
 
@@ -432,7 +453,8 @@ class EnemyDivide extends Enemy {
                 })
             }
         })
-        gameState.enemies = gameState.enemies.concat(newEnemies);
+        gameState.enemies.push(...newEnemies);
+        // gameState.enemies = gameState.enemies.concat(newEnemies);
         if (count === 0) {
             let index = gameState.queuedActions.findIndex((action) => {
                 return action.id === 'EnemyDivide';

@@ -22,6 +22,7 @@ let tools = {
         extras = extras || "infinite normal forwards";
         jquery.css({
             backgroundSize: `${numberOfSprites*100}% auto`,
+            backgroundPosition: 0,
             animation: `sprite-animation ${speed}s steps(${numberOfSprites-1}) ${extras}`
         })
         return {

@@ -274,6 +274,10 @@ textarea {
   -webkit-tap-highlight-color: transparent;
 }
 
+body {
+  background-color: black;
+}
+
 strong {
   font-weight: bold;
 }
@@ -298,7 +302,7 @@ button {
   bottom: 0;
   left: 0;
   right: 0;
-  z-index: 8;
+  z-index: 9;
   background-color: black;
   pointer-events: none;
   opacity: 0;
@@ -440,8 +444,8 @@ button {
 }
 
 .path {
-  width: 25px;
-  height: 25px;
+  width: 5px;
+  height: 5px;
   position: absolute;
 }
 
@@ -483,22 +487,28 @@ button {
 }
 
 .enemy .hp-bar {
+  position: absolute;
+  top: 15%;
+  width: 100%;
+  z-index: 3;
+}
+
+.enemy .hp-bar .content {
   display: -ms-grid;
   display: grid;
   -ms-grid-columns: 100% 0;
       grid-template-columns: 100% 0;
-  width: 25px;
   height: 2px;
-  margin-bottom: 5px;
+  width: 60%;
+  margin: auto;
   visibility: hidden;
-  z-index: 3;
 }
 
-.enemy .hp-bar div:first-child {
+.enemy .hp-bar .content .green {
   background-color: green;
 }
 
-.enemy .hp-bar div:last-child {
+.enemy .hp-bar .content .red {
   background-color: red;
 }
 
@@ -523,8 +533,8 @@ button {
 .hud .top-hud {
   display: -ms-grid;
   display: grid;
-  -ms-grid-columns: 12% 12% 12% 12% 1fr auto;
-      grid-template-columns: 12% 12% 12% 12% 1fr auto;
+  -ms-grid-columns: 12% 12% 12% 1fr auto auto;
+      grid-template-columns: 12% 12% 12% 1fr auto auto;
   -ms-flex-line-pack: start;
       align-content: flex-start;
   gap: 0 25px;
@@ -818,7 +828,7 @@ button {
 .tower-picker {
   text-align: center;
   position: relative;
-  padding: 0 3em;
+  padding: 1em 3em;
 }
 
 .tower-picker h2 {

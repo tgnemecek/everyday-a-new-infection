@@ -49,7 +49,7 @@ class PowerFreeze extends Power {
         this.icon = new $(`<i class="fas fa-prescription-bottle-alt"></i>`);
         this.title = 'Medication';
         this.options = {
-            waitTime: 3000
+            waitTime: 8000
         }
         this.description = `Freezes all enemies on-screen for ${this.options.waitTime/1000} seconds.`;
         this.setup();

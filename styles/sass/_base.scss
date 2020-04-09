@@ -4,6 +4,10 @@
     -webkit-tap-highlight-color: transparent;
 }
 
+body {
+    background-color: black;
+}
+
 strong {
     font-weight: bold;
 }
@@ -27,7 +31,7 @@ button {
     bottom: 0;
     left: 0;
     right: 0;
-    z-index: 8;
+    z-index: 9;
     background-color: black;
     pointer-events: none;
     opacity: 0;

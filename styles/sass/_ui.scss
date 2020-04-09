@@ -5,7 +5,7 @@
     height: 100%;
     .top-hud {
         display: grid;
-        grid-template-columns: 12% 12% 12% 12% 1fr auto;
+        grid-template-columns: 12% 12% 12% 1fr auto auto;
         align-content: flex-start;
         gap: 0 25px;
         padding: 2%;
@@ -241,7 +241,7 @@
 .tower-picker {
     text-align: center;
     position: relative;
-    padding: 0 3em;
+    padding: 1em 3em;
     h2 {
         font-size: 2em;
         margin-bottom: 0.5em;

@@ -1,7 +1,7 @@
 class Node {
     constructor(position) {
         this.jquery = new $('<button></button>');
-        this.sizeRelative = 15;
+        this.sizeRelative = 10 / windowSize.zoom;
         this.style = {
             ...position,
             width: windowSize.width / this.sizeRelative,
@@ -51,6 +51,7 @@ class Radar {
     constructor(node, tower, getActualRange) {
         this.node = node;
         this.tower = tower;
+        this.visualOffset = 0.9;
         this.getActualRange = getActualRange;
         this.jquery = new $(`<div class="radar"></div>`);
         this.animationDuration = 3000;
@@ -72,8 +73,8 @@ class Radar {
     }
     animation() {
         this.jquery.animate({
-            width: this.getActualRange()*2,
-            height: this.getActualRange()*2,
+            width: this.getActualRange() * 2 * this.visualOffset,
+            height: this.getActualRange() * 2 * this.visualOffset,
             opacity: 0
         }, {
             duration: this.animationDuration,
@@ -99,19 +100,19 @@ class Radar {
 }
 
 class Projectile {
-    constructor(getInitPosition, enemy, damage, moveSpeed, color, size, areaOfEffect) {
+    constructor(getInitPosition, enemy, damage, moveSpeed, color, size, maxDistance, areaOfEffect) {
         this.id = new Date().getTime();
         this.jquery = new $(`<div class="projectile"></div>`);
-        this.style = {
-            ...getInitPosition(),
-            backgroundColor: tools.getRandomizedColor(...color)
-        }
-        this.width = size;
-        this.height = size;
+        this.getInitPosition = getInitPosition;
+        this.color = color;
+        this.size = size;
+        this.width = size * windowSize.zoom;
+        this.height = size * windowSize.zoom;
         this.enemy = enemy;
         this.moveSpeed = moveSpeed;
         this.damage = damage;
         this.areaOfEffect = areaOfEffect;
+        this.maxDistance = maxDistance * 1.2;
         this.animationEnded = false;
         this.destination = this.enemy.spritePosition();
         this.setup();
@@ -123,8 +124,8 @@ class Projectile {
         let yCurRatio = (pos.top / windowSize.height);
         let yNewPos = newHeight * yCurRatio;
 
-        this.jquery.height(this.height * newWidth);
-        this.jquery.width(this.width * newWidth);
+        this.jquery.height(this.height * newWidth * windowSize.zoom);
+        this.jquery.width(this.width * newWidth * windowSize.zoom);
 
         this.jquery.stop();
         this.jquery.css({
@@ -140,7 +141,6 @@ class Projectile {
         this.moveToTarget();
     }
     moveToTarget() {
-        if (!this.enemy.isAlive) console.log('not alive');
         let enPosition = this.enemy.spritePosition();;
 
         let enX = enPosition.left - this.jquery.width()/2;
@@ -161,6 +161,23 @@ class Projectile {
         this.jquery.animate(this.destination, {
             duration,
             easing: "linear",
+            progress: (an) => {
+                let initPos = this.getInitPosition();
+                let nowPos = this.jquery.position();
+                nowPos = {
+                    left: nowPos.left + this.jquery.width()/2,
+                    top: nowPos.top + this.jquery.height()/2,
+                }
+                let distance = tools.distanceTo(
+                    initPos.left,
+                    initPos.top,
+                    nowPos.left,
+                    nowPos.top
+                );
+                if (distance > this.maxDistance) {
+                    this.fail();
+                }
+            },
             step: (now, fx) => {
                 this.destination[fx.prop] = fx.end;
                 if (!this.animationEnded && this.enemy.isAlive) {
@@ -174,6 +191,7 @@ class Projectile {
         })
     }
     hit() {
+        if (this.animationEnded) return;
         this.animationEnded = true;
         let projIndex = gameState.projectiles.findIndex((projectile) => {
             return projectile.id === this.id;
@@ -181,36 +199,63 @@ class Projectile {
         gameState.projectiles.splice(projIndex, 1);
         if (this.areaOfEffect) {
             this.explode();
-        } else if (this.enemy.isAlive) {
-            this.enemy.modifyHp(-this.damage);
+        } else {
+            if (this.enemy.isAlive) {
+                this.enemy.modifyHp(-this.damage);
+            }
+            this.jquery.remove();
         }
-        this.jquery.remove();
+    }
+    fail() {
+        if (this.animationEnded) return;
+        this.animationEnded = true;
+        this.jquery.stop();
+        let projIndex = gameState.projectiles.findIndex((projectile) => {
+            return projectile.id === this.id;
+        })
+        gameState.projectiles.splice(projIndex, 1);
+        
+        if (this.areaOfEffect) {
+            this.explode();
+        } else {
+            this.jquery.remove();
+        }
     }
     explode() {
-        let enemies = gameState.enemies;
+        let enemies = gameState.enemies.filter((enemy) => enemy.isAlive);
         let curPosition = this.jquery.position();
-        let x = curPosition.left;
-        let y = curPosition.top;
-        let relativeAreaOfEffect = this.areaOfEffect * windowSize.width / 1920;
-        debugger;
+        let x = curPosition.left + this.jquery.width()/2;
+        let y = curPosition.top + this.jquery.height()/2;
+        let relativeAreaOfEffect = this.areaOfEffect * windowSize.width * windowSize.zoom / 1920;
         enemies.forEach((enemy) => {
-            let enPosition = enemy.spritePosition();
-            let enX = enPosition.left - this.jquery.width()/2;
-            let enY = enPosition.top - this.jquery.height()/2;
-
-            let distance = tools.distanceTo(x, y, enX, enY);
-            
-            if (distance <= relativeAreaOfEffect) {
+            if (enemy.isAlive) {
+                let enPosition = enemy.spritePosition();
+                let enX = enPosition.left;
+                let enY = enPosition.top;
+    
+                let distance = tools.distanceTo(x, y, enX, enY);
                 
-                enemy.modifyHp(-this.damage);
+                if (distance <= relativeAreaOfEffect) {
+                    enemy.modifyHp(-this.damage);
+                }
             }
         })
+        this.jquery.toggle({
+            effect: 'puff',
+            complete: () => this.jquery.remove()
+        });
     }
     setup() {
         game.append(this.jquery);
-        this.jquery.height(this.height * windowSize.width);
-        this.jquery.width(this.width * windowSize.width);
-        this.jquery.css(this.style);
+        this.jquery.height(this.height * windowSize.width * windowSize.zoom);
+        this.jquery.width(this.width * windowSize.width * windowSize.zoom);
+
+        let initPos = this.getInitPosition();
+        this.jquery.css({
+            left: initPos.left - this.jquery.width()/2,
+            top: initPos.top - this.jquery.height()/2,
+            backgroundColor: tools.getRandomizedColor(...this.color)
+        });
         this.moveToTarget();
     }
 }
@@ -221,10 +266,10 @@ class Tower {
         this.node = node;
         this.id = new Date().getTime();
 
-        this.range = 0.15; // Range to be adjusted
+        this.range = 0.19;
         this.attackSpeed = 2;
         this.projectileSpeed = 0.4;
-        this.projectileSize = 0.006;
+        this.projectileSize = 0.012;
         this.damage = 20;
         this.projectileColor = [35, 196, 196];
         this.areaOfEffect = 0;
@@ -243,7 +288,7 @@ class Tower {
     }
 
     getActualRange() {
-        return this.range * windowSize.width;
+        return this.range * windowSize.width * windowSize.zoom;
     }
 
     onMount() {} // To be overriden
@@ -251,7 +296,7 @@ class Tower {
     getProjectilePosition() {
         let offset = {
             left: this.jquery.width()/2,
-            top: this.jquery.height() * 0.2
+            top: this.jquery.height()/2
         }
         return {
             left: this.node.position().left + offset.left,
@@ -299,17 +344,19 @@ class Tower {
     update() {
         let enemiesInRange = [];
         gameState.enemies.forEach((enemy) => {
-            let enPosition = enemy.jquery.position();
-            let enX = enPosition.left;
-            let enY = enPosition.top;
-
-            let nodeX = this.getProjectilePosition().left;
-            let nodeY = this.getProjectilePosition().top;
-
-            let distance = tools.distanceTo(nodeX, nodeY, enX, enY);
-
-            if (distance < this.getActualRange()) {
-                enemiesInRange.push(enemy);
+            if (enemy.isAlive) {
+                let enPosition = enemy.jquery.position();
+                let enX = enPosition.left + enemy.jquery.width()/2;
+                let enY = enPosition.top + enemy.jquery.height()/2;
+    
+                let nodeX = this.getProjectilePosition().left;
+                let nodeY = this.getProjectilePosition().top;
+    
+                let distance = tools.distanceTo(nodeX, nodeY, enX, enY);
+    
+                if (distance < this.getActualRange()) {
+                    enemiesInRange.push(enemy);
+                }
             }
         })
         if (enemiesInRange.length) {
@@ -333,6 +380,7 @@ class Tower {
                 this.projectileSpeed,
                 this.projectileColor,
                 this.projectileSize,
+                this.getActualRange(),
                 this.areaOfEffect
             );
             gameState.projectiles.push(projectile);
@@ -361,12 +409,12 @@ class TowerFast extends Tower {
 class TowerSlow extends Tower {
     constructor(node) {
         super(node);
-        this.range = 0.13;
+        this.range = 0.15;
         this.attackSpeed = 0.6;
         this.projectileSpeed = 0.07;
-        this.projectileSize = 0.04;
+        this.projectileSize = 0.1;
         this.damage = 50;
-        this.areaOfEffect = 70;
+        this.areaOfEffect = 120;
         this.audioName = 'towerSlow';
         tools.addRotationLoop(
             this.jquery,
@@ -384,7 +432,7 @@ class TowerSlow extends Tower {
 class TowerSticky extends Tower {
     constructor(node) {
         super(node);
-        this.range = 0.13;
+        this.range = 0.2;
         this.attackSpeed = 100;
         this.projectileSpeed = 0.1;
         this.damage = 5;
