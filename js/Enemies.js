@@ -195,6 +195,8 @@ class Enemy {
         destinationX += this.jquery.width()/2;
         destinationY += this.jquery.height()/2;
 
+        let actions = [];
+
         towers.forEach((tower) => {
             if (tower instanceof TowerSticky) {
                 let towerPos = tower.getProjectilePosition();
@@ -235,12 +237,6 @@ class Enemy {
 
                         let isInsideLine = false;
 
-                        // console.log({
-                        //     percentToInter,
-                        //     distanceFromInterToEnd,
-                        //     distanceToEnd
-                        // });
-
                         if (percentToInter <= 1 && distanceFromInterToEnd < distanceToEnd) {
                             isInsideLine = true;
                             intersInsideLine++;
@@ -253,8 +249,6 @@ class Enemy {
                         };
                     });
 
-                    if (this.debug) debugger;
-
                     if (intersInsideLine === 2) {
                         let closer, farther;
                         if (durations[0].durationToInter < durations[1].durationToInter) {
@@ -264,46 +258,59 @@ class Enemy {
                             closer = durations[1].durationToInter;
                             farther = durations[0].durationToInter;
                         }
-                        gameState.queuedActions.push({
+                        actions.push({
                             waitTime: closer,
                             queuedAt: new Date().getTime(),
                             loop: false,
-                            callback: this.slowDown.bind(this)
+                            isSlowDown: true
                         })
 
-                        let difference = farther - closer;
-                        let waitTime = (difference * 2) + closer;
+                        // let difference = farther - closer;
+                        // let waitTime = (difference * 2) + closer;
 
-                        gameState.queuedActions.push({
-                            waitTime,
+                        actions.push({
+                            waitTime: farther,
                             queuedAt: new Date().getTime(),
                             loop: false,
-                            callback: this.regularSpeed.bind(this)
+                            isSlowDown: false
                         })
+
                     } else if (intersInsideLine === 1) {
                         let outsider = durations[0].isInsideLine ? durations[1] : durations[0];
                         let insider = outsider === durations[0] ? durations[1] : durations[0];
 
-                        let callback;
+                        let isSlowDown = false;
 
-                        if (outsider.distanceFromInterToEnd > outsider.distanceToInter) {
-                            callback = this.regularSpeed.bind(this)
-                        } else callback = this.slowDown.bind(this)
-                        console.log({
+                        if (outsider.distanceFromInterToEnd < outsider.distanceToInter) {
+                            isSlowDown = true;
+                        }
+
+                        actions.push({
                             waitTime: insider.durationToInter,
                             queuedAt: new Date().getTime(),
                             loop: false,
-                            callback
-                        })
-                        gameState.queuedActions.push({
-                            waitTime: insider.durationToInter,
-                            queuedAt: new Date().getTime(),
-                            loop: false,
-                            callback
+                            isSlowDown
                         })
                     }
                 }
             }
+        })
+        let virtualSlowedDown = !!this.beingSlowedDown;
+
+        actions.sort((a, b) => {
+            if (a.waitTime > b.waitTime) return 1;
+            if (a.waitTime < b.waitTime) return -1;
+            return 0;
+        })
+        .forEach((action) => {
+            let waitTime;
+            if (virtualSlowedDown)
+            gameState.queuedActions.push({
+                ...action,
+                waitTime,
+                callback: isSlowDown ? this.slowDown.bind(this) : this.regularSpeed.bind(this)
+            })
+
         })
     }
 
