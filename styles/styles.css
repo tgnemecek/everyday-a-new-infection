@@ -561,10 +561,6 @@ button {
   position: absolute;
 }
 
-.path-a {
-  background-color: green;
-}
-
 .node {
   border: 1px solid grey;
   position: absolute;
@@ -600,7 +596,6 @@ button {
 .enemy {
   z-index: 1;
   position: absolute;
-  border: 1px solid black;
 }
 
 .enemy .hp-bar {

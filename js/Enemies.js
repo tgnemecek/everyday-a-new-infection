@@ -11,7 +11,6 @@ class Enemy {
                 </div>
             </div>
         `);
-        this.beingSlowedDown = 0;
         
         this.width = 0.06;
         this.height = 0.06;
@@ -34,7 +33,8 @@ class Enemy {
         this.animation = undefined;
         this.spriteAnimation = undefined;
         this.regularSpeedFilter = undefined;
-        this.lastIntersection = undefined
+        this.beingSlowedDown = 0;
+        this.slowedDownBy = [];
         this.deathImages = [];
         this.waitToRemove = 10000;
         this.fadeOutTime = 2000;
@@ -125,35 +125,34 @@ class Enemy {
         })
     }
 
-    slowDown() {
+    slowDown(towerId) {
         if (!this.isAlive) return;
-        this.beingSlowedDown++;
-        // console.log('slowed', this.beingSlowedDown);
-        let stickyLen = gameState.towers.filter((tower) => tower instanceof TowerSticky).length;
 
-        if (this.beingSlowedDown > stickyLen) this.beingSlowedDown = stickyLen;
+        if (!this.slowedDownBy.includes(towerId)) {
+            this.slowedDownBy.push(towerId);
 
-        if (this.beingSlowedDown === 1) {
-            this.sprite.css({
-                filter: `hue-rotate(90deg)`
-            })
+            if (this.slowedDownBy.length === 1) {
+                this.sprite.css({
+                    filter: `hue-rotate(90deg)`
+                })
+            }
         }
         this.jquery.stop();
         this.followPath({keepLastRandom: true});
     }
 
-    regularSpeed() {
+    regularSpeed(towerId) {
         if (!this.isAlive) return;
-        this.beingSlowedDown--;
-        // console.log('regular', this.beingSlowedDown);
 
-        // if (this.beingSlowedDown < 0) this.beingSlowedDown = 0;
+        if (this.slowedDownBy.includes(towerId)) {
+            this.slowedDownBy = this.slowedDownBy.filter((id) => id !== towerId);
 
-        if (this.beingSlowedDown === 0) {
-            this.sprite.css({
-                filter: this.regularSpeedFilter
-            })
-        }
+            if (this.slowedDownBy.length === 0) {
+                this.sprite.css({
+                    filter: this.regularSpeedFilter
+                })
+            }
+        };
         this.jquery.stop();
         this.followPath({keepLastRandom: true});
     }
@@ -187,7 +186,7 @@ class Enemy {
         // this.count = this.count || 0;
         // this.count++;
         // console.log(this.count);
-        // if (this.count === 3) debugger;
+        // if (this.count === 2) debugger;
 
         let towers = gameState.towers;
         let pos = this.jquery.position();
@@ -308,8 +307,6 @@ class Enemy {
 
         if (!possibleActions.length) return;
 
-        let delay = 10;
-
         let nextAction = possibleActions.reduce((acc, cur) => {
             if (!acc) return cur;
             if (cur.waitTime < acc.waitTime) {
@@ -317,21 +314,16 @@ class Enemy {
             } else return acc;
         })
 
-        this.lastIntersection = {
-            x: nextAction.x,
-            y: nextAction.y,
-            towerId: nextAction.towerId
-        }
         delete nextAction.x;
         delete nextAction.y;
-        delete nextAction.towerId;
-        // gameState.queuedActions.push({
-        //     ...nextAction,
-        //     waitTime: nextAction.waitTime + delay
-        // });
-        setTimeout(() => {
-            nextAction.callback()
-        }, nextAction.waitTime + delay)
+
+        gameState.queuedActions.push({
+            ...nextAction,
+            callback: () => nextAction.callback(nextAction.towerId)
+        })
+        // setTimeout(() => {
+        //     nextAction.callback(nextAction.towerId)
+        // }, nextAction.waitTime)
     }
 
     moveTo(x, y, {keepLastRandom = false, callback, skipSpeedChange = false}) {
@@ -352,7 +344,7 @@ class Enemy {
         let currY = currPos.top + this.jquery.height()/2;
         let distance = tools.distanceTo(x, y, currX, currY);
         let duration = (distance * 500000 / windowSize.width) / this.moveSpeed;
-        if (this.beingSlowedDown) duration = duration * 2;
+        if (this.slowedDownBy.length) duration = duration * 2;
 
         if (!skipSpeedChange) this.queueSlowDown(x, y, duration);
 
