@@ -5,7 +5,7 @@ class GameState {
         this.startGame = startGame
         this.inGameTime = new Date().getTime()
         this.inGameTimeId = undefined
-        this.updateRate = 30 // Only affects queued actions, ignores animations
+        this.updateRate = 10 // Only affects queued actions, ignores animations
         this.hud = undefined
         this.tutorial = undefined
         this.callWaveButton = new $(`<button class="call-wave">START!</button>`)
@@ -303,7 +303,7 @@ class GameState {
                 ],
                 waves: [
                     [
-                        {type: EnemySmall, quantity: 1, waitTime: 5000, path: 'a'},
+                        {type: EnemySmall, quantity: 40, waitTime: 5000, path: 'a'},
                         // {type: EnemyBig, quantity: 2, waitTime: 1, path: 'a'},
                         // {type: EnemyBig, quantity: 2, waitTime: 30000, path: 'b'},
                         // {type: EnemyDivide, quantity: 1, waitTime: 15000, path: 'a'},
@@ -475,6 +475,13 @@ class GameState {
                 let loops = [];
                 let toBeCalled = [];
                 this.queuedActions = this.queuedActions
+                .sort((a, b) => {
+                    let timeToHappenA = a.queuedAt + a.waitTime;
+                    let timeToHappenB = b.queuedAt + b.waitTime;
+                    if (timeToHappenA > timeToHappenB) return -1;
+                    if (timeToHappenA < timeToHappenB) return 1;
+                    return 0;
+                })
                 .filter((action) => {
                     if (action.queuedAt + action.waitTime <= this.inGameTime) {
                         toBeCalled.push(action);
