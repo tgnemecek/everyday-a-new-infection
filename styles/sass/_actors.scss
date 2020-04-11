@@ -3,7 +3,7 @@
     height: 5px;
     position: absolute;
     &-a {
-        // background-color: green; // For debugging
+        background-color: green; // For debugging
     }
     &-b {
         // background-color: red; // For debugging
@@ -43,6 +43,7 @@
 .enemy {
     z-index: 1;
     position: absolute;
+    border: 1px solid black; // debugger remove
     .hp-bar {
         position: absolute;
         top: 15%;

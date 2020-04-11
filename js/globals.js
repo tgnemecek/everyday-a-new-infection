@@ -6,7 +6,7 @@ const env = window.location.href.search('http') === -1 ?
 const debugOptions = {
     startLevel: 4,
     skipIntro: true,
-    loadAudio: false
+    loadAudio: true
 }
 
 let audioManager;

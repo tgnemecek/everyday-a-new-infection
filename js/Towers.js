@@ -51,7 +51,7 @@ class Radar {
     constructor(node, tower, getActualRange) {
         this.node = node;
         this.tower = tower;
-        this.visualOffset = 0.9;
+        this.visualOffset = 1; // debugger Return to 0.9
         this.getActualRange = getActualRange;
         this.jquery = new $(`<div class="radar"></div>`);
         this.animationDuration = 3000;
@@ -59,10 +59,13 @@ class Radar {
     }
     style() {
         return {
-            width: 0,
-            height: 0,
+            width: this.getActualRange() * 2 * this.visualOffset, // debugger
+            height: this.getActualRange() * 2 * this.visualOffset, // debugger
+            // width: 0, // correct value
+            // height: 0, // correct value
             left: this.tower.width()/2,
             top: this.tower.height()/2,
+            pointerEvents: 'none',
             opacity: 1,
         }
     }
@@ -75,7 +78,7 @@ class Radar {
         this.jquery.animate({
             width: this.getActualRange() * 2 * this.visualOffset,
             height: this.getActualRange() * 2 * this.visualOffset,
-            opacity: 0
+            // opacity: 0 // debugger un-comment
         }, {
             duration: this.animationDuration,
             progress: () => {

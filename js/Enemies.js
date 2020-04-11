@@ -15,7 +15,7 @@ class Enemy {
         
         this.width = 0.06;
         this.height = 0.06;
-        this.moveSpeed = 40;
+        this.moveSpeed = 100; // debugger Change back to 40!
         this.maxHp = 50;
         this.money = 10;
         this.damage = 1;
@@ -27,7 +27,7 @@ class Enemy {
         this.percentWalked = 0;
         this.nextPath = 1;
         this.isPaused = false;
-        this.randomRange = 100;
+        this.randomRange = 0; // debugger Change back to 100
         this.lastRandomX = 1;
         this.lastRandomY = 1;
         this.isAlive = true;
@@ -127,9 +127,8 @@ class Enemy {
     slowDown() {
         if (!this.isAlive) return;
         this.beingSlowedDown++;
-
-        let stickyLen = gameState.towers
-                            .filter((tower) => tower instanceof TowerSticky).length;
+        console.log('slowed', this.beingSlowedDown);
+        let stickyLen = gameState.towers.filter((tower) => tower instanceof TowerSticky).length;
 
         if (this.beingSlowedDown > stickyLen) this.beingSlowedDown = stickyLen;
 
@@ -138,13 +137,15 @@ class Enemy {
             this.sprite.css({
                 filter: `hue-rotate(90deg)`
             })
-            this.followPath({keepLastRandom: true});
+            this.followPath({keepLastRandom: true, skipSpeedChange: true});
         }
     }
 
     regularSpeed() {
         if (!this.isAlive) return;
         this.beingSlowedDown--;
+        console.log('regular', this.beingSlowedDown);
+
         if (this.beingSlowedDown < 0) this.beingSlowedDown = 0;
 
         if (this.beingSlowedDown === 0) {
@@ -152,7 +153,7 @@ class Enemy {
             this.sprite.css({
                 filter: this.regularSpeedFilter
             })
-            this.followPath({keepLastRandom: true});
+            this.followPath({keepLastRandom: true, skipSpeedChange: true});
         }
     }
 
@@ -182,10 +183,18 @@ class Enemy {
 
     queueSlowDown(destinationX, destinationY, duration) {
         if (this.nextPath < 2) return;
+        // this.count = this.count || 0;
+        // this.count++;
+        // console.log(this.count);
+        // if (this.count === 5) debugger;
+        
         let towers = gameState.towers;
         let pos = this.jquery.position();
         let currX = pos.left + this.jquery.width()/2;
         let currY = pos.top + this.jquery.height()/2;
+        destinationX += this.jquery.width()/2;
+        destinationY += this.jquery.height()/2;
+
         towers.forEach((tower) => {
             if (tower instanceof TowerSticky) {
                 let towerPos = tower.getProjectilePosition();
@@ -200,10 +209,24 @@ class Enemy {
                     if (a < b) return -1;
                     return 0;
                 });
+                // console.log(intersections.length);
                 if (intersections.length) {
                     let distanceToEnd = tools.distanceTo(currX, currY, destinationX, destinationY);
                     let intersInsideLine = 0;
                     let durations = intersections.map((inter) => {
+                        
+                        let d = new $('<div><div>');
+                        d.css({
+                            width: 5,
+                            height: 5,
+                            backgroundColor: 'black',
+                            zIndex: 99999,
+                            position: 'absolute',
+                            top: inter.y,
+                            left: inter.x
+                        })
+                        game.append(d);
+
                         let distanceToInter = tools.distanceTo(currX, currY, inter.x, inter.y);
                         let distanceFromInterToEnd = tools.distanceTo(inter.x, inter.y,
                             destinationX, destinationY);
@@ -211,6 +234,13 @@ class Enemy {
                         let durationToInter = percentToInter * duration;
 
                         let isInsideLine = false;
+
+                        // console.log({
+                        //     percentToInter,
+                        //     distanceFromInterToEnd,
+                        //     distanceToEnd
+                        // });
+
                         if (percentToInter <= 1 && distanceFromInterToEnd < distanceToEnd) {
                             isInsideLine = true;
                             intersInsideLine++;
@@ -223,18 +253,33 @@ class Enemy {
                         };
                     });
 
-                    if (intersInsideLine === 2) {
-                        for (let i = 0; i < 2; i++) {
-                            let callback = i === 0 ? this.regularSpeed.bind(this)
-                                                    : this.slowDown.bind(this)
+                    if (this.debug) debugger;
 
-                            gameState.queuedActions.push({
-                                waitTime: durations[i].durationToInter,
-                                queuedAt: new Date().getTime(),
-                                loop: false,
-                                callback
-                            })
+                    if (intersInsideLine === 2) {
+                        let closer, farther;
+                        if (durations[0].durationToInter < durations[1].durationToInter) {
+                            closer = durations[0].durationToInter;
+                            farther = durations[1].durationToInter;
+                        } else {
+                            closer = durations[1].durationToInter;
+                            farther = durations[0].durationToInter;
                         }
+                        gameState.queuedActions.push({
+                            waitTime: closer,
+                            queuedAt: new Date().getTime(),
+                            loop: false,
+                            callback: this.slowDown.bind(this)
+                        })
+
+                        let difference = farther - closer;
+                        let waitTime = (difference * 2) + closer;
+
+                        gameState.queuedActions.push({
+                            waitTime,
+                            queuedAt: new Date().getTime(),
+                            loop: false,
+                            callback: this.regularSpeed.bind(this)
+                        })
                     } else if (intersInsideLine === 1) {
                         let outsider = durations[0].isInsideLine ? durations[1] : durations[0];
                         let insider = outsider === durations[0] ? durations[1] : durations[0];
@@ -244,7 +289,12 @@ class Enemy {
                         if (outsider.distanceFromInterToEnd > outsider.distanceToInter) {
                             callback = this.regularSpeed.bind(this)
                         } else callback = this.slowDown.bind(this)
-
+                        console.log({
+                            waitTime: insider.durationToInter,
+                            queuedAt: new Date().getTime(),
+                            loop: false,
+                            callback
+                        })
                         gameState.queuedActions.push({
                             waitTime: insider.durationToInter,
                             queuedAt: new Date().getTime(),
@@ -257,7 +307,7 @@ class Enemy {
         })
     }
 
-    moveTo(x, y, keepLastRandom, callback) {
+    moveTo(x, y, {keepLastRandom = false, callback, skipSpeedChange = false}) {
         if (!keepLastRandom) {
             this.lastRandomX = tools.randomize(0, this.randomRange);
             this.lastRandomY = tools.randomize(0, this.randomRange);
@@ -274,11 +324,10 @@ class Enemy {
         let currX = currPos.left;
         let currY = currPos.top;
         let distance = tools.distanceTo(x, y, currX, currY);
-        let duration = (distance * 500000 / windowSize.width) / (this.moveSpeed * windowSize.zoom);
+        let duration = (distance * 500000 / windowSize.width) / this.moveSpeed;
         if (this.beingSlowedDown) duration = duration * 2;
 
-
-        this.queueSlowDown(x, y, duration);
+        if (!skipSpeedChange) this.queueSlowDown(x, y, duration);
 
         this.jquery.animate({
             left: x,
@@ -304,7 +353,7 @@ class Enemy {
         })
     }
 
-    followPath({keepLastRandom = false}) {
+    followPath(options) {
         let lastIndex = this.path.length - 1;
         if (this.nextPath > lastIndex) {
             this.arrived();
@@ -314,7 +363,7 @@ class Enemy {
         let x = $(this.path[this.nextPath]).position().left;
         let y = $(this.path[this.nextPath]).position().top;
 
-        this.moveTo(x, y, keepLastRandom)
+        this.moveTo(x, y, options)
     }
 
     arrived() {
@@ -332,6 +381,9 @@ class Enemy {
         this.jquery.append(this.sprite);
 
         this.randomRange = this.randomRange * windowSize.zoom;
+
+        let speedRange = this.moveSpeed * 0.1;
+        this.moveSpeed = tools.randomize(this.moveSpeed * windowSize.zoom, speedRange);
 
         let factor = windowSize.width / 1920;
         let randX = tools.randomize(0, this.randomRange * factor);
@@ -411,63 +463,64 @@ class EnemyDivide extends Enemy {
     static image() { return "images/covid.png" }
     static baseHue() { return 0 }
 
-    static divide() {
-        let maxDivisions = 64;
-        let newEnemies = [];
-
-        let count = 0;
-
-        gameState.enemies.forEach((enemy) => {
-            if (enemy instanceof EnemyDivide && enemy.isAlive) {
-                count++
-                if (count < maxDivisions) {
-                    let currPos = enemy.jquery.position();
-                    let range = tools.randomize(0, enemy.divideRange);
-                    if (range < 0) {
-                        range -= enemy.divideMin;
-                    } else {
-                        range += enemy.divideMin;
-                    }
-                    let actualDivideRange = range * windowSize.width * windowSize.zoom / 1920;
-                    let divideX = currPos.left + actualDivideRange;
-                    let divideY = currPos.top + actualDivideRange;
-    
-                    divideX += enemy.jquery.width()/2;
-                    divideY += enemy.jquery.height()/2;
-    
-                    let hpLost = enemy.maxHp - enemy.hp;
-    
-                    let clone = new EnemyDivide(enemy.path, true);
-                    newEnemies.push(clone);
-        
-                    clone.addToScene();
-                    clone.pause();
-                    if (hpLost) clone.modifyHp(-hpLost);
-                    clone.jquery.css({...currPos});
-                    clone.nextPath = enemy.nextPath;
-                    clone.moveTo(divideX, divideY, false, function() {
-                        clone.resume();
-                    })
-                }
-            }
-        })
-        gameState.enemies.push(...newEnemies);
-        if (count === 0) {
+    divide() {
+        if (gameState.gameFrozen) return;
+        if (!this.isAlive) {
             gameState.queuedActions = gameState.queuedActions.filter((action) => {
-                return action.id !== 'EnemyDivide';
-            })
+                return action.id !== this.id
+            });
+            return;
         }
+
+        let maxDivisions = 32;
+
+        let count = gameState.enemies.reduce((acc, cur) => {
+            if (cur instanceof EnemyDivide && cur.isAlive) {
+                return acc + 1;
+            } else return acc;
+        }, 0)
+
+        if (count >= maxDivisions) return;
+
+        let currPos = this.jquery.position();
+        let range = tools.randomize(0, this.divideRange);
+        if (range < 0) {
+            range -= this.divideMin;
+        } else {
+            range += this.divideMin;
+        }
+        let actualDivideRange = range * windowSize.width * windowSize.zoom / 1920;
+        let divideX = currPos.left + actualDivideRange;
+        let divideY = currPos.top + actualDivideRange;
+
+        divideX += this.jquery.width()/2;
+        divideY += this.jquery.height()/2;
+
+        let hpLost = this.maxHp - this.hp;
+
+        let clone = new EnemyDivide(this.path, true);
+        
+        clone.addToScene();
+        clone.pause();
+        if (hpLost) clone.modifyHp(-hpLost);
+        clone.jquery.css({...currPos});
+        clone.nextPath = this.nextPath;
+        clone.moveTo(divideX, divideY, {callback: clone.resume})
+        gameState.enemies.push(clone);
     }
 
     onMount() {
-        if (!this.isClone) {
-            gameState.queuedActions.push({
-                id: 'EnemyDivide',
-                waitTime: this.divideTime,
-                queuedAt: new Date().getTime(),
-                callback: () => EnemyDivide.divide(),
-                loop: true
-            })
-        }
+        let minTime = 1000;
+        let maxTime = 8000;
+
+        let time = (Math.random() * (maxTime - minTime)) + minTime;
+
+        gameState.queuedActions.push({
+            id: this.id,
+            waitTime: time,
+            queuedAt: new Date().getTime(),
+            callback: () => this.divide(),
+            loop: true
+        })
     }
 }

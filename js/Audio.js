@@ -15,7 +15,7 @@ class AudioManager {
             },
             master: {
                 gainNode: this.audioContext.createGain(),
-                volume: 1
+                volume: 0 // For debugging!!!
             }
         }
         this.sounds = {
@@ -362,7 +362,9 @@ class AudioManager {
     playAtTempo(nextSoundName, currentSoundName, barDivision) {
         return new Promise((resolve, reject) => {
 
-            if (env === 'development' && !debugOptions.loadAudio) {
+            if ((env === 'development' && !debugOptions.loadAudio)
+                || this.isMuted
+            ) {
                 resolve();
                 return;
             }

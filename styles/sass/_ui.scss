@@ -55,18 +55,20 @@
             width: 12em;
         }
         button {
-            font-size: 2em;
             width: 2em;
             height: 2em;
-            line-height: 1em;
-            border-radius: 50%;
             border: none;
-            background-color: $primary-color;
+            border-radius: 50%;
+            font-size: 2em;
+            line-height: 1em;
+            background: linear-gradient(to bottom, rgba(1, 1, 1, 0) 49%, $primary-color 50% 100%);
+            background-size: 100% 200%;
+            background-position: 0% 100%;
+            animation: Animation 5s ease infinite;
             color: $secondary-darker;
             opacity: 0.8;
-            transition: opacity 0.3s;
             &:disabled {
-                background-color: grey;
+                opacity: 0.5;
             }
             &:hover {
                 opacity: 1;

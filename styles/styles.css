@@ -42,6 +42,30 @@
   }
 }
 
+@-webkit-keyframes creditsScroll {
+  100% {
+    top: -200%;
+  }
+}
+
+@keyframes creditsScroll {
+  100% {
+    top: -200%;
+  }
+}
+
+@-webkit-keyframes advisoryScroll {
+  100% {
+    left: -280%;
+  }
+}
+
+@keyframes advisoryScroll {
+  100% {
+    left: -280%;
+  }
+}
+
 a, abbr, acronym, address, applet, article, aside, audio, b, big, blockquote, body, canvas, caption, center, cite, code, dd, del, details, dfn, div, dl, dt, em, embed, fieldset, figcaption, figure, footer, form, h1, h2, h3, h4, h5, h6, header, hgroup, html, i, iframe, img, ins, kbd, label, legend, li, mark, menu, nav, object, ol, output, p, pre, q, ruby, s, samp, section, small, span, strike, strong, sub, summary, sup, table, tbody, td, tfoot, th, thead, time, tr, tt, u, ul, var, video {
   margin: 0;
   padding: 0;
@@ -348,7 +372,7 @@ button {
   background-size: cover;
 }
 
-.main-menu .about {
+.main-menu .brief {
   position: absolute;
   top: 48%;
   left: 37%;
@@ -431,22 +455,114 @@ button {
           animation-direction: normal;
 }
 
-@-webkit-keyframes advisoryScroll {
-  100% {
-    left: -280%;
-  }
+.about {
+  display: none;
+  color: white;
+  text-align: center;
+  height: 100%;
 }
 
-@keyframes advisoryScroll {
-  100% {
-    left: -280%;
-  }
+.about button {
+  background-color: transparent;
+  border: none;
+  font-size: 2em;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  padding: 1em;
+}
+
+.about button i {
+  color: white;
+  -webkit-transition: color 0.6s;
+  transition: color 0.6s;
+}
+
+.about button .paper {
+  position: absolute;
+  background-color: #fff3c4;
+  height: 3em;
+  width: 3em;
+  top: 0;
+  left: -110%;
+  z-index: -1;
+  -webkit-transform: rotate3d(1, 1, 1, 9deg);
+          transform: rotate3d(1, 1, 1, 9deg);
+  -webkit-transition: left 0.6s;
+  transition: left 0.6s;
+}
+
+.about button:hover i {
+  color: black;
+}
+
+.about button:hover .paper {
+  left: 3%;
+}
+
+.about .content {
+  width: 50%;
+  height: 100%;
+  margin: auto;
+  position: relative;
+}
+
+.about .scroll {
+  position: absolute;
+  top: 100%;
+  width: 100%;
+  margin: auto;
+  -webkit-animation-name: creditsScroll;
+          animation-name: creditsScroll;
+  -webkit-animation-duration: 40s;
+          animation-duration: 40s;
+  -webkit-animation-timing-function: linear;
+          animation-timing-function: linear;
+  -webkit-animation-iteration-count: infinite;
+          animation-iteration-count: infinite;
+  -webkit-animation-direction: normal;
+          animation-direction: normal;
+}
+
+.about .scroll:hover {
+  -webkit-animation-play-state: paused;
+          animation-play-state: paused;
+}
+
+.about h2 {
+  font-size: 4em;
+  margin-bottom: 1em;
+}
+
+.about h3 {
+  font-size: 1.2em;
+  margin-top: 3em;
+  margin-bottom: 1em;
+}
+
+.about p, .about a {
+  font-size: 1.1em;
+  color: white;
+}
+
+.about ul {
+  text-align: left;
+  width: 70%;
+  margin: 1em auto 1em auto;
+}
+
+.about ul li {
+  margin-bottom: 1em;
 }
 
 .path {
   width: 5px;
   height: 5px;
   position: absolute;
+}
+
+.path-a {
+  background-color: green;
 }
 
 .node {
@@ -484,6 +600,7 @@ button {
 .enemy {
   z-index: 1;
   position: absolute;
+  border: 1px solid black;
 }
 
 .enemy .hp-bar {
@@ -598,21 +715,24 @@ button {
 }
 
 .hud .bottom-hud button {
-  font-size: 2em;
   width: 2em;
   height: 2em;
-  line-height: 1em;
-  border-radius: 50%;
   border: none;
-  background-color: #fff3c4;
+  border-radius: 50%;
+  font-size: 2em;
+  line-height: 1em;
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(49%, rgba(1, 1, 1, 0)), color-stop(50%, #fff3c4));
+  background: linear-gradient(to bottom, rgba(1, 1, 1, 0) 49%, #fff3c4 50% 100%);
+  background-size: 100% 200%;
+  background-position: 0% 100%;
+  -webkit-animation: Animation 5s ease infinite;
+          animation: Animation 5s ease infinite;
   color: #55596d;
   opacity: 0.8;
-  -webkit-transition: opacity 0.3s;
-  transition: opacity 0.3s;
 }
 
 .hud .bottom-hud button:disabled {
-  background-color: grey;
+  opacity: 0.5;
 }
 
 .hud .bottom-hud button:hover {

@@ -96,7 +96,7 @@ function onPageLoad() {
         mainMenu.hide();
         game.show();
         if (env === 'production') {
-            goFullScreen(); // Put this before menu
+            goFullScreen();
             startGame({
                 levelIndex: 0,
                 skipIntro: false,
@@ -118,6 +118,16 @@ function onPageLoad() {
         mainMenu.hide();
         game.show();
         startGame({levelIndex: loadLevelIndex});
+    })
+
+    $('.about-button').on('click', () => {
+        mainMenu.hide();
+        $('.about').show();
+    })
+
+    $('.back-to-menu-button').on('click', () => {
+        $('.about').hide();
+        mainMenu.show();
     })
 
     resizeGameArea();

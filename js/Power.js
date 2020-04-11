@@ -28,12 +28,7 @@ class Power {
         }
 
         this.button.on('click', () => {
-            let success = this.usePower(this.constructor.name, this.options);
-            if (success) {
-                let parent = this.jquery.parent();
-                parent.find('button').attr('disabled', true);
-                parent.find('.new').hide();
-            }
+            this.usePower(this.constructor.name, this.options);
         })
 
         this.titleJquery.text(this.title);

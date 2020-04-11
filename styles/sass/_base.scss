@@ -66,23 +66,14 @@ button {
     display: none;
     background-image: url('../images/main-menu.jpg');
     background-size: cover;
-    .about {
+    .brief {
         position: absolute;
         top: 48%;
         left: 37%;
         width: 43%;
     }
     .buttons {
-        // position: absolute;
-        // top: 53%;
-        // left: 48%;
-        // text-align: center;
         font-size: 2em;
-        // display: grid;
-        // gap: 20px;
-        // grid-template-columns: 180px 180px;
-        // justify-content: center;
-        // margin-top: 5%;
         button {
             position: absolute;
             border: none;
@@ -142,6 +133,82 @@ button {
     }
 }
 
-@keyframes advisoryScroll {
-    100% {left: -280%}
+.about {
+    display: none;
+    color: white;
+    text-align: center;
+    height: 100%;
+    button {
+        background-color: transparent;
+        border: none;
+        font-size: 2em;
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        padding: 1em;
+        i {
+            color: white;
+            transition: color 0.6s;
+        }
+        .paper {
+            position: absolute;
+            background-color: $primary-color;
+            height: 3em;
+            width: 3em;
+            top: 0;
+            left: -110%;
+            z-index: -1;
+            transform: rotate3d(1, 1, 1, 9deg);
+            transition: left 0.6s;
+        }
+        &:hover {
+            i {
+                color: black;
+            }
+            .paper {
+                left: 3%;
+            }
+        }
+    }
+    .content {
+        width: 50%;
+        height: 100%;
+        margin: auto;
+        position: relative;
+    }
+    .scroll {
+        position: absolute;
+        top: 100%;
+        width: 100%;
+        margin: auto;
+        animation-name: creditsScroll;
+        animation-duration: 40s;
+        animation-timing-function: linear;
+        animation-iteration-count: infinite;
+        animation-direction: normal;
+        &:hover {
+            animation-play-state: paused;
+        }
+    }
+    h2 {
+        font-size: 4em;
+        margin-bottom: 1em;
+    }
+    h3 {
+        font-size: 1.2em;
+        margin-top: 3em;
+        margin-bottom: 1em;
+    }
+    p, a {
+        font-size: 1.1em;
+        color: white;
+    }
+    ul {
+        text-align: left;
+        width: 70%;
+        margin: 1em auto 1em auto;
+        li {
+            margin-bottom: 1em;
+        }
+    }
 }

@@ -82,14 +82,20 @@ class HUD {
             gameState.exit();
         })
 
+        const volumeToggle = () => {
+            if (audioManager.isMuted) {
+                this.volume.html(`<i class="fas fa-volume-mute"></i>`);
+            } else {
+                this.volume.html(`<i class="fas fa-volume-up"></i>`);
+            }
+        }
+
+        volumeToggle();
+
         this.volume.on('click', function() {
             audioManager.toggleMute();
-            $(this).children().remove();
-            if (audioManager.isMuted) {
-                $(this).append(`<i class="fas fa-volume-mute"></i>`);
-            } else {
-                $(this).append(`<i class="fas fa-volume-up"></i>`);
-            }
+            // $(this).children().remove();
+            volumeToggle();
         })
 
         this.levelData.powersAvailable.forEach((powerData) => {

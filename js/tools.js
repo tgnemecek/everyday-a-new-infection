@@ -50,7 +50,7 @@ let tools = {
     findCircleLineIntersections: function(x1, y1, x2, y2, r, h, k) {
         function getSlope(x1, y1, x2, y2) {
             let slope = (y2 - y1) / (x2 - x1);
-            return slope;
+            return isFinite(slope) ? slope : 1;
         }
         
         function getYIntercept(x1, y1, slope) {

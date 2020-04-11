@@ -22,18 +22,26 @@ $info-box-color: #535353c9;
 }
 
 @keyframes sprite-animation {
-    100% { background-position: 100%; }
- }
+   100% { background-position: 100%; }
+}
 
- @keyframes rotation-animation {
-    100% { transform: rotate(360deg); }
- }
+@keyframes rotation-animation {
+   100% { transform: rotate(360deg); }
+}
 
- @keyframes pointer {
+@keyframes pointer {
    0% {
       top: 1em;
    }
    100% {
       top: 0.5em;
    }
- }
+}
+
+@keyframes creditsScroll {
+   100% {top: -200%}
+}
+
+@keyframes advisoryScroll {
+   100% {left: -280%}
+}

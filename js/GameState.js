@@ -22,12 +22,14 @@ class GameState {
         this.lastPaused = undefined
         this.totalPaused = 0
         this.isPaused = false
+        this.powerCoolDownTime = 30000;
         this.currentWave = -1
         this.spawnDelay = 0;
         // this.pathALastSpawned = false;
         this.waves = []
         this.waveFullySpawned = false;
         this.canUsePower = false;
+        this.gameFrozen = false;
         this.setup()
     }
     getLevelData(getLength) {
@@ -271,11 +273,11 @@ class GameState {
                     { left: "50%", top: "27%"},
                     { left: "65%", top: "33%"},
                     { left: "70%", top: "38%"},
-                    { left: "76%", top: "50%"},
+                    { left: "76%", top: "49%"},
                     { left: "76%", top: "60%"},
                     { left: "70%", top: "70%"},
                     { left: "53%", top: "80%"},
-                    { left: "0%", top: "80%"},
+                    { left: "-5%", top: "80%"},
                 ],
                 pathB: [
                     { left: "115%", top: "25%"},
@@ -287,7 +289,7 @@ class GameState {
                     { left: "23%", top: "60%"},
                     { left: "27%", top: "70%"},
                     { left: "47%", top: "80%"},
-                    { left: "100%", top: "80%"},
+                    { left: "105%", top: "80%"},
                 ],
                 powersAvailable: [
                     {type: PowerFreeze, new: false},
@@ -301,8 +303,11 @@ class GameState {
                 ],
                 waves: [
                     [
-                        {type: EnemyDivide, quantity: 1, waitTime: 500, path: 'a'},
-                        {type: EnemySmall, quantity: 10, waitTime: 500, path: 'b'}
+                        {type: EnemySmall, quantity: 1, waitTime: 5000, path: 'a'},
+                        // {type: EnemyBig, quantity: 2, waitTime: 1, path: 'a'},
+                        // {type: EnemyBig, quantity: 2, waitTime: 30000, path: 'b'},
+                        // {type: EnemyDivide, quantity: 1, waitTime: 15000, path: 'a'},
+                        // {type: EnemySmall, quantity: 10, waitTime: 5000, path: 'b'},
                     ],
                 ]
             },
@@ -505,9 +510,28 @@ class GameState {
     usePower(powerName, options) {
         if (!this.canUsePower) return false;
 
+        let powerButton = $('.power button');
+
+        powerButton
+            .attr('disabled', true)
+            .css({backgroundPositionY: `0%`})
+            .find('.new').hide();
+
+        powerButton.animate({
+            backgroundPositionY: `100%`
+        }, {
+            easing: 'linear',
+            duration: this.powerCoolDownTime,
+            complete: () => {
+                this.canUsePower = true;
+                powerButton.attr('disabled', false);
+            }
+        })
+
         if (powerName === 'PowerFreeze') {
             let frozenEnemies = [];
             this.isSpawnDelayed = true;
+            this.gameFrozen = true;
             audioManager.filterMusic();
             audioManager.play('powerFreeze');
             game.css({ filter: 'invert(1)' });
@@ -523,6 +547,7 @@ class GameState {
                 callback: () => {
                     audioManager.unfilterMusic();
                     game.css({ filter: '' });
+                    this.gameFrozen = false;
                     frozenEnemies.forEach((enemy) => {
                         if (enemy.isAlive) {
                             enemy.resume();
@@ -652,7 +677,6 @@ class GameState {
     }
     waveCustscene() {
         const getContent = () => {
-            if (this.tutorialMessage) return this.tutorialMessage;
             let waves = this.getLevelData().waves;
             if (this.currentWave === 0) {
                 return "<h2>NEW INFECTION DETECTED!</h2><p>Stop the invading microbes!</p>"
@@ -772,7 +796,7 @@ class GameState {
             this.tutorial.append(moneyPointer);
         } else if (this.levelIndex === 2) {
             let currPointer = pointer.clone();
-            let text = new $(`<div class="text">Powers are now available! Once per day you can use <strong>one</strong> power. Choose wisely.</div>`);
+            let text = new $(`<div class="text">Powers are now available! They have a long cooldown time. Choose wisely.</div>`);
             currPointer.css({
                 position: 'absolute',
                 top: '80%',
