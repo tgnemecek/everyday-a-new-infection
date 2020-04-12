@@ -15,7 +15,7 @@ class AudioManager {
             },
             master: {
                 gainNode: this.audioContext.createGain(),
-                volume: 0 // For debugging!!!
+                volume: 1
             }
         }
         this.sounds = {
