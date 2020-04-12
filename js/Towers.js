@@ -51,7 +51,7 @@ class Radar {
     constructor(node, tower, getActualRange) {
         this.node = node;
         this.tower = tower;
-        this.visualOffset = 1; // debugger Return to 0.9
+        this.visualOffset = 0.9;
         this.getActualRange = getActualRange;
         this.jquery = new $(`<div class="radar"></div>`);
         this.animationDuration = 3000;
@@ -59,10 +59,8 @@ class Radar {
     }
     style() {
         return {
-            width: this.getActualRange() * 2 * this.visualOffset, // debugger
-            height: this.getActualRange() * 2 * this.visualOffset, // debugger
-            // width: 0, // correct value
-            // height: 0, // correct value
+            width: 0,
+            height: 0,
             left: this.tower.width()/2,
             top: this.tower.height()/2,
             pointerEvents: 'none',
@@ -78,7 +76,7 @@ class Radar {
         this.jquery.animate({
             width: this.getActualRange() * 2 * this.visualOffset,
             height: this.getActualRange() * 2 * this.visualOffset,
-            // opacity: 0 // debugger un-comment
+            opacity: 0
         }, {
             duration: this.animationDuration,
             progress: () => {
@@ -452,7 +450,7 @@ class TowerSticky extends Tower {
     onMount() {
         gameState.enemies.forEach((enemy) => {
             if (enemy.isAlive) {
-                let enPosition = enemy.jquery.position();
+                let enPosition = enemy.getCenterPosition();
                 let enX = enPosition.left;
                 let enY = enPosition.top;
         
@@ -461,11 +459,11 @@ class TowerSticky extends Tower {
         
                 let distance = tools.distanceTo(nodeX, nodeY, enX, enY);
 
+                if (distance <= this.getActualRange()) {
+                    enemy.slowDown(this.id);
+                }
                 enemy.pause();
                 enemy.resume();
-                if (distance <= this.getActualRange()) {
-                    enemy.slowDown();
-                }
             }
         })
     }

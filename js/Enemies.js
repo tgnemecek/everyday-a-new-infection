@@ -14,7 +14,7 @@ class Enemy {
         
         this.width = 0.06;
         this.height = 0.06;
-        this.moveSpeed = 100; // debugger Change back to 40!
+        this.moveSpeed = 40;
         this.maxHp = 50;
         this.money = 10;
         this.damage = 1;
@@ -26,7 +26,7 @@ class Enemy {
         this.percentWalked = 0;
         this.nextPath = 1;
         this.isPaused = false;
-        this.randomRange = 0; // debugger Change back to 100
+        this.randomRange = 100;
         this.lastRandomX = 1;
         this.lastRandomY = 1;
         this.isAlive = true;
@@ -138,7 +138,7 @@ class Enemy {
             }
         }
         this.jquery.stop();
-        this.followPath({keepLastRandom: true});
+        this.followPath({keepLastRandom: true, skipSpeedChange: true});
     }
 
     regularSpeed(towerId) {
@@ -154,7 +154,7 @@ class Enemy {
             }
         };
         this.jquery.stop();
-        this.followPath({keepLastRandom: true});
+        this.followPath({keepLastRandom: true, skipSpeedChange: true});
     }
 
     setSize(screenWidth) {
@@ -181,21 +181,71 @@ class Enemy {
         }
     }
 
-    queueSlowDown(destinationX, destinationY, duration) {
+    getCenterPosition() {
+        let pos = this.jquery.position();
+        return {
+            left: pos.left + this.jquery.width()/2,
+            top: pos.top + this.jquery.height()/2
+        }
+    }
+
+    queueIntersections(intersections, durationToEnd) {
+        // let durationToInter = percentFromEnemyToInter * duration;
+        let pos = this.getCenterPosition();
+        let virtualSlowedDown = this.slowedDownBy.length;
+        let startedAsRegularSpeed = !this.slowedDownBy.length;
+
+        intersections.sort((a, b) => {
+            let distanceToEnemyA = tools.distanceTo(pos.left, pos.top, a.x, a.y);
+            let distanceToEnemyB = tools.distanceTo(pos.left, pos.top, b.x, b.y);
+            if (distanceToEnemyA < distanceToEnemyB) {
+                return -1;
+            } else return 1;
+        }).reduce((lastInter, inter, i) => {
+            let waitTime, callback;
+
+            if (i === 0) {
+                waitTime = inter.percentFromEnemyToInter * durationToEnd;
+            } else {
+                waitTime = (inter.percentFromEnemyToInter - lastInter.percentFromEnemyToInter) * durationToEnd;
+                
+                if (startedAsRegularSpeed && virtualSlowedDown) {
+                    waitTime = waitTime * 2;
+                } else if (!startedAsRegularSpeed && !virtualSlowedDown) {
+                    waitTime = waitTime / 2;
+                }
+                waitTime += lastInter.waitTime;
+            }
+
+            if (inter.type === 'slowDown') {
+                callback = this.slowDown.bind(this);
+                virtualSlowedDown++;
+            } else {
+                callback = this.regularSpeed.bind(this);
+                virtualSlowedDown--;
+            }
+
+            gameState.queuedActions.push({
+                waitTime,
+                queuedAt: new Date().getTime(),
+                loop: false,
+                callback: () => callback(inter.towerId)
+            })
+            return {...inter, waitTime};
+        }, {})
+    }
+
+    calculateIntersections(destinationX, destinationY, duration) {
         if (this.nextPath < 2) return;
-        // this.count = this.count || 0;
-        // this.count++;
-        // console.log(this.count);
-        // if (this.count === 2) debugger;
 
         let towers = gameState.towers;
-        let pos = this.jquery.position();
-        let currX = pos.left + this.jquery.width()/2;
-        let currY = pos.top + this.jquery.height()/2;
+        let pos = this.getCenterPosition();
+        let currX = pos.left;
+        let currY = pos.top;
         destinationX += this.jquery.width()/2;
         destinationY += this.jquery.height()/2;
 
-        let possibleActions = [];
+        let intersToQueue = [];
 
         towers.forEach((tower) => {
             if (tower instanceof TowerSticky) {
@@ -206,124 +256,99 @@ class Enemy {
                 let intersections = tools.findCircleLineIntersections(
                     currX, currY, destinationX, destinationY,
                     towerRadius, towerX, towerY
-                ).sort(function(a, b) {
-                    if (a > b) return 1;
-                    if (a < b) return -1;
-                    return 0;
-                });
+                );
 
                 if (intersections.length) {
-                    let distanceToEnd = tools.distanceTo(currX, currY, destinationX, destinationY);
+                    let distanceFromEnemyToEnd = tools.distanceTo(currX, currY, destinationX, destinationY);
                     let intersInsideLine = 0;
-                    let durations = intersections.map((inter) => {
+                    intersections = intersections.map((inter) => {
                         
-                        let d = new $('<div><div>');
-                        d.css({
-                            width: 5,
-                            height: 5,
-                            backgroundColor: 'black',
-                            zIndex: 99999,
-                            position: 'absolute',
-                            top: inter.y,
-                            left: inter.x
-                        })
-                        game.append(d);
+                        // Useful for debugging
+                        // let d = new $(`<div><div>`);
+                        // d.css({
+                        //     width: 5,
+                        //     height: 5,
+                        //     backgroundColor: 'black',
+                        //     zIndex: 99999,
+                        //     position: 'absolute',
+                        //     top: inter.y,
+                        //     left: inter.x
+                        // })
+                        // game.append(d);
 
-                        let distanceToInter = tools.distanceTo(currX, currY, inter.x, inter.y);
+                        let distanceToEnemy = tools.distanceTo(currX, currY, inter.x, inter.y);
                         let distanceFromInterToEnd = tools.distanceTo(inter.x, inter.y,
                             destinationX, destinationY);
-                        let percentToInter = distanceToInter / distanceToEnd;
-                        let durationToInter = percentToInter * duration;
+                        let percentFromEnemyToInter = distanceToEnemy / distanceFromEnemyToEnd;
 
                         let isInsideLine = false;
 
-                        if (percentToInter <= 1 && distanceFromInterToEnd < distanceToEnd) {
+                        if (percentFromEnemyToInter <= 1 
+                                && distanceFromInterToEnd < distanceFromEnemyToEnd) {
                             isInsideLine = true;
                             intersInsideLine++;
                         }
                         return {
-                            durationToInter,
                             isInsideLine,
-                            distanceToInter,
+                            distanceToEnemy,
                             distanceFromInterToEnd,
+                            percentFromEnemyToInter,
                             x: inter.x,
                             y: inter.y,
-                            towerId: tower.id
                         };
                     });
 
                     if (intersInsideLine === 2) {
-                        let closer;
-                        if (durations[0].durationToInter < durations[1].durationToInter) {
-                            closer = durations[0];
+                        let closer, farther;
+                        if (intersections[0].distanceToEnemy < intersections[1].distanceToEnemy) {
+                            closer = intersections[0];
+                            farther = intersections[1];
                         } else {
-                            closer = durations[1];
+                            closer = intersections[1];
+                            farther = intersections[0];
                         }
-                        possibleActions.push({
-                            waitTime: closer.durationToInter,
+
+                        intersToQueue.push({
                             x: closer.x,
                             y: closer.y,
-                            towerId: closer.towerId,
-                            queuedAt: new Date().getTime(),
-                            loop: false,
-                            callback: this.slowDown.bind(this)
+                            distanceToEnemy: closer.distanceToEnemy,
+                            percentFromEnemyToInter: closer.percentFromEnemyToInter,
+                            towerId: tower.id,
+                            type: 'slowDown'
+                        }, {
+                            x: farther.x,
+                            y: farther.y,
+                            distanceToEnemy: farther.distanceToEnemy,
+                            percentFromEnemyToInter: farther.percentFromEnemyToInter,
+                            towerId: tower.id,
+                            type: 'regularSpeed'
                         })
 
                     } else if (intersInsideLine === 1) {
-                        let outsider = durations[0].isInsideLine ? durations[1] : durations[0];
-                        let insider = outsider === durations[0] ? durations[1] : durations[0];
+                        let outsider = intersections[0].isInsideLine ? intersections[1] : intersections[0];
+                        let insider = outsider === intersections[0] ? intersections[1] : intersections[0];
 
-                        let callback;
+                        let type = 'slowDown';
 
-                        if (outsider.distanceFromInterToEnd > outsider.distanceToInter) {
-                            callback = this.regularSpeed.bind(this)
-                        } else callback = this.slowDown.bind(this)
+                        if (outsider.distanceFromInterToEnd > outsider.distanceToEnemy) {
+                            type = 'regularSpeed'
+                        }
 
-                        possibleActions.push({
-                            waitTime: insider.durationToInter,
+                        intersToQueue.push({
                             x: insider.x,
                             y: insider.y,
-                            towerId: insider.towerId,
-                            queuedAt: new Date().getTime(),
-                            loop: false,
-                            callback
+                            distanceToEnemy: insider.distanceToEnemy,
+                            percentFromEnemyToInter: insider.percentFromEnemyToInter,
+                            towerId: tower.id,
+                            type
                         })
                     }
                 }
             }
         })
-
-        // possibleActions = possibleActions.filter((action) => {
-        //     if (this.count === 3) debugger;
-        //     if (!this.lastIntersection) return true;
-        //     if (Math.abs(action.x - this.lastIntersection.x) < 2
-        //         && Math.abs(action.y - this.lastIntersection.y) < 2) {
-        //             if (action.towerId === this.lastIntersection.towerId) {
-        //                 return false;
-        //             }
-        //     }
-        //     return true;
-        // });
-
-        if (!possibleActions.length) return;
-
-        let nextAction = possibleActions.reduce((acc, cur) => {
-            if (!acc) return cur;
-            if (cur.waitTime < acc.waitTime) {
-                return cur;
-            } else return acc;
-        })
-
-        delete nextAction.x;
-        delete nextAction.y;
-
-        gameState.queuedActions.push({
-            ...nextAction,
-            callback: () => nextAction.callback(nextAction.towerId)
-        })
-        // setTimeout(() => {
-        //     nextAction.callback(nextAction.towerId)
-        // }, nextAction.waitTime)
+        if (intersToQueue.length) {
+            this.queueIntersections(intersToQueue, duration);
+        }
     }
 
     moveTo(x, y, {keepLastRandom = false, callback, skipSpeedChange = false}) {
@@ -339,14 +364,14 @@ class Enemy {
         x -= this.jquery.width()/2;
         y -= this.jquery.height()/2;
 
-        let currPos = this.jquery.position();
-        let currX = currPos.left + this.jquery.width()/2;
-        let currY = currPos.top + this.jquery.height()/2;
+        let currPos = this.getCenterPosition();
+        let currX = currPos.left;
+        let currY = currPos.top;
         let distance = tools.distanceTo(x, y, currX, currY);
         let duration = (distance * 500000 / windowSize.width) / this.moveSpeed;
         if (this.slowedDownBy.length) duration = duration * 2;
 
-        if (!skipSpeedChange) this.queueSlowDown(x, y, duration);
+        if (!skipSpeedChange) this.calculateIntersections(x, y, duration);
 
         this.jquery.animate({
             left: x,

@@ -22,7 +22,7 @@ class GameState {
         this.lastPaused = undefined
         this.totalPaused = 0
         this.isPaused = false
-        this.powerCoolDownTime = 30000;
+        this.powerCoolDownTime = 50000;
         this.currentWave = -1
         this.spawnDelay = 0;
         // this.pathALastSpawned = false;
@@ -303,8 +303,8 @@ class GameState {
                 ],
                 waves: [
                     [
-                        {type: EnemySmall, quantity: 10, waitTime: 5000, path: 'a'},
-                        // {type: EnemyBig, quantity: 2, waitTime: 1, path: 'a'},
+                        {type: EnemySmall, quantity: 100, waitTime: 5000, path: 'a'},
+                        {type: EnemyBig, quantity: 2, waitTime: 1, path: 'b'},
                         // {type: EnemyBig, quantity: 2, waitTime: 30000, path: 'b'},
                         // {type: EnemyDivide, quantity: 1, waitTime: 15000, path: 'a'},
                         // {type: EnemySmall, quantity: 10, waitTime: 5000, path: 'b'},
