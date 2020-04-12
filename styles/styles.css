@@ -1050,6 +1050,23 @@ button {
   background-color: #ffe991;
 }
 
+.game-over .end-game, .win-game .end-game {
+  background-color: #fffdf7;
+  border: none;
+  -webkit-box-shadow: inset 0px 0px 3px 1px #ffe991;
+          box-shadow: inset 0px 0px 3px 1px #ffe991;
+  font-size: 2em;
+  padding: 1em;
+  -webkit-transition: background-color 0.2s;
+  transition: background-color 0.2s;
+  display: block;
+  width: 100%;
+}
+
+.game-over .end-game:hover, .win-game .end-game:hover {
+  background-color: #ffe991;
+}
+
 .card {
   text-align: center;
 }

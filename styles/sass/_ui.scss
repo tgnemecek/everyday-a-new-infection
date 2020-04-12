@@ -319,6 +319,11 @@
             @include primaryButton();
         }
     }
+    .end-game {
+        @include primaryButton();
+        display: block;
+        width: 100%;
+    }
 }
 
 .card {

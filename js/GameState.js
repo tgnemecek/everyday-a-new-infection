@@ -1,8 +1,9 @@
 class GameState {
-    constructor({levelIndex = 0, skipIntro = false, startGame}) {
+    constructor({levelIndex = 0, skipIntro = false, startGame, saveGame}) {
         this.levelIndex = levelIndex
         this.skipIntro = skipIntro
         this.startGame = startGame
+        this.saveGame = saveGame
         this.inGameTime = new Date().getTime()
         this.inGameTimeId = undefined
         this.updateRate = 30 // Only affects queued actions, ignores animations
@@ -303,72 +304,72 @@ class GameState {
                 ],
                 waves: [
                     [
-                        {type: EnemySmall, quantity: 100, waitTime: 5000, path: 'a'},
-                        {type: EnemyBig, quantity: 2, waitTime: 1, path: 'b'},
+                        {type: EnemySmall, quantity: 1, waitTime: 5000, path: 'a'},
+                        {type: EnemyBig, quantity: 0, waitTime: 1, path: 'b'},
                         // {type: EnemyBig, quantity: 2, waitTime: 30000, path: 'b'},
                         // {type: EnemyDivide, quantity: 1, waitTime: 15000, path: 'a'},
                         // {type: EnemySmall, quantity: 10, waitTime: 5000, path: 'b'},
                     ],
                 ]
             },
-            { // TEST LEVEL
-                image: "images/level5.jpg",
-                startingHP: 10,
-                startingMoney: 210,
-                zoom: 1,
-                nodes: [
-                    { left: "70%", top: "18%"},
-                    { left: "86%", top: "37%"},
-                    { left: "72%", top: "50%"},
-                    { left: "55%", top: "54%"},
-                    { left: "40%", top: "33%"},
-                    { left: "13%", top: "55%"},
-                    { left: "11%", top: "70%"},
-                    { left: "30%", top: "70%"},
-                    { left: "46%", top: "75%"},
-                    { left: "93%", top: "87%"},
-                ],
-                pathA: [
-                    { left: "99%", top: "-15%"},
-                    { left: "99%", top: "0%"},
-                    { left: "92%", top: "20%"},
-                    { left: "2%", top: "19%"},
-                    { left: "2%", top: "30%"},
-                    { left: "8%", top: "34%"},
-                    { left: "92%", top: "34%"},
-                    { left: "96%", top: "57%"},
-                    { left: "90%", top: "67%"},
-                    { left: "80%", top: "70%"},
-                    { left: "72%", top: "70%"},
-                    { left: "65%", top: "50%"},
-                    { left: "65%", top: "50%"},
-                    { left: "12%", top: "52%"},
-                    { left: "8%", top: "70%"},
-                    { left: "12%", top: "88%"},
-                    { left: "40%", top: "84%"},
-                    { left: "45%", top: "72%"},
-                    { left: "57%", top: "75%"},
-                    { left: "66%", top: "90%"},
-                    { left: "87%", top: "90%"},
-                    { left: "100%", top: "80%"},
-                ],
-                pathB: [],
-                powersAvailable: [
-                    {type: PowerFreeze, new: false},
-                    {type: PowerNothing, new: false},
-                    {type: PowerSpawnDelay, new: false}
-                ],
-                towersAvailable: [
-                    {type: TowerFast, new: false},
-                    {type: TowerSticky, new: false},
-                    {type: TowerSlow, new: false},
-                ],
-                waves: [
-                    [
-                        {type: EnemyBig, quantity: 3, waitTime: 500}
-                    ],
-                ]
-            },
+            // { // TEST LEVEL
+            //     image: "images/level5.jpg",
+            //     startingHP: 10,
+            //     startingMoney: 210,
+            //     zoom: 1,
+            //     nodes: [
+            //         { left: "70%", top: "18%"},
+            //         { left: "86%", top: "37%"},
+            //         { left: "72%", top: "50%"},
+            //         { left: "55%", top: "54%"},
+            //         { left: "40%", top: "33%"},
+            //         { left: "13%", top: "55%"},
+            //         { left: "11%", top: "70%"},
+            //         { left: "30%", top: "70%"},
+            //         { left: "46%", top: "75%"},
+            //         { left: "93%", top: "87%"},
+            //     ],
+            //     pathA: [
+            //         { left: "99%", top: "-15%"},
+            //         { left: "99%", top: "0%"},
+            //         { left: "92%", top: "20%"},
+            //         { left: "2%", top: "19%"},
+            //         { left: "2%", top: "30%"},
+            //         { left: "8%", top: "34%"},
+            //         { left: "92%", top: "34%"},
+            //         { left: "96%", top: "57%"},
+            //         { left: "90%", top: "67%"},
+            //         { left: "80%", top: "70%"},
+            //         { left: "72%", top: "70%"},
+            //         { left: "65%", top: "50%"},
+            //         { left: "65%", top: "50%"},
+            //         { left: "12%", top: "52%"},
+            //         { left: "8%", top: "70%"},
+            //         { left: "12%", top: "88%"},
+            //         { left: "40%", top: "84%"},
+            //         { left: "45%", top: "72%"},
+            //         { left: "57%", top: "75%"},
+            //         { left: "66%", top: "90%"},
+            //         { left: "87%", top: "90%"},
+            //         { left: "100%", top: "80%"},
+            //     ],
+            //     pathB: [],
+            //     powersAvailable: [
+            //         {type: PowerFreeze, new: false},
+            //         {type: PowerNothing, new: false},
+            //         {type: PowerSpawnDelay, new: false}
+            //     ],
+            //     towersAvailable: [
+            //         {type: TowerFast, new: false},
+            //         {type: TowerSticky, new: false},
+            //         {type: TowerSlow, new: false},
+            //     ],
+            //     waves: [
+            //         [
+            //             {type: EnemyBig, quantity: 3, waitTime: 500}
+            //         ],
+            //     ]
+            // },
         ]
         if (getLength) return levels.length;
         return levels[this.levelIndex];
@@ -720,10 +721,24 @@ class GameState {
                 let buttons = new $(`<div class="buttons"></div>`)
                     .append(exit)
                     .append(next)
-                let content = new $(`<div class="container"><h2>Victory!</h2></div>`)
-                    .append(`<p>Your body has survived today's infection!</p>`)
-                    .append(`<i class="far fa-heart"></i>`)
-                    .append(buttons)
+                let content = new $(`<div class="container"><h2>Victory!</h2></div>`);
+
+
+                if (this.levelIndex+1 >= this.getLevelData(true)) {
+                    let finish = new $(`<button class="end-game">Finish</button>`);
+                    finish.on('click', () => this.endGame());
+                    content
+                        .append(`<p>You survived all days of infections!</p>`)
+                        .append(`<i class="far fa-heart"></i>`)
+                        .append(`<i class="far fa-heart"></i>`)
+                        .append(`<i class="far fa-heart"></i>`)
+                        .append(finish)
+                } else {
+                    content
+                        .append(`<p>Your body has survived today's infection!</p>`)
+                        .append(`<i class="far fa-heart"></i>`)
+                        .append(buttons)
+                }
                 this.card = new Card(content, {
                     extraClass: "win-game"
                 })
@@ -755,11 +770,16 @@ class GameState {
             })
     }
     nextDay() {
+        this.saveGame(this.levelIndex+1);
         this.startGame({
             levelIndex: this.levelIndex+1,
             skipIntro: this.skipIntro,
             startGame: this.startGame
         });
+    }
+    endGame() {
+        game.hide();
+        $('.about').show();
     }
     tutorialSetup() {
         this.tutorial = new $(`<div class="tutorial"></div>`);

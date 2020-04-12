@@ -19,7 +19,6 @@ function onPageLoad() {
     
         mainMenu.css({display: "flex"});
     }
-    
     function resizeGameArea() {
         let wrapper = $('.wrapper');
         let widthToHeight = 16 / 9;
@@ -77,7 +76,7 @@ function onPageLoad() {
             elem.msRequestFullscreen();
           }
     }
-    function saveProgress(nextLevel) {
+    function saveGame(nextLevel) {
         let pair = "loadLevelIndex=" + nextLevel;
         let expiry = "; expires=Thu, 1 Dec 2100 12:00:00 UTC";
         let cookie = pair + expiry;
@@ -100,13 +99,15 @@ function onPageLoad() {
             startGame({
                 levelIndex: 0,
                 skipIntro: false,
-                startGame
+                startGame,
+                saveGame
             });
         } else {
             startGame({
                 levelIndex: debugOptions.startLevel,
                 skipIntro: debugOptions.skipIntro,
-                startGame
+                startGame,
+                saveGame
             });
         }
     })
