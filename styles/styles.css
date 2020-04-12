@@ -719,7 +719,7 @@ button {
   background: -webkit-gradient(linear, left top, left bottom, color-stop(49%, rgba(1, 1, 1, 0)), color-stop(50%, #fff3c4));
   background: linear-gradient(to bottom, rgba(1, 1, 1, 0) 49%, #fff3c4 50% 100%);
   background-size: 100% 200%;
-  background-position: 0% 100%;
+  background-position: 0% 99%;
   -webkit-animation: Animation 5s ease infinite;
           animation: Animation 5s ease infinite;
   color: #55596d;

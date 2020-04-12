@@ -257,7 +257,11 @@ class TowerPicker {
         })
         $(`.${TowerType.id()} button`).addClass('selected');
         this.towerSelected = TowerType;
-        this.confirm.prop('disabled', false);
+        if (gameState.money >= TowerType.cost()) {
+            this.confirm.prop('disabled', false);
+        } else {
+            this.confirm.prop('disabled', true);
+        }
         this.jquery.append(this.description);
         this.description.children().remove();
         this.description.append(`<h3>${TowerType.name()}</h3><p>${TowerType.description()}</p>`)
@@ -265,8 +269,8 @@ class TowerPicker {
     checkIfDisabled(TowerType) {
         let button = $(`.tower-picker .${TowerType.id()} button`);
         if (gameState.money >= TowerType.cost()) {
-            button.prop("disabled", false);
-        } else button.prop("disabled", true);
+            button.css({backgroundColor: 'white'});
+        } else button.css({backgroundColor: 'grey'});
     }
     update() {
         this.towers.forEach((Tower) => {

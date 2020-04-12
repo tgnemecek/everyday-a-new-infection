@@ -51,7 +51,7 @@ class Radar {
     constructor(node, tower, getActualRange) {
         this.node = node;
         this.tower = tower;
-        this.visualOffset = 0.9;
+        this.visualOffset = 1.1;
         this.getActualRange = getActualRange;
         this.jquery = new $(`<div class="radar"></div>`);
         this.animationDuration = 3000;
@@ -411,7 +411,7 @@ class TowerSlow extends Tower {
     constructor(node) {
         super(node);
         this.range = 0.15;
-        this.attackSpeed = 0.6;
+        this.attackSpeed = 0.4;
         this.projectileSpeed = 0.07;
         this.projectileSize = 0.1;
         this.damage = 50;

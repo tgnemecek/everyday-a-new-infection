@@ -83,7 +83,7 @@ class Enemy {
     die() {
         if (!this.isAlive) return;
         this.hp = 0;
-        gameState.modifyMoney(this.money);
+        gameState.modifyMoney(this.money, true);
         this.isAlive = false;
         this.hpBar.remove();
         this.jquery.stop();
@@ -226,6 +226,7 @@ class Enemy {
             }
 
             gameState.queuedActions.push({
+                group: 'path-prediction',
                 waitTime,
                 queuedAt: new Date().getTime(),
                 loop: false,

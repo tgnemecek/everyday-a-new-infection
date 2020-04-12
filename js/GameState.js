@@ -23,7 +23,7 @@ class GameState {
         this.lastPaused = undefined
         this.totalPaused = 0
         this.isPaused = false
-        this.powerCoolDownTime = 50000;
+        this.powerCoolDownTime = 30000;
         this.currentWave = -1
         this.spawnDelay = 0;
         // this.pathALastSpawned = false;
@@ -39,6 +39,7 @@ class GameState {
                 image: "images/level1.jpg",
                 startingHP: 10,
                 startingMoney: 180,
+                moneyMultiplier: 1,
                 zoom: 1,
                 nodes: [
                     { left: "25%", top: "32%"},
@@ -75,6 +76,7 @@ class GameState {
                 image: "images/level2.jpg",
                 startingHP: 10,
                 startingMoney: 210,
+                moneyMultiplier: 1,
                 zoom: 1,
                 nodes: [
                     { left: "67%", top: "17%"},
@@ -126,7 +128,8 @@ class GameState {
             { // DAY 3
                 image: "images/level3.jpg",
                 startingHP: 10,
-                startingMoney: 210,
+                startingMoney: 190,
+                moneyMultiplier: 0.5,
                 zoom: 0.7,
                 nodes: [
                     { left: "11%", top: "51%"},
@@ -173,13 +176,14 @@ class GameState {
                     [
                         {type: EnemyBig, quantity: 1, waitTime: 500},
                         {type: EnemySmall, quantity: 6, waitTime: 300},
-                        {type: EnemySmall, quantity: 6, waitTime: 1},
-                        {type: EnemyBig, quantity: 1, waitTime: 500},
-                        {type: EnemySmall, quantity: 7, waitTime: 2000},
+                        {type: EnemySmall, quantity: 12, waitTime: 1},
+                        {type: EnemyBig, quantity: 2, waitTime: 500},
+                        {type: EnemySmall, quantity: 24, waitTime: 2000},
                     ],
                     [
                         {type: EnemyBig, quantity: 1, waitTime: 1000},
                         {type: EnemyBig, quantity: 2, waitTime: 5000},
+                        {type: EnemySmall, quantity: 35, waitTime: 2000},
                     ]
                 ]
             },
@@ -187,6 +191,7 @@ class GameState {
                 image: "images/level4.jpg",
                 startingHP: 10,
                 startingMoney: 300,
+                moneyMultiplier: 1,
                 zoom: 0.7,
                 nodes: [
                     { left: "20%", top: "20%"},
@@ -238,6 +243,7 @@ class GameState {
                 image: "images/level5.jpg",
                 startingHP: 10,
                 startingMoney: 210,
+                moneyMultiplier: 1,
                 zoom: 0.5,
                 nodes: [
                     // Outer Top
@@ -311,65 +317,7 @@ class GameState {
                         // {type: EnemySmall, quantity: 10, waitTime: 5000, path: 'b'},
                     ],
                 ]
-            },
-            // { // TEST LEVEL
-            //     image: "images/level5.jpg",
-            //     startingHP: 10,
-            //     startingMoney: 210,
-            //     zoom: 1,
-            //     nodes: [
-            //         { left: "70%", top: "18%"},
-            //         { left: "86%", top: "37%"},
-            //         { left: "72%", top: "50%"},
-            //         { left: "55%", top: "54%"},
-            //         { left: "40%", top: "33%"},
-            //         { left: "13%", top: "55%"},
-            //         { left: "11%", top: "70%"},
-            //         { left: "30%", top: "70%"},
-            //         { left: "46%", top: "75%"},
-            //         { left: "93%", top: "87%"},
-            //     ],
-            //     pathA: [
-            //         { left: "99%", top: "-15%"},
-            //         { left: "99%", top: "0%"},
-            //         { left: "92%", top: "20%"},
-            //         { left: "2%", top: "19%"},
-            //         { left: "2%", top: "30%"},
-            //         { left: "8%", top: "34%"},
-            //         { left: "92%", top: "34%"},
-            //         { left: "96%", top: "57%"},
-            //         { left: "90%", top: "67%"},
-            //         { left: "80%", top: "70%"},
-            //         { left: "72%", top: "70%"},
-            //         { left: "65%", top: "50%"},
-            //         { left: "65%", top: "50%"},
-            //         { left: "12%", top: "52%"},
-            //         { left: "8%", top: "70%"},
-            //         { left: "12%", top: "88%"},
-            //         { left: "40%", top: "84%"},
-            //         { left: "45%", top: "72%"},
-            //         { left: "57%", top: "75%"},
-            //         { left: "66%", top: "90%"},
-            //         { left: "87%", top: "90%"},
-            //         { left: "100%", top: "80%"},
-            //     ],
-            //     pathB: [],
-            //     powersAvailable: [
-            //         {type: PowerFreeze, new: false},
-            //         {type: PowerNothing, new: false},
-            //         {type: PowerSpawnDelay, new: false}
-            //     ],
-            //     towersAvailable: [
-            //         {type: TowerFast, new: false},
-            //         {type: TowerSticky, new: false},
-            //         {type: TowerSlow, new: false},
-            //     ],
-            //     waves: [
-            //         [
-            //             {type: EnemyBig, quantity: 3, waitTime: 500}
-            //         ],
-            //     ]
-            // },
+            }
         ]
         if (getLength) return levels.length;
         return levels[this.levelIndex];
@@ -526,7 +474,7 @@ class GameState {
             .find('.new').hide();
 
         powerButton.animate({
-            backgroundPositionY: `100%`
+            backgroundPositionY: `99%`
         }, {
             easing: 'linear',
             duration: this.powerCoolDownTime,
@@ -543,9 +491,14 @@ class GameState {
             audioManager.filterMusic();
             audioManager.play('powerFreeze');
             game.css({ filter: 'invert(1)' });
-            gameState.enemies.forEach((enemy) => {
+            this.enemies.forEach((enemy) => {
                 enemy.pause();
                 frozenEnemies.push(enemy);
+            })
+            this.queuedActions.forEach((action) => {
+                if (action.group === 'path-prediction') {
+                    action.waitTime += options.waitTime;
+                }
             })
             this.queuedActions.push({
                 id: powerName,
@@ -599,8 +552,12 @@ class GameState {
         }
         $('.hp').text(": " + this.hp);
     }
-    modifyMoney(amount) {
-        this.money += amount;
+    modifyMoney(amount, useMultiplier) {
+        if (useMultiplier) {
+            this.money += amount * this.getLevelData().moneyMultiplier;
+        } else {
+            this.money += amount;
+        }
         $('.money').text(": " + this.money);
     }
     removeEnemy(id) {
@@ -774,7 +731,8 @@ class GameState {
         this.startGame({
             levelIndex: this.levelIndex+1,
             skipIntro: this.skipIntro,
-            startGame: this.startGame
+            startGame: this.startGame,
+            saveGame: this.saveGame
         });
     }
     endGame() {

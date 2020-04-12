@@ -4,7 +4,7 @@ const env = window.location.href.search('http') === -1 ?
                 'development' : 'production';
 
 const debugOptions = {
-    startLevel: 4,
+    startLevel: 2,
     skipIntro: true,
     loadAudio: true
 }
