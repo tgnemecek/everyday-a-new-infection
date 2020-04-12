@@ -654,6 +654,7 @@ button {
   color: white;
   font-size: 1em;
   z-index: 8;
+  pointer-events: none;
 }
 
 .hud .top-hud .volume {
@@ -661,6 +662,7 @@ button {
 }
 
 .hud .top-hud button {
+  pointer-events: all;
   background: none;
   color: white;
   border: none;
@@ -740,6 +742,7 @@ button {
 
 .encyclopedia {
   position: relative;
+  pointer-events: all;
 }
 
 .encyclopedia .fa-question-circle {

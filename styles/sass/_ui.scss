@@ -12,10 +12,12 @@
         color: white;
         font-size: 1em;
         z-index: 8;
+        pointer-events: none;
         .volume {
             text-align: right;
         }
         button {
+            pointer-events: all;
             background: none;
             color: white;
             border: none;
@@ -82,6 +84,7 @@
 
 .encyclopedia {
     position: relative;
+    pointer-events: all;
     .fa-question-circle {
         position: relative;
         color: white;

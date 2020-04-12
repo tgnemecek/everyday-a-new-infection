@@ -132,8 +132,8 @@ class GameState {
             { // DAY 3
                 image: "images/level3.jpg",
                 startingHP: 10,
-                startingMoney: 190,
-                moneyMultiplier: 0.5,
+                startingMoney: 250,
+                moneyMultiplier: 1,
                 zoom: 0.7,
                 canLevelUp: true,
                 nodes: [
@@ -189,6 +189,15 @@ class GameState {
                         {type: EnemyBig, quantity: 1, waitTime: 1000},
                         {type: EnemyBig, quantity: 2, waitTime: 5000},
                         {type: EnemySmall, quantity: 35, waitTime: 2000},
+                        {type: EnemyBig, quantity: 3, waitTime: 10000},
+                        {type: EnemySmall, quantity: 20, waitTime: 10000},
+                        {type: EnemySmall, quantity: 10, waitTime: 10000},
+                        {type: EnemyBig, quantity: 3, waitTime: 5000},
+                        {type: EnemyBig, quantity: 3, waitTime: 5000},
+                        {type: EnemySmall, quantity: 5, waitTime: 5000},
+                        {type: EnemySmall, quantity: 5, waitTime: 3000},
+                        {type: EnemySmall, quantity: 10, waitTime: 5000},
+                        {type: EnemySmall, quantity: 10, waitTime: 5000},
                     ]
                 ]
             },
@@ -239,16 +248,38 @@ class GameState {
                 ],
                 waves: [
                     [
-                        {type: EnemySmall, quantity: 5, waitTime: 10, path: 'a'},
-                        {type: EnemyBig, quantity: 1, waitTime: 500, path: 'b'},
-                        {type: EnemyBig, quantity: 1, waitTime: 10, path: 'b'},
+                        {type: EnemySmall, quantity: 5, waitTime: 1, path: 'a'},
+                        {type: EnemyBig, quantity: 1, waitTime: 5000, path: 'b'},
+                        {type: EnemySmall, quantity: 5, waitTime: 5000, path: 'a'},
+                        {type: EnemyBig, quantity: 2, waitTime: 10000, path: 'b'},
                     ],
+                    [
+                        {type: EnemyBig, quantity: 3, waitTime: 1, path: 'b'},
+                        {type: EnemySmall, quantity: 6, waitTime: 3000, path: 'a'},
+                        {type: EnemyBig, quantity: 3, waitTime: 1, path: 'b'},
+                        {type: EnemySmall, quantity: 12, waitTime: 1, path: 'a'},
+                        {type: EnemyBig, quantity: 2, waitTime: 500, path: 'a'},
+                        {type: EnemySmall, quantity: 24, waitTime: 2000, path: 'a'},
+                    ],
+                    [
+                        {type: EnemyBig, quantity: 2, waitTime: 3000, path: 'b'},
+                        {type: EnemyBig, quantity: 2, waitTime: 1, path: 'b'},
+                        {type: EnemySmall, quantity: 6, waitTime: 3000, path: 'a'},
+                        {type: EnemySmall, quantity: 6, waitTime: 1, path: 'a'},
+                        {type: EnemyBig, quantity: 3, waitTime: 6000, path: 'b'},
+                        {type: EnemyBig, quantity: 3, waitTime: 1, path: 'b'},
+                        {type: EnemySmall, quantity: 6, waitTime: 1, path: 'a'},
+                        {type: EnemySmall, quantity: 6, waitTime: 10000, path: 'a'},
+                        {type: EnemyBig, quantity: 3, waitTime: 3000, path: 'b'},
+                        {type: EnemyBig, quantity: 3, waitTime: 3000, path: 'b'},
+                        {type: EnemySmall, quantity: 16, waitTime: 2000, path: 'a'},
+                    ]
                 ]
             },
             { // DAY 5
                 image: "images/level5.jpg",
                 startingHP: 10,
-                startingMoney: 210,
+                startingMoney: 450,
                 moneyMultiplier: 1,
                 zoom: 0.5,
                 canLevelUp: true,
@@ -317,11 +348,11 @@ class GameState {
                 ],
                 waves: [
                     [
-                        {type: EnemySmall, quantity: 1, waitTime: 5000, path: 'a'},
-                        {type: EnemyBig, quantity: 0, waitTime: 1, path: 'b'},
-                        // {type: EnemyBig, quantity: 2, waitTime: 30000, path: 'b'},
-                        // {type: EnemyDivide, quantity: 1, waitTime: 15000, path: 'a'},
-                        // {type: EnemySmall, quantity: 10, waitTime: 5000, path: 'b'},
+                        {type: EnemyDivide, quantity: 1, waitTime: 3000, path: 'a'},
+                        // {type: EnemySmall, quantity: 3, waitTime: 5000, path: 'b'},
+                        // {type: EnemySmall, quantity: 3, waitTime: 5000, path: 'b'},
+                        // {type: EnemySmall, quantity: 10, waitTime: 1, path: 'b'},
+                        // {type: EnemyDivide, quantity: 1, waitTime: 3000, path: 'a'},
                     ],
                 ]
             }
@@ -658,7 +689,7 @@ class GameState {
                 let options = [
                     "GOOD JOB!<br>BUT IT'S NOT OVER YET!",
                     "NICE! KEEP IT UP!",
-                    "WAY TO GO! BUT DON'T STOP NOW!"
+                    "WAY TO GO!<br>BUT DON'T STOP NOW!"
                 ]
                 let random = Math.round(Math.random() * (options.length-1));
                 return `<h2>${options[random]}</h2>`;
@@ -739,7 +770,8 @@ class GameState {
             levelIndex: this.levelIndex+1,
             skipIntro: this.skipIntro,
             startGame: this.startGame,
-            saveGame: this.saveGame
+            saveGame: this.saveGame,
+            startMainMenu: this.startMainMenu
         });
     }
     endGame() {

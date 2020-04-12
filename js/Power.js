@@ -10,6 +10,9 @@ class Power {
         this.titleJquery = new $(`<strong class="title"></strong>`);
         this.title = '';
         this.options = {};
+        this.isHovering = false;
+        this.isMobile = false;
+        this.mobileFirstClick = false;
         // this.setup();
     }
 
@@ -27,8 +30,27 @@ class Power {
             this.jquery.append(`<label class="new">new!</label>`)
         }
 
+        this.button.on('mouseenter', () => {
+            setTimeout(() => {
+                this.isHovering = true;
+            }, 10)
+        })
+
+        this.button.on('mouseleave', () => {
+            this.isHovering = false;
+            this.mobileFirstClick = false;
+        })
+
         this.button.on('click', () => {
-            this.usePower(this.constructor.name, this.options);
+            if (!this.isHovering) this.isMobile = true;
+
+            if (this.isMobile) {
+                if (this.mobileFirstClick) {
+                    this.usePower(this.constructor.name, this.options);
+                } else this.mobileFirstClick = true;
+            } else {
+                this.usePower(this.constructor.name, this.options);
+            }
         })
 
         this.titleJquery.text(this.title);

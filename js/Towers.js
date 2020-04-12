@@ -280,26 +280,7 @@ class Tower {
         this.spriteAnimation = undefined;
 
         this.level = 0;
-        this.levelInfo = [
-            // Level 1
-            {},
-            // Level 2
-            {
-                cost: 200,
-                changes: [
-                    {label: 'Range', key: 'range', value: 0.25},
-                    {label: 'Attack Speed', key: 'attackSpeed', value: 0.25},
-                ]
-            },
-            // Level 3
-            {
-                cost: 500,
-                changes: [
-                    {label: 'Range', key: 'range', value: 0.25},
-                    {label: 'Damage', key: 'attackSpeed', value: 0.25},
-                ]
-            },
-        ];
+        this.levelInfo = []
 
         // this.paused = false;
         // this.setup();
@@ -520,6 +501,28 @@ class TowerFast extends Tower {
             this.jquery,
             1
         )
+        this.levelInfo = [
+            // Level 1
+            {},
+            // Level 2
+            {
+                cost: 300,
+                changes: [
+                    {label: 'Range', key: 'range', value: 0.25},
+                    {label: 'Attack Speed', key: 'attackSpeed', value: 0.25},
+                    {label: 'Damage', key: 'attackSpeed', value: 0.50},
+                ]
+            },
+            // Level 3
+            {
+                cost: 600,
+                changes: [
+                    {label: 'Range', key: 'range', value: 0.75},
+                    {label: 'Attack Speed', key: 'attackSpeed', value: 0.25},
+                    {label: 'Damage', key: 'attackSpeed', value: 0.50},
+                ]
+            },
+        ];
     }
     static name() { return  "B Cell (White Blood)" }
     static id() { return  "fast-tower" }
@@ -536,13 +539,37 @@ class TowerSlow extends Tower {
         this.attackSpeed = 0.4;
         this.projectileSpeed = 0.07;
         this.projectileSize = 0.1;
-        this.damage = 50;
+        this.damage = 40;
         this.areaOfEffect = 120;
         this.audioName = 'towerSlow';
         tools.addRotationLoop(
             this.jquery,
             3
         )
+        this.levelInfo = [
+            // Level 1
+            {},
+            // Level 2
+            {
+                cost: 400,
+                changes: [
+                    {label: 'Attack Speed', key: 'attackSpeed', value: 0.15},
+                    {label: 'Range', key: 'range', value: 0.25},
+                    {label: 'Area of Effect', key: 'areaOfEffect', value: 0.25},
+                    {label: 'Damage', key: 'attackSpeed', value: 0.5},
+                ]
+            },
+            // Level 3
+            {
+                cost: 1000,
+                changes: [
+                    {label: 'Range', key: 'range', value: 0.25},
+                    {label: 'Damage', key: 'attackSpeed', value: 0.25},
+                    {label: 'Attack Speed', key: 'attackSpeed', value: 0.50},
+                    {label: 'Area of Effect', key: 'areaOfEffect', value: 0.50},
+                ]
+            },
+        ];
     }
     static name() { return  "T Cell (White Blood)" }
     static id() { return  "slow-tower" }

@@ -38,7 +38,6 @@ class Enemy {
         this.deathImages = [];
         this.waitToRemove = 10000;
         this.fadeOutTime = 2000;
-        // this.setup();
     }
 
     static image() { return "" }
@@ -97,7 +96,9 @@ class Enemy {
 
         this.sprite.css({
             backgroundImage: `url(${chosenImage})`,
-            position: "relative"
+            position: "relative",
+            zIndex: 0,
+            filter: this.regularSpeedFilter
         })
         tools.addSpriteAnimation(
             this.sprite,
@@ -365,7 +366,7 @@ class Enemy {
         x -= this.jquery.width()/2;
         y -= this.jquery.height()/2;
 
-        let currPos = this.getCenterPosition();
+        let currPos = this.jquery.position();
         let currX = currPos.left;
         let currY = currPos.top;
         let distance = tools.distanceTo(x, y, currX, currY);
@@ -480,6 +481,7 @@ class EnemyBig extends Enemy {
         this.rotationSpeed = 0.4;
         this.maxHp = 400;
         this.moveSpeed = 25;
+        this.money = 50;
         this.deathImages = ["images/cold-influenza-death1.png", "images/cold-influenza-death2.png", "images/cold-influenza-death3.png"];
     }
     static name() { return "Flu" }
@@ -489,19 +491,15 @@ class EnemyBig extends Enemy {
 }
 
 class EnemyDivide extends Enemy {
-    constructor(path, isClone) {
+    constructor(path) {
         super(path);
-        this.isClone = isClone;
-        this.height = 0.15;
-        this.width = 0.15;
+        this.height = 0.17;
+        this.width = 0.17;
         this.maxHp = 120;
-        // this.moveSpeed = 25;
+        this.moveSpeed = 25;
         this.deathImages = ["images/covid-death.png"];
         this.waitToRemove = 1000;
         this.fadeOutTime = 1;
-        this.divideTime = 5000;
-        this.divideMin = 20;
-        this.divideRange = 10;
     }
     static name() { return "COVID-19" }
     static description() { return "We've never seen this before. Good luck, I guess..." }
@@ -517,7 +515,7 @@ class EnemyDivide extends Enemy {
             return;
         }
 
-        let maxDivisions = 32;
+        let maxDivisions = 20;
 
         let count = gameState.enemies.reduce((acc, cur) => {
             if (cur instanceof EnemyDivide && cur.isAlive) {
@@ -550,13 +548,13 @@ class EnemyDivide extends Enemy {
         if (hpLost) clone.modifyHp(-hpLost);
         clone.jquery.css({...currPos});
         clone.nextPath = this.nextPath;
-        clone.moveTo(divideX, divideY, {callback: clone.resume})
+        clone.moveTo(divideX, divideY, {callback: () => clone.resume()})
         gameState.enemies.push(clone);
     }
 
     onMount() {
-        let minTime = 1000;
-        let maxTime = 8000;
+        let minTime = 3000;
+        let maxTime = 10000;
 
         let time = (Math.random() * (maxTime - minTime)) + minTime;
 
