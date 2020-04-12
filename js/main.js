@@ -90,6 +90,8 @@ function onPageLoad() {
     }
     $(window).resize(resizeGameArea);
 
+    $('.version').text(`v${version}`);
+
     let startGameButton = $(`.main-menu .start-game`);
     startGameButton.on('click', () => {
         mainMenu.hide();

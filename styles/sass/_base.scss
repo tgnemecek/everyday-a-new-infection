@@ -66,6 +66,15 @@ button {
     display: none;
     background-image: url('../images/main-menu.jpg');
     background-size: cover;
+    .version {
+        color: grey;
+        position: absolute;
+        top: 0;
+        right: 0;
+        font-size: 0.6em;
+        font-style: italic;
+        margin: 1em;
+    }
     .brief {
         position: absolute;
         top: 48%;

@@ -372,6 +372,16 @@ button {
   background-size: cover;
 }
 
+.main-menu .version {
+  color: grey;
+  position: absolute;
+  top: 0;
+  right: 0;
+  font-size: 0.6em;
+  font-style: italic;
+  margin: 1em;
+}
+
 .main-menu .brief {
   position: absolute;
   top: 48%;
