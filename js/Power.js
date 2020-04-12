@@ -91,7 +91,7 @@ class PowerSpawnDelay extends Power {
         this.options = {
             waitTime: 10000
         }
-        this.description = `Stops the rate of new infections for ${this.options.waitTime/1000} seconds.`;
+        this.description = `Slows the rate of new infections for ${this.options.waitTime/1000} seconds.`;
         this.setup();
     }
 }

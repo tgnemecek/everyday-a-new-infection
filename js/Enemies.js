@@ -23,14 +23,12 @@ class Enemy {
 
         this.hp = 0;
         this.path = path;
-        this.percentWalked = 0;
         this.nextPath = 1;
         this.isPaused = false;
         this.randomRange = 100;
         this.lastRandomX = 1;
         this.lastRandomY = 1;
         this.isAlive = true;
-        this.animation = undefined;
         this.spriteAnimation = undefined;
         this.regularSpeedFilter = undefined;
         this.beingSlowedDown = 0;
@@ -111,8 +109,19 @@ class Enemy {
         
         gameState.checkForNextWave();
 
+        let howManyDead = gameState.enemies.reduce((acc, cur) => {
+            if (!cur.isAlive) {
+                return acc + 1;
+            } else return acc;
+        }, 0)
+
+        let wait = this.waitToRemove;
+
+        if (howManyDead > 6) wait = 1000;
+
         gameState.queuedActions.push({
-            waitTime: this.waitToRemove,
+            group: 'remove-enemy-body',
+            waitTime: wait,
             queuedAt: new Date().getTime(),
             callback: () => {
                 this.sprite.animate({opacity: 0}, {
@@ -381,12 +390,6 @@ class Enemy {
         }, {
             duration,
             easing: "linear",
-            start: (an) => {
-                this.animation = an;
-            },
-            progress: (an, prog, remaining) => {
-                this.percentWalked = prog;
-            },
             complete: () => {
                 if (typeof callback === 'function') {
                     callback();
@@ -479,7 +482,7 @@ class EnemyBig extends Enemy {
         this.height = 0.12;
         this.width = 0.12;
         this.rotationSpeed = 0.4;
-        this.maxHp = 400;
+        this.maxHp = 300;
         this.moveSpeed = 25;
         this.money = 50;
         this.deathImages = ["images/cold-influenza-death1.png", "images/cold-influenza-death2.png", "images/cold-influenza-death3.png"];
@@ -500,6 +503,8 @@ class EnemyDivide extends Enemy {
         this.deathImages = ["images/covid-death.png"];
         this.waitToRemove = 1000;
         this.fadeOutTime = 1;
+        this.divideMin = 10;
+        this.divideRange = 100;
     }
     static name() { return "COVID-19" }
     static description() { return "We've never seen this before. Good luck, I guess..." }
@@ -526,15 +531,14 @@ class EnemyDivide extends Enemy {
         if (count >= maxDivisions) return;
 
         let currPos = this.jquery.position();
-        let range = tools.randomize(0, this.divideRange);
-        if (range < 0) {
-            range -= this.divideMin;
-        } else {
-            range += this.divideMin;
-        }
-        let actualDivideRange = range * windowSize.width * windowSize.zoom / 1920;
-        let divideX = currPos.left + actualDivideRange;
-        let divideY = currPos.top + actualDivideRange;
+        let rangeX = ((Math.random() * this.divideRange) + this.divideMin) - this.divideRange/2;
+        let actualRangeX = rangeX * windowSize.width * windowSize.zoom / 1920;
+
+        let rangeY = ((Math.random() * this.divideRange) + this.divideMin) - this.divideRange/2;
+        let actualRangeY = rangeY * windowSize.width * windowSize.zoom / 1920;
+
+        let divideX = currPos.left + actualRangeX;
+        let divideY = currPos.top + actualRangeY;
 
         divideX += this.jquery.width()/2;
         divideY += this.jquery.height()/2;
@@ -560,6 +564,7 @@ class EnemyDivide extends Enemy {
 
         gameState.queuedActions.push({
             id: this.id,
+            group: 'enemy-divide',
             waitTime: time,
             queuedAt: new Date().getTime(),
             callback: () => this.divide(),

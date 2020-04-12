@@ -216,9 +216,6 @@ button {
         animation-timing-function: linear;
         animation-iteration-count: infinite;
         animation-direction: normal;
-        &:hover {
-            animation-play-state: paused;
-        }
     }
     h2 {
         font-size: 4em;

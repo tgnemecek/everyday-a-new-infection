@@ -560,11 +560,6 @@ button {
           animation-direction: normal;
 }
 
-.about .scroll:hover {
-  -webkit-animation-play-state: paused;
-          animation-play-state: paused;
-}
-
 .about h2 {
   font-size: 4em;
   margin-bottom: 1em;

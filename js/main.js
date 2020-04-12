@@ -155,6 +155,14 @@ function onPageLoad() {
         mainMenu.show();
     })
 
+    $('.about .scroll').children().on('mouseenter', () => {
+        $('.about .scroll').css('animation-play-state', 'paused');
+    })
+    $('.about .scroll').children().on('mouseleave', () => {
+        $('.about .scroll').css('animation-play-state', 'running');
+    })
+
+
     resizeGameArea();
 
     audioManager = new AudioManager();

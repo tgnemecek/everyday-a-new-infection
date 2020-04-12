@@ -113,7 +113,7 @@ class AudioManager {
                     'audio/JP3towerFastRR3.ogg',
                     'audio/JP3towerFastRR4.ogg',
                 ],
-                volume: 0.6,
+                volume: 1,
                 volumeRange: 0.2,
                 rate: 1,
                 rateRange: 0.2,

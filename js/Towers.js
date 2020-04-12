@@ -381,6 +381,7 @@ class Tower {
             })
             gameState.queuedActions.push({
                 id: this.id,
+                group: 'tower-update',
                 waitTime: 1000/this.attackSpeed,
                 queuedAt: new Date().getTime(),
                 callback: this.update.bind(this),
@@ -400,6 +401,7 @@ class Tower {
 
         gameState.queuedActions.push({
             id: 'level-up',
+            group: 'level-up-check-if-buyable',
             waitTime: 100,
             loop: true,
             callback: () => checkIfBuyable(),
@@ -486,6 +488,7 @@ class Tower {
 
         gameState.queuedActions.push({
             id: this.id,
+            group: 'power-freeze',
             waitTime: 1000/this.attackSpeed,
             queuedAt: new Date().getTime(),
             callback: this.update.bind(this),
@@ -507,7 +510,7 @@ class TowerFast extends Tower {
             {},
             // Level 2
             {
-                cost: 300,
+                cost: 320,
                 changes: [
                     {label: 'Range', key: 'range', value: 0.25},
                     {label: 'Attack Speed', key: 'attackSpeed', value: 0.25},
@@ -541,7 +544,7 @@ class TowerSlow extends Tower {
         this.projectileSpeed = 0.07;
         this.projectileSize = 0.1;
         this.damage = 40;
-        this.areaOfEffect = 120;
+        this.areaOfEffect = 100;
         this.audioName = 'towerSlow';
         tools.addRotationLoop(
             this.jquery,
@@ -554,10 +557,8 @@ class TowerSlow extends Tower {
             {
                 cost: 400,
                 changes: [
-                    {label: 'Attack Speed', key: 'attackSpeed', value: 0.15},
                     {label: 'Range', key: 'range', value: 0.25},
-                    {label: 'Area of Effect', key: 'areaOfEffect', value: 0.25},
-                    {label: 'Damage', key: 'attackSpeed', value: 0.5},
+                    {label: 'Damage', key: 'damage', value: 0.25},
                 ]
             },
             // Level 3
@@ -565,9 +566,9 @@ class TowerSlow extends Tower {
                 cost: 1000,
                 changes: [
                     {label: 'Range', key: 'range', value: 0.25},
-                    {label: 'Damage', key: 'attackSpeed', value: 0.25},
+                    {label: 'Damage', key: 'damage', value: 0.25},
                     {label: 'Attack Speed', key: 'attackSpeed', value: 0.50},
-                    {label: 'Area of Effect', key: 'areaOfEffect', value: 0.50},
+                    {label: 'Area of Effect', key: 'areaOfEffect', value: 0.25},
                 ]
             },
         ];

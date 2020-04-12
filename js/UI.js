@@ -282,6 +282,7 @@ class TowerPicker {
         });
         gameState.queuedActions.push({
             id: this.actionId,
+            group: 'tower-picker-update',
             waitTime: 1,
             loop: true,
             callback: this.update.bind(this),

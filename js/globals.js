@@ -1,4 +1,4 @@
-const version = '0.9.2';
+const version = '0.9.3';
 
 let gameState;
 
@@ -6,7 +6,7 @@ const env = window.location.href.search('http') === -1 ?
                 'development' : 'production';
 
 const debugOptions = {
-    startLevel: 3,
+    startLevel: 4,
     skipIntro: true,
     loadAudio: true
 }
