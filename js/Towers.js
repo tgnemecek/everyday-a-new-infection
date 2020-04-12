@@ -48,13 +48,13 @@ class Node {
 }
 
 class Radar {
-    constructor(node, tower, getActualRange) {
+    constructor(node, tower, getActualRange, attackSpeed) {
         this.node = node;
         this.tower = tower;
         this.visualOffset = 1.1;
         this.getActualRange = getActualRange;
         this.jquery = new $(`<div class="radar"></div>`);
-        this.animationDuration = 3000;
+        this.animationDuration = 1000/(attackSpeed/4);
         this.setup();
     }
     style() {
@@ -266,6 +266,7 @@ class Tower {
         this.jquery = new $(`<div class="tower"></div>`);
         this.node = node;
         this.id = new Date().getTime();
+        this.levelBox = undefined
 
         this.range = 0.19;
         this.attackSpeed = 2;
@@ -277,6 +278,28 @@ class Tower {
         this.audioName = '';
         this.hasSpriteAnimation = false;
         this.spriteAnimation = undefined;
+
+        this.level = 0;
+        this.levelInfo = [
+            // Level 1
+            {},
+            // Level 2
+            {
+                cost: 200,
+                changes: [
+                    {label: 'Range', key: 'range', value: 0.25},
+                    {label: 'Attack Speed', key: 'attackSpeed', value: 0.25},
+                ]
+            },
+            // Level 3
+            {
+                cost: 500,
+                changes: [
+                    {label: 'Range', key: 'range', value: 0.25},
+                    {label: 'Damage', key: 'attackSpeed', value: 0.25},
+                ]
+            },
+        ];
 
         // this.paused = false;
         // this.setup();
@@ -304,43 +327,106 @@ class Tower {
             top: this.node.position().top + offset.top,
         }
     }
-
     pause() {
         // this.paused = true;
     }
-
     resume() {
         // this.paused = false;
     }
-    setup() {
-        this.node.append(this.jquery);
-        this.jquery.css({
-            backgroundSize: `100%`,
-            backgroundImage: `url(${this.constructor.image()})`,
-            backgroundPosition: 0,
-            backgroundRepeat: "no-repeat",
-        })
-        
-        this.radar = new Radar(
-            this.node,
-            this.jquery,
-            this.getActualRange.bind(this)
-        );
 
-        if (this.hasSpriteAnimation) {
-            this.spriteAnimation = tools.addSpriteAnimation(
-                ...this.hasSpriteAnimation
-            )
+    onLevelUp() {} // To be overriden
+
+    openLevelUpBox() {
+        if (!gameState.getLevelData().canLevelUp) return;
+
+        let levelInfo = this.levelInfo[this.level+1];
+
+        if (!levelInfo) return;
+        
+        let levelContent = new $(`<div class="content">
+                <h2>Upgrade Your Structure</h2>
+                <div><label>Current Level: </label><span>${this.level+1}</span></div>
+                <div><label>Cost to Upgrade: </label><span><i class="fas fa-atom"></i> ${levelInfo.cost}</span></div>
+                <div>
+                    <label>Next Level Changes:</label>
+                    <ul>
+                        ${levelInfo.changes.map((change) => {
+                            return `<li><label>${change.label}: </label><span>+${change.value * 100}%</span></li>`
+                        }).join("")}
+                    </ul>
+                </div>
+                <div class="buttons">
+                    <button class="close-button">Close</button>
+                    <button class="level-up-button">Upgrade!</button>
+                </div>
+            </div>`)
+
+        const close = () => {
+            this.levelBox.jquery.remove();
+            this.levelBox = undefined;
+            gameState.queuedActions = gameState.queuedActions.filter((action) => {
+                return action.id !== 'level-up';
+            })
         }
 
-        this.onMount();
+        levelContent.find('.close-button').on('click', close.bind(this));
+        levelContent.find('.level-up-button').on('click', () => {
+            gameState.modifyMoney(-levelInfo.cost);
+            levelInfo.changes.forEach((change) => {
+                this[change.key] = this[change.key] * (change.value + 1);
+            })
+            this.level++;
+            let color = `rgba(255, 255, 255, ${0.2 * this.level})`;
+            // this.jquery.css({boxShadow: `0px 0px 9px 10px rgba(255,255,255,1)`});
+            this.node.css({
+                boxShadow: `0px 0px 9px 10px ${color}`,
+                border: 'none',
+                backgroundColor: color
+            });
+
+            this.radar.jquery.remove();
+            this.radar = new Radar(
+                this.node,
+                this.jquery,
+                this.getActualRange.bind(this),
+                this.attackSpeed
+            );
+
+            this.onLevelUp();
+
+            gameState.queuedActions = gameState.queuedActions.filter((action) => {
+                return action.id !== this.id;
+            })
+            gameState.queuedActions.push({
+                id: this.id,
+                waitTime: 1000/this.attackSpeed,
+                queuedAt: new Date().getTime(),
+                callback: this.update.bind(this),
+                loop: true
+            })
+            close();
+        });
+        levelContent.find('.level-up-button').prop('disabled', true);
+
+        const checkIfBuyable = () => {
+            if (gameState.money >= levelInfo.cost) {
+                levelContent.find('.level-up-button').prop('disabled', false);
+            } else {
+                levelContent.find('.level-up-button').prop('disabled', true);
+            }
+        }
 
         gameState.queuedActions.push({
-            waitTime: 1000/this.attackSpeed,
-            queuedAt: new Date().getTime(),
-            callback: this.update.bind(this),
-            loop: true
+            id: 'level-up',
+            waitTime: 100,
+            loop: true,
+            callback: () => checkIfBuyable(),
+            queuedAt: new Date().getTime()
         })
+
+
+        this.levelBox = new ModalBox(levelContent, close.bind(this), 'level-up');
+        game.append(this.levelBox.jquery)
     }
     update() {
         let enemiesInRange = [];
@@ -388,6 +474,42 @@ class Tower {
             audioManager.play(this.audioName);
         }
     }
+    setup() {
+        this.node.append(this.jquery);
+        this.jquery.css({
+            backgroundSize: `100%`,
+            backgroundImage: `url(${this.constructor.image()})`,
+            backgroundPosition: 0,
+            backgroundRepeat: "no-repeat",
+        })
+
+        this.jquery.on('click', () => {
+            this.openLevelUpBox();
+        })
+        
+        this.radar = new Radar(
+            this.node,
+            this.jquery,
+            this.getActualRange.bind(this),
+            this.attackSpeed
+        );
+
+        if (this.hasSpriteAnimation) {
+            this.spriteAnimation = tools.addSpriteAnimation(
+                ...this.hasSpriteAnimation
+            )
+        }
+
+        this.onMount();
+
+        gameState.queuedActions.push({
+            id: this.id,
+            waitTime: 1000/this.attackSpeed,
+            queuedAt: new Date().getTime(),
+            callback: this.update.bind(this),
+            loop: true
+        })
+    }
 }
 
 class TowerFast extends Tower {
@@ -434,11 +556,29 @@ class TowerSticky extends Tower {
     constructor(node) {
         super(node);
         this.range = 0.2;
-        this.attackSpeed = 100;
+        this.attackSpeed = 2;
         this.projectileSpeed = 0.1;
         this.damage = 5;
         this.enemiesChosen = [];
         this.hasSpriteAnimation = [this.jquery, 5, 0.8];
+        this.levelInfo = [
+            // Level 1
+            {},
+            // Level 2
+            {
+                cost: 100,
+                changes: [
+                    {label: 'Range', key: 'range', value: 0.25},
+                ]
+            },
+            // Level 3
+            {
+                cost: 300,
+                changes: [
+                    {label: 'Range', key: 'range', value: 0.25},
+                ]
+            },
+        ];
     }
     static name() { return  "Mucosa" }
     static id() { return  "sticky-tower" }
@@ -466,5 +606,8 @@ class TowerSticky extends Tower {
                 enemy.resume();
             }
         })
+    }
+    onLevelUp() {
+        this.onMount();
     }
 }

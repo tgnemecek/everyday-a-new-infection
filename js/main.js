@@ -100,14 +100,16 @@ function onPageLoad() {
                 levelIndex: 0,
                 skipIntro: false,
                 startGame,
-                saveGame
+                saveGame,
+                startMainMenu
             });
         } else {
             startGame({
                 levelIndex: debugOptions.startLevel,
                 skipIntro: debugOptions.skipIntro,
                 startGame,
-                saveGame
+                saveGame,
+                startMainMenu
             });
         }
     })

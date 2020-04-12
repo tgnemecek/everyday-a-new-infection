@@ -237,7 +237,7 @@ class Enemy {
     }
 
     calculateIntersections(destinationX, destinationY, duration) {
-        if (this.nextPath < 2) return;
+        // if (this.nextPath < 2) return;
 
         let towers = gameState.towers;
         let pos = this.getCenterPosition();

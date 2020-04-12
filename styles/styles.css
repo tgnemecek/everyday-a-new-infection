@@ -940,6 +940,10 @@ button {
   background-color: #ffe991;
 }
 
+.pause-menu button:disabled {
+  background-color: grey;
+}
+
 .tower-picker {
   text-align: center;
   position: relative;
@@ -1020,6 +1024,50 @@ button {
   font-weight: bold;
 }
 
+.level-up h2 {
+  text-align: center;
+  font-size: 2em;
+  margin-bottom: 0.5em;
+}
+
+.level-up label {
+  font-weight: bold;
+  line-height: 1.1em;
+}
+
+.level-up li {
+  margin-left: 1em;
+}
+
+.level-up .buttons {
+  width: 100%;
+  display: -ms-grid;
+  display: grid;
+  -ms-grid-columns: 1fr 1fr;
+      grid-template-columns: 1fr 1fr;
+  margin-top: 1em;
+}
+
+.level-up button {
+  background-color: #fffdf7;
+  border: none;
+  -webkit-box-shadow: inset 0px 0px 3px 1px #ffe991;
+          box-shadow: inset 0px 0px 3px 1px #ffe991;
+  font-size: 2em;
+  padding: 1em;
+  -webkit-transition: background-color 0.2s;
+  transition: background-color 0.2s;
+  width: 100%;
+}
+
+.level-up button:hover {
+  background-color: #ffe991;
+}
+
+.level-up button:disabled {
+  background-color: grey;
+}
+
 .game-over h2, .win-game h2 {
   font-size: 3em;
   margin-bottom: 1%;
@@ -1050,6 +1098,10 @@ button {
   background-color: #ffe991;
 }
 
+.game-over .buttons button:disabled, .win-game .buttons button:disabled {
+  background-color: grey;
+}
+
 .game-over .end-game, .win-game .end-game {
   background-color: #fffdf7;
   border: none;
@@ -1065,6 +1117,10 @@ button {
 
 .game-over .end-game:hover, .win-game .end-game:hover {
   background-color: #ffe991;
+}
+
+.game-over .end-game:disabled, .win-game .end-game:disabled {
+  background-color: grey;
 }
 
 .card {

@@ -4,9 +4,9 @@ const env = window.location.href.search('http') === -1 ?
                 'development' : 'production';
 
 const debugOptions = {
-    startLevel: 2,
+    startLevel: 1,
     skipIntro: true,
-    loadAudio: true
+    loadAudio: false
 }
 
 let audioManager;

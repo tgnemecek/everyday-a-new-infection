@@ -1,9 +1,11 @@
 class GameState {
-    constructor({levelIndex = 0, skipIntro = false, startGame, saveGame}) {
+    constructor({levelIndex = 0, skipIntro = false, startGame, saveGame, startMainMenu}) {
         this.levelIndex = levelIndex
         this.skipIntro = skipIntro
         this.startGame = startGame
         this.saveGame = saveGame
+        this.startMainMenu = startMainMenu
+
         this.inGameTime = new Date().getTime()
         this.inGameTimeId = undefined
         this.updateRate = 30 // Only affects queued actions, ignores animations
@@ -41,6 +43,7 @@ class GameState {
                 startingMoney: 180,
                 moneyMultiplier: 1,
                 zoom: 1,
+                canLevelUp: false,
                 nodes: [
                     { left: "25%", top: "32%"},
                     { left: "53%", top: "38%"},
@@ -78,6 +81,7 @@ class GameState {
                 startingMoney: 210,
                 moneyMultiplier: 1,
                 zoom: 1,
+                canLevelUp: true,
                 nodes: [
                     { left: "67%", top: "17%"},
                     { left: "19%", top: "40%"},
@@ -131,6 +135,7 @@ class GameState {
                 startingMoney: 190,
                 moneyMultiplier: 0.5,
                 zoom: 0.7,
+                canLevelUp: true,
                 nodes: [
                     { left: "11%", top: "51%"},
                     { left: "29%", top: "30%"},
@@ -193,6 +198,7 @@ class GameState {
                 startingMoney: 300,
                 moneyMultiplier: 1,
                 zoom: 0.7,
+                canLevelUp: true,
                 nodes: [
                     { left: "20%", top: "20%"},
                     { left: "30%", top: "30%"},
@@ -245,6 +251,7 @@ class GameState {
                 startingMoney: 210,
                 moneyMultiplier: 1,
                 zoom: 0.5,
+                canLevelUp: true,
                 nodes: [
                     // Outer Top
                     { left: "30%", top: "16%"},
@@ -623,7 +630,7 @@ class GameState {
     }
     exit() {
         clearInterval(this.inGameTimeId);
-        startMainMenu();
+        this.startMainMenu();
     }
     nextWave() {
         let totalWaves = this.waves.length;
@@ -649,7 +656,7 @@ class GameState {
                 return '<h2>JUST ONE MORE TO GO!</h2><p>You can do this!</p>'
             } else {
                 let options = [
-                    "GOOD JOB! BUT IT'S NOT OVER YET!",
+                    "GOOD JOB!<br>BUT IT'S NOT OVER YET!",
                     "NICE! KEEP IT UP!",
                     "WAY TO GO! BUT DON'T STOP NOW!"
                 ]
@@ -779,6 +786,23 @@ class GameState {
             let moneyText = new $(`<p class="money-text">Use Resources to build structures. Destroy invaders to collect more!</p>`);
             moneyPointer.append(moneyText);
             this.tutorial.append(moneyPointer);
+        } else if (this.levelIndex === 1) {
+            let node = this.nodes[0];
+            let pos = node.jquery.position();
+            let height = node.jquery.height();
+            let width = node.jquery.width();
+            let curPointer = pointer.clone();
+            curPointer.css({
+                left: pos.left + width/2,
+                top: pos.top + height/2
+            })
+            this.tutorial.append(curPointer)
+            let text = new $(`<p class="node-text">After you build, click on your Structure to Upgrade!</p>`);
+            text.css({
+                right: '5em',
+                top: '3em'
+            });
+            curPointer.append(text);
         } else if (this.levelIndex === 2) {
             let currPointer = pointer.clone();
             let text = new $(`<div class="text">Powers are now available! They have a long cooldown time. Choose wisely.</div>`);
@@ -800,10 +824,8 @@ class GameState {
     resizeTutorial() {
         if (!this.tutorial) return;
 
-        if (this.levelIndex === 0) {
-            this.removeTutorial();
-            this.tutorialSetup();
-        }
+        this.removeTutorial();
+        this.tutorialSetup();
     }
     setup() {
         let levelData = this.getLevelData();

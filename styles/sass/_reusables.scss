@@ -19,6 +19,9 @@ $info-box-color: #535353c9;
    &:hover {
       background-color: $primary-color-darker;
    }
+   &:disabled {
+      background-color: grey;
+   }
 }
 
 @keyframes sprite-animation {

@@ -304,6 +304,31 @@
     }
 }
 
+.level-up {
+    h2 {
+        text-align: center;
+        font-size: 2em;
+        margin-bottom: 0.5em;
+    }
+    label {
+        font-weight: bold;
+        line-height: 1.1em;
+    }
+    li {
+        margin-left: 1em;
+    }
+    .buttons {
+        width: 100%;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        margin-top: 1em;
+    }
+    button {
+        @include primaryButton();
+        width: 100%;
+    }
+}
+
 .game-over, .win-game {
     h2 {
         font-size: 3em;
