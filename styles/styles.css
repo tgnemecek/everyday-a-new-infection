@@ -351,6 +351,32 @@ button {
   font-size: 4em;
 }
 
+.rotate-device {
+  height: 100%;
+  width: 100%;
+  color: white;
+  text-align: center;
+  background-color: rgba(0, 0, 0, 0.8);
+  position: relative;
+  display: none;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -ms-flex-line-pack: center;
+      align-content: center;
+  z-index: 9;
+}
+
+.rotate-device p {
+  font-size: 3em;
+  margin: 0.5em;
+}
+
+.rotate-device i {
+  font-size: 5em;
+  margin: 0.5em;
+}
+
 .game {
   display: none;
   height: 100%;
@@ -933,8 +959,8 @@ button {
 .pause-menu {
   display: -ms-grid;
   display: grid;
-  -ms-grid-columns: 1fr 1fr;
-      grid-template-columns: 1fr 1fr;
+  -ms-grid-columns: 1fr 1fr 1fr;
+      grid-template-columns: 1fr 1fr 1fr;
   gap: 15px;
 }
 

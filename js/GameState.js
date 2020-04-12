@@ -25,6 +25,7 @@ class GameState {
         this.lastPaused = undefined
         this.totalPaused = 0
         this.isPaused = false
+        this.pauseModal = undefined
         this.powerCoolDownTime = 30000;
         this.currentWave = -1
         this.spawnDelay = 0;
@@ -251,26 +252,27 @@ class GameState {
                         {type: EnemySmall, quantity: 5, waitTime: 1, path: 'a'},
                         {type: EnemyBig, quantity: 1, waitTime: 5000, path: 'b'},
                         {type: EnemySmall, quantity: 5, waitTime: 5000, path: 'a'},
-                        {type: EnemyBig, quantity: 2, waitTime: 10000, path: 'b'},
+                        {type: EnemyBig, quantity: 1, waitTime: 10000, path: 'b'},
                     ],
                     [
                         {type: EnemyBig, quantity: 3, waitTime: 1, path: 'b'},
-                        {type: EnemySmall, quantity: 6, waitTime: 3000, path: 'a'},
-                        {type: EnemyBig, quantity: 3, waitTime: 1, path: 'b'},
-                        {type: EnemySmall, quantity: 12, waitTime: 1, path: 'a'},
-                        {type: EnemyBig, quantity: 2, waitTime: 500, path: 'a'},
-                        {type: EnemySmall, quantity: 24, waitTime: 2000, path: 'a'},
-                    ],
-                    [
-                        {type: EnemyBig, quantity: 2, waitTime: 3000, path: 'b'},
+                        {type: EnemySmall, quantity: 6, waitTime: 8000, path: 'a'},
                         {type: EnemyBig, quantity: 2, waitTime: 1, path: 'b'},
-                        {type: EnemySmall, quantity: 6, waitTime: 3000, path: 'a'},
+                        {type: EnemySmall, quantity: 10, waitTime: 1, path: 'a'},
+                        {type: EnemyBig, quantity: 2, waitTime: 8000, path: 'a'},
+                        {type: EnemySmall, quantity: 6, waitTime: 8000, path: 'a'},
+                        {type: EnemySmall, quantity: 6, waitTime: 2000, path: 'a'},
+                    ],
+                    [
+                        {type: EnemyBig, quantity: 2, waitTime: 1, path: 'b'},
+                        {type: EnemySmall, quantity: 6, waitTime: 7000, path: 'a'},
+                        {type: EnemyBig, quantity: 2, waitTime: 1, path: 'b'},
                         {type: EnemySmall, quantity: 6, waitTime: 1, path: 'a'},
                         {type: EnemyBig, quantity: 3, waitTime: 6000, path: 'b'},
                         {type: EnemyBig, quantity: 3, waitTime: 1, path: 'b'},
                         {type: EnemySmall, quantity: 6, waitTime: 1, path: 'a'},
                         {type: EnemySmall, quantity: 6, waitTime: 10000, path: 'a'},
-                        {type: EnemyBig, quantity: 3, waitTime: 3000, path: 'b'},
+                        {type: EnemyBig, quantity: 3, waitTime: 8000, path: 'b'},
                         {type: EnemyBig, quantity: 3, waitTime: 3000, path: 'b'},
                         {type: EnemySmall, quantity: 16, waitTime: 2000, path: 'a'},
                     ]
@@ -488,7 +490,7 @@ class GameState {
             }
         }, this.updateRate);
     }
-    onResize(newWidth, newHeight) {
+    onResize(newWidth, newHeight, belowResolutionLimit) {
         [
             ...this.enemies,
             ...this.nodes,
@@ -500,6 +502,9 @@ class GameState {
             }
         })
         this.resizeTutorial();
+        if (belowResolutionLimit && !this.isPaused) {
+            this.togglePause();
+        }
     }
     usePower(powerName, options) {
         if (!this.canUsePower) return false;
@@ -621,8 +626,41 @@ class GameState {
             this.nextWave();
         }
     }
+    togglePause() {
+        let pauseMenu = new $(`<div class="pause-menu"></div>`);
+        let exit = new $(`<button>Exit</button>`);
+        let restart = new $(`<button>Restart</button>`);
+        let resume = new $(`<button>Resume</button>`);
+        pauseMenu.append(exit)
+                 .append(restart)
+                 .append(resume);
+
+        restart.on('click', () => {
+            this.reset();
+        })
+
+        exit.on('click', () => {
+            this.exit();
+        })
+
+        resume.on('click', () => {
+            this.togglePause();
+        })
+
+        if (!this.isPaused) {
+            this.pauseModal = new ModalBox(pauseMenu, this.togglePause.bind(this));
+            game.append(this.pauseModal.jquery);
+            if (!audioManager.isMuted) audioManager.audioContext.suspend();
+            this.pause();
+        } else {
+            this.pauseModal.jquery.remove();
+            this.pauseModal = undefined;
+            if (!audioManager.isMuted) audioManager.audioContext.resume();
+            this.resume();
+        }
+    }
     pause() {
-        this.lastPaused = new Date(),
+        this.lastPaused = new Date();
         this.isPaused = true;
         this.enemies.forEach((enemy) => {
             enemy.pause();
@@ -653,6 +691,8 @@ class GameState {
         })
     }
     reset() {
+        audioManager.stop('preCombatMusic');
+        audioManager.stop('combatMusic');
         this.startGame({
             levelIndex: this.levelIndex,
             skipIntro: this.skipIntro,
@@ -698,7 +738,7 @@ class GameState {
         let content = new $(`<div class="content"><h2>${getContent()}</h2></div>`)
             .append(`<i class="fas fa-exclamation-triangle"></i>`)
         this.card = new Card(content, {
-            waitTime: 3000,
+            waitTime: 2000,
             callback: this.spawnWave.bind(this)
         });
 

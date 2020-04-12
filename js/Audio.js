@@ -167,9 +167,9 @@ class AudioManager {
                     'audio/JP3enemyDeathRR4.ogg',
                 ],
                 volume: 1,
-                volumeRange: 0.2,
+                volumeRange: 0.3,
                 rate: 1,
-                rateRange: 0.3,
+                rateRange: 0.4,
                 group: 'sfx',
                 loop: false,
                 buffers: [],
@@ -353,6 +353,8 @@ class AudioManager {
     }
 
     stop(soundName) {
+        if (!this.looping[soundName]) return;
+        
         let source = this.looping[soundName].source;
         let gainNode = this.looping[soundName].gainNode;
         source.stop();

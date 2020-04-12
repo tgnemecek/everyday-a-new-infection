@@ -48,6 +48,27 @@ button {
     }
 }
 
+.rotate-device {
+    height: 100%;
+    width: 100%;
+    color: white;
+    text-align: center;
+    background-color: rgba(0, 0, 0, 0.8);
+    position: relative;
+    display: none;
+    align-items: center;
+    align-content: center;
+    z-index: 9;
+    p {
+        font-size: 3em;
+        margin: 0.5em;
+    }
+    i {
+        font-size: 5em;
+        margin: 0.5em;
+    }
+}
+
 .game {
     display: none;
     height: 100%;

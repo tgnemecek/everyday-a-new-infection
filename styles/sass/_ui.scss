@@ -236,7 +236,7 @@
 
 .pause-menu {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr 1fr 1fr;
     gap: 15px;
     button {
         @include primaryButton();

@@ -28,6 +28,7 @@ function onPageLoad() {
         let newWidth = window.innerWidth;
         let newHeight = window.innerHeight;
         let newWidthToHeight = newWidth / newHeight;
+        let verticalLimit = 0.5;
         
         if (newWidthToHeight > widthToHeight) {
             newWidth = newHeight * widthToHeight;
@@ -47,8 +48,13 @@ function onPageLoad() {
             marginTop: (-newHeight / 2),
             marginLeft: (-newWidth / 2)
         })
+
+        let minFontSize = 0;
+
+        if ($('.main-menu').css('display') === 'none') {
+            minFontSize = 10;
+        }
     
-        let minFontSize = 10;
         let fontSize = (newWidth / 100) * 1.5;
         if (fontSize < minFontSize) fontSize = minFontSize;
     
@@ -57,9 +63,15 @@ function onPageLoad() {
             height: newHeight,
             fontSize: fontSize + "px"
         })
+
+        let hasPassedLimit = newWidthToHeight < verticalLimit;
+
+        if (hasPassedLimit) {
+            $('.rotate-device').css('display', 'grid');
+        } else $('.rotate-device').css('display', 'none');
     
         if (gameState) {
-            gameState.onResize(newWidth, newHeight);
+            gameState.onResize(newWidth, newHeight, hasPassedLimit);
         }
         windowSize = {
             ...windowSize,

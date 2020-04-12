@@ -32,26 +32,8 @@ class HUD {
         this.level = new $(`<div class="level">Day: ${levelIndex+1}</div>`);
         this.volume = new $(`<button class="volume"><i class="fas fa-volume-up"></i></button>`)
         this.playPause = new $(`<button class="playPause"><i class="fas fa-pause-circle"></i></button>`);
-        this.restart = new $(`<button>Restart</button>`);
-        this.exit = new $(`<button>Exit</button>`);
-        this.modal = new $(`<div class="pause-menu"></div>`);
-        this.modalBox = undefined;
-
         this.bottomHud = new $(`<div class="bottom-hud"></div>`);
         this.setup();
-    }
-    togglePause() {
-        if (!gameState.isPaused) {
-            this.modalBox = new ModalBox(this.modal, this.togglePause.bind(this));
-            game.append(this.modalBox.jquery);
-            if (!audioManager.isMuted) audioManager.audioContext.suspend();
-            gameState.pause();
-        } else {
-            this.modalBox.jquery.remove();
-            this.modalBox = undefined;
-            if (!audioManager.isMuted) audioManager.audioContext.resume();
-            gameState.resume();
-        }
     }
     setup() {
         this.jquery.append(this.topHud);
@@ -67,20 +49,9 @@ class HUD {
 
         this.playPause.append(this.pauseIcon);
 
-        this.modal.append(this.exit);
-        this.modal.append(this.restart);
-
         this.playPause.on('click', () => {
-            this.togglePause();
+            gameState.togglePause();
         });
-
-        this.restart.on('click', () => {
-            gameState.reset();
-        })
-
-        this.exit.on('click', () => {
-            gameState.exit();
-        })
 
         const volumeToggle = () => {
             if (audioManager.isMuted) {
