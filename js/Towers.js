@@ -245,6 +245,7 @@ class Projectile {
             effect: 'puff',
             complete: () => this.jquery.remove()
         });
+        audioManager.play('towerExplosion');
     }
     setup() {
         game.append(this.jquery);

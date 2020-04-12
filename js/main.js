@@ -16,8 +16,11 @@ function onPageLoad() {
     function startMainMenu() {
         game.children().remove();
         game.hide();
-    
         mainMenu.css({display: "flex"});
+        loadLevelIndex = getCookie("loadLevelIndex");
+        if (loadLevelIndex === undefined) {
+            $('.load-game').attr('disabled', true);
+        } else $('.load-game').attr('disabled', false);
     }
     function resizeGameArea() {
         let wrapper = $('.wrapper');
@@ -82,6 +85,8 @@ function onPageLoad() {
         let cookie = pair + expiry;
         document.cookie = cookie;
     }
+
+    let loadLevelIndex;
     
     windowSize = {
         width: window.innerWidth,
@@ -115,14 +120,17 @@ function onPageLoad() {
             });
         }
     })
-    let loadLevelIndex = getCookie("loadLevelIndex");
-    if (loadLevelIndex === undefined) {
-        $('.load-game').attr('disabled', true);
-    }
+    
     $('.load-game').on('click', () => {
         mainMenu.hide();
         game.show();
-        startGame({levelIndex: loadLevelIndex});
+        startGame({
+            levelIndex: Number(loadLevelIndex),
+            skipIntro: false,
+            startGame,
+            saveGame,
+            startMainMenu
+        });
     })
 
     $('.about-button').on('click', () => {

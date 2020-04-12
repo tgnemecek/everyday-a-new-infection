@@ -141,6 +141,23 @@ class AudioManager {
                 lastRR: undefined,
                 timeout: undefined,
             },
+            towerExplosion: {
+                urls: [
+                    'audio/JP3towerExplosionRR0.ogg',
+                    'audio/JP3towerExplosionRR1.ogg',
+                    'audio/JP3towerExplosionRR2.ogg',
+                ],
+                volume: 1,
+                volumeRange: 0.1,
+                rate: 1,
+                rateRange: 0.3,
+                group: 'sfx',
+                loop: false,
+                buffers: [],
+                lastPlayed: undefined,
+                lastRR: undefined,
+                timeout: undefined,
+            },
             audioEnemyDeath: {
                 urls: [
                     'audio/JP3enemyDeathRR0.ogg',
