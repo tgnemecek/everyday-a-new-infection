@@ -1,4 +1,4 @@
-const version = '0.9.3';
+const version = '1.0.0';
 
 let gameState;
 

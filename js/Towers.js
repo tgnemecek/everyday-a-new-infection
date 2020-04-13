@@ -249,8 +249,9 @@ class Projectile {
     }
     setup() {
         game.append(this.jquery);
-        this.jquery.height(this.height * windowSize.width * windowSize.zoom);
-        this.jquery.width(this.width * windowSize.width * windowSize.zoom);
+        let size = this.width * windowSize.width;
+        this.jquery.height(size);
+        this.jquery.width(size);
 
         let initPos = this.getInitPosition();
         this.jquery.css({
@@ -512,18 +513,17 @@ class TowerFast extends Tower {
             {
                 cost: 320,
                 changes: [
-                    {label: 'Range', key: 'range', value: 0.25},
+                    {label: 'Range', key: 'range', value: 0.15},
                     {label: 'Attack Speed', key: 'attackSpeed', value: 0.25},
-                    {label: 'Damage', key: 'attackSpeed', value: 0.50},
                 ]
             },
             // Level 3
             {
-                cost: 600,
+                cost: 520,
                 changes: [
-                    {label: 'Range', key: 'range', value: 0.75},
-                    {label: 'Attack Speed', key: 'attackSpeed', value: 0.25},
-                    {label: 'Damage', key: 'attackSpeed', value: 0.50},
+                    {label: 'Range', key: 'range', value: 0.15},
+                    {label: 'Attack Speed', key: 'attackSpeed', value: 0.15},
+                    {label: 'Damage', key: 'attackSpeed', value: 0.25},
                 ]
             },
         ];
@@ -542,7 +542,7 @@ class TowerSlow extends Tower {
         this.range = 0.15;
         this.attackSpeed = 0.4;
         this.projectileSpeed = 0.07;
-        this.projectileSize = 0.1;
+        this.projectileSize = 0.05;
         this.damage = 40;
         this.areaOfEffect = 100;
         this.audioName = 'towerSlow';
@@ -558,16 +558,16 @@ class TowerSlow extends Tower {
                 cost: 400,
                 changes: [
                     {label: 'Range', key: 'range', value: 0.25},
-                    {label: 'Damage', key: 'damage', value: 0.25},
+                    {label: 'Attack Speed', key: 'attackSpeed', value: 0.15},
                 ]
             },
             // Level 3
             {
-                cost: 1000,
+                cost: 700,
                 changes: [
-                    {label: 'Range', key: 'range', value: 0.25},
-                    {label: 'Damage', key: 'damage', value: 0.25},
-                    {label: 'Attack Speed', key: 'attackSpeed', value: 0.50},
+                    {label: 'Range', key: 'range', value: 0.15},
+                    {label: 'Damage', key: 'damage', value: 0.15},
+                    {label: 'Attack Speed', key: 'attackSpeed', value: 0.15},
                     {label: 'Area of Effect', key: 'areaOfEffect', value: 0.25},
                 ]
             },

@@ -241,7 +241,12 @@ class TowerPicker {
         let button = $(`.tower-picker .${TowerType.id()} button`);
         if (gameState.money >= TowerType.cost()) {
             button.css({backgroundColor: 'white'});
-        } else button.css({backgroundColor: 'grey'});
+            if ($(`.${TowerType.id()} button`).hasClass('selected')) {
+                this.confirm.prop('disabled', false);
+            }
+        } else {
+            button.css({backgroundColor: 'grey'});
+        }
     }
     update() {
         this.towers.forEach((Tower) => {

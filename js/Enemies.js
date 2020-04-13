@@ -15,7 +15,7 @@ class Enemy {
         this.width = 0.06;
         this.height = 0.06;
         this.moveSpeed = 40;
-        this.maxHp = 50;
+        this.maxHp = 70;
         this.money = 10;
         this.damage = 1;
         this.rotationSpeed = 1;
@@ -558,7 +558,7 @@ class EnemyDivide extends Enemy {
 
     onMount() {
         let minTime = 3000;
-        let maxTime = 10000;
+        let maxTime = 8000;
 
         let time = (Math.random() * (maxTime - minTime)) + minTime;
 

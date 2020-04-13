@@ -8,7 +8,7 @@ class GameState {
 
         this.inGameTime = new Date().getTime()
         this.inGameTimeId = undefined
-        this.updateRate = 60 // Only affects queued actions, ignores animations
+        this.updateRate = 100 // Only affects queued actions, ignores animations
         this.hud = undefined
         this.tutorial = undefined
         this.callWaveButton = new $(`<button class="call-wave">START!</button>`)
@@ -25,10 +25,12 @@ class GameState {
         this.lastPaused = undefined
         this.totalPaused = 0
         this.isPaused = false
+        this.isGameOver = false
+        this.isGameWon = false
         this.pauseModal = undefined
         this.powerCoolDownTime = 30000;
         this.currentWave = -1
-        this.spawnDelay = 500;
+        this.spawnDelay = 800;
         // this.pathALastSpawned = false;
         this.waves = []
         this.waveFullySpawned = false;
@@ -126,6 +128,7 @@ class GameState {
                     [
                         {type: EnemyBig, quantity: 1, waitTime: 3000},
                         {type: EnemyBig, quantity: 1, waitTime: 3000},
+                        {type: EnemySmall, quantity: 10, waitTime: 2000},
                         {type: EnemyBig, quantity: 3, waitTime: 3000},
                     ]
                 ]
@@ -287,7 +290,7 @@ class GameState {
                 image: "images/level5.jpg",
                 startingHP: 10,
                 startingMoney: 450,
-                moneyMultiplier: 1,
+                moneyMultiplier: 0.7,
                 zoom: 0.5,
                 canLevelUp: true,
                 nodes: [
@@ -362,38 +365,42 @@ class GameState {
                         {type: EnemySmall, quantity: 12, waitTime: 3000, path: 'b'},
                     ],
                     [
+                        {type: EnemySmall, quantity: 10, waitTime: 1, path: 'a'},
+                        {type: EnemySmall, quantity: 10, waitTime: 8000, path: 'b'},
                         {type: EnemyDivide, quantity: 1, waitTime: 1, path: 'a'},
                         {type: EnemyBig, quantity: 1, waitTime: 1000, path: 'b'},
                         {type: EnemyBig, quantity: 1, waitTime: 1000, path: 'b'},
                         {type: EnemyBig, quantity: 1, waitTime: 1000, path: 'b'},
                         {type: EnemyBig, quantity: 1, waitTime: 5000, path: 'b'},
+                        {type: EnemySmall, quantity: 8, waitTime: 10000, path: 'b'},
+                        {type: EnemyDivide, quantity: 1, waitTime: 10000, path: 'a'},
                         {type: EnemySmall, quantity: 10, waitTime: 3000, path: 'b'},
-                        {type: EnemyDivide, quantity: 1, waitTime: 5000, path: 'a'},
-                        {type: EnemySmall, quantity: 20, waitTime: 3000, path: 'b'},
+                        {type: EnemyBig, quantity: 2, waitTime: 3000, path: 'b'},
+                        {type: EnemyBig, quantity: 2, waitTime: 3000, path: 'b'},
                         {type: EnemyBig, quantity: 2, waitTime: 3000, path: 'b'},
                         {type: EnemyBig, quantity: 1, waitTime: 3000, path: 'b'},
-                        {type: EnemySmall, quantity: 25, waitTime: 3000, path: 'b'},
-                        {type: EnemySmall, quantity: 20, waitTime: 7000, path: 'b'},
+                        {type: EnemyBig, quantity: 2, waitTime: 3000, path: 'b'},
+                        {type: EnemySmall, quantity: 10, waitTime: 1000, path: 'b'},
                     ],
                     [
                         {type: EnemyDivide, quantity: 1, waitTime: 1, path: 'a'},
                         {type: EnemyDivide, quantity: 1, waitTime: 6000, path: 'b'},
-                        {type: EnemySmall, quantity: 30, waitTime: 7000, path: 'b'},
+                        {type: EnemySmall, quantity: 10, waitTime: 7000, path: 'b'},
                         {type: EnemyBig, quantity: 1, waitTime: 1000, path: 'b'},
-                        {type: EnemyBig, quantity: 1, waitTime: 1000, path: 'b'},
-                        {type: EnemyBig, quantity: 1, waitTime: 5000, path: 'b'},
+                        {type: EnemyBig, quantity: 3, waitTime: 1000, path: 'b'},
+                        {type: EnemyBig, quantity: 3, waitTime: 7000, path: 'b'},
                         {type: EnemySmall, quantity: 10, waitTime: 3000, path: 'b'},
                         {type: EnemySmall, quantity: 10, waitTime: 10000, path: 'b'},
                         {type: EnemyDivide, quantity: 1, waitTime: 1, path: 'a'},
                         {type: EnemySmall, quantity: 10, waitTime: 8000, path: 'b'},
-                        {type: EnemySmall, quantity: 10, waitTime: 8000, path: 'b'},
+                        {type: EnemySmall, quantity: 6, waitTime: 8000, path: 'b'},
                         {type: EnemySmall, quantity: 10, waitTime: 3000, path: 'b'},
-                        {type: EnemySmall, quantity: 10, waitTime: 3000, path: 'b'},
+                        {type: EnemySmall, quantity: 5, waitTime: 3000, path: 'b'},
                         {type: EnemyBig, quantity: 2, waitTime: 3000, path: 'b'},
                         {type: EnemyBig, quantity: 1, waitTime: 3000, path: 'b'},
                         {type: EnemyDivide, quantity: 1, waitTime: 5000, path: 'b'},
-                        {type: EnemySmall, quantity: 25, waitTime: 3000, path: 'b'},
-                        {type: EnemySmall, quantity: 100, waitTime: 7000, path: 'b'},
+                        {type: EnemySmall, quantity: 10, waitTime: 1, path: 'b'},
+                        {type: EnemyBig, quantity: 3, waitTime: 3000, path: 'b'},
                     ],
                 ]
             }
@@ -408,7 +415,7 @@ class GameState {
         let subText;
         if (this.levelIndex+1 === levelCount) {
             title = "Last Day"
-            subText = "Can you survive the ultimate battle against the Corona Queen?"
+            subText = "Can you survive the ultimate battle!?"
         } else {
             title = `Day ${this.levelIndex+1}`;
             subText = `Can you survive all ${levelCount} days of infections?`;
@@ -604,7 +611,7 @@ class GameState {
             audioManager.filterMusic();
             audioManager.play('powerSpawnDelay');
             game.css({ filter: 'grayscale(80%)' });
-            
+
             this.queuedActions.forEach((action) => {
                 if (action.group === 'spawn-enemy') {
                     action.waitTime += options.waitTime;
@@ -613,7 +620,7 @@ class GameState {
 
             this.queuedActions.push({
                 group: 'power-spawn-delay',
-                waitTime: this.spawnDelay,
+                waitTime: options.waitTime,
                 queuedAt: new Date().getTime(),
                 callback: () => {
                     audioManager.unfilterMusic();
@@ -785,6 +792,8 @@ class GameState {
 
     }
     win() {
+        if (this.isGameWon) return;
+        this.isGameWon = true;
         audioManager.playAtTempo('victoryMusic', 'combatMusic', 1)
             .then(() => {
                 this.pause();
@@ -822,6 +831,8 @@ class GameState {
     }
     gameOver() {
         this.hp = 0;
+        if (this.isGameOver) return;
+        this.isGameOver = true;
         this.pause();
         $('.modal').remove();
 
