@@ -28,7 +28,7 @@ function onPageLoad() {
         let newWidth = window.innerWidth;
         let newHeight = window.innerHeight;
         let newWidthToHeight = newWidth / newHeight;
-        let verticalLimit = 0.5;
+        let verticalLimit = 0.8;
         
         if (newWidthToHeight > widthToHeight) {
             newWidth = newHeight * widthToHeight;
